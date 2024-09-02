@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace SchoolManagementSystem
 {
     public class Program
@@ -8,6 +10,9 @@ namespace SchoolManagementSystem
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddDbContext<SchoolDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             var app = builder.Build();
 
