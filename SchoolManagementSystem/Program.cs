@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using SchoolManagementSystem.Data;
+using SchoolManagementSystem.Repositories;
 
 namespace SchoolManagementSystem
 {
@@ -11,16 +13,26 @@ namespace SchoolManagementSystem
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            // DbContext
             builder.Services.AddDbContext<SchoolDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            // Repositórios
+            builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+            builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+            builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
+            builder.Services.AddScoped<ISchoolClassRepository, SchoolClassRepository>();
+            builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
+
+            // Repositório genérico 
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SchoolManagementSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class InitDb : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -59,7 +59,7 @@ namespace SchoolManagementSystem.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Classes",
+                name: "SchoolClasses",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -71,9 +71,9 @@ namespace SchoolManagementSystem.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Classes", x => x.Id);
+                    table.PrimaryKey("PK_SchoolClasses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Classes_Courses_CourseId",
+                        name: "FK_SchoolClasses_Courses_CourseId",
                         column: x => x.CourseId,
                         principalTable: "Courses",
                         principalColumn: "Id",
@@ -111,22 +111,23 @@ namespace SchoolManagementSystem.Migrations
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     EnrollmentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    ClassId = table.Column<int>(type: "int", nullable: true)
+                    SchoolClassId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Students", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Students_Classes_ClassId",
-                        column: x => x.ClassId,
-                        principalTable: "Classes",
-                        principalColumn: "Id");
+                        name: "FK_Students_SchoolClasses_SchoolClassId",
+                        column: x => x.SchoolClassId,
+                        principalTable: "SchoolClasses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Students_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -138,7 +139,10 @@ namespace SchoolManagementSystem.Migrations
                     SubjectName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CourseId = table.Column<int>(type: "int", nullable: false),
-                    TeacherId = table.Column<int>(type: "int", nullable: false)
+                    TeacherId = table.Column<int>(type: "int", nullable: false),
+                    SchoolClassId = table.Column<int>(type: "int", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -148,24 +152,30 @@ namespace SchoolManagementSystem.Migrations
                         column: x => x.CourseId,
                         principalTable: "Courses",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Subjects_SchoolClasses_SchoolClassId",
+                        column: x => x.SchoolClassId,
+                        principalTable: "SchoolClasses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Subjects_Teachers_TeacherId",
                         column: x => x.TeacherId,
                         principalTable: "Teachers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Classes_CourseId",
-                table: "Classes",
+                name: "IX_SchoolClasses_CourseId",
+                table: "SchoolClasses",
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Students_ClassId",
+                name: "IX_Students_SchoolClassId",
                 table: "Students",
-                column: "ClassId");
+                column: "SchoolClassId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Students_UserId",
@@ -176,6 +186,11 @@ namespace SchoolManagementSystem.Migrations
                 name: "IX_Subjects_CourseId",
                 table: "Subjects",
                 column: "CourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Subjects_SchoolClassId",
+                table: "Subjects",
+                column: "SchoolClassId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Subjects_TeacherId",
@@ -198,7 +213,7 @@ namespace SchoolManagementSystem.Migrations
                 name: "Subjects");
 
             migrationBuilder.DropTable(
-                name: "Classes");
+                name: "SchoolClasses");
 
             migrationBuilder.DropTable(
                 name: "Teachers");
