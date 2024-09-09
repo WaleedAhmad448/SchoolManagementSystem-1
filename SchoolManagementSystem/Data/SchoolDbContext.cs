@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SchoolManagementSystem.Data.Entities;
 using SchoolManagementSystem.Models;
 
-public class SchoolDbContext : DbContext
+public class SchoolDbContext : IdentityDbContext<User>
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Course> Courses { get; set; }
