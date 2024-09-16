@@ -58,12 +58,19 @@ namespace SchoolManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Usando o repositório para criar um novo curso
+                var existingCourse = await _courseRepository.GetCoursesByNameAsync(course.CourseName);
+                if (existingCourse.Any())
+                {
+                    ModelState.AddModelError(string.Empty, "This course already exists.");
+                    return View(course);
+                }
+
                 await _courseRepository.CreateAsync(course);
                 return RedirectToAction(nameof(Index));
             }
             return View(course);
         }
+
 
         // GET: Courses/Edit/5
         public async Task<IActionResult> Edit(int? id)

@@ -27,4 +27,12 @@ public class Student : IEntity
 
     // Navegação para a entidade `SchoolClass`. Representa a turma à qual o aluno pertence.
     public SchoolClass SchoolClass { get; set; }
+
+    [Display(Name = "Image")]
+    public Guid ImageId { get; set; }
+
+    public string ImageFullPath => ImageId == Guid.Empty
+        ? $"https://supershop88.azurewebsites.net/images/noimage.png"
+        //Caso tenha imagem
+        : $"https://supershopsi88.blob.core.windows.net/products/{ImageId}";
 }

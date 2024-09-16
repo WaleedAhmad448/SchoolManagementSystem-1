@@ -1,28 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SchoolManagementSystem.Data.Entities;
+using SchoolManagementSystem.Repositories;
 
 namespace SchoolManagementSystem.Controllers
 {
     public class SubjectsController : Controller
     {
-        private readonly SchoolDbContext _context;
+        private readonly ISubjectRepository _subjectRepository;
+        private readonly ICourseRepository _courseRepository;
+        private readonly ITeacherRepository _teacherRepository;
 
-        public SubjectsController(SchoolDbContext context)
+        // Injeção dos repositórios
+        public SubjectsController(ISubjectRepository subjectRepository, ICourseRepository courseRepository, ITeacherRepository teacherRepository)
         {
-            _context = context;
+            _subjectRepository = subjectRepository;
+            _courseRepository = courseRepository;
+            _teacherRepository = teacherRepository;
         }
 
         // GET: Subjects
         public async Task<IActionResult> Index()
         {
-            var schoolDbContext = _context.Subjects.Include(s => s.Course).Include(s => s.Teacher);
-            return View(await schoolDbContext.ToListAsync());
+            var subjects = await _subjectRepository.GetAll().ToListAsync();
+            return View(subjects);
         }
 
         // GET: Subjects/Details/5
@@ -33,10 +36,7 @@ namespace SchoolManagementSystem.Controllers
                 return NotFound();
             }
 
-            var subject = await _context.Subjects
-                .Include(s => s.Course)
-                .Include(s => s.Teacher)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var subject = await _subjectRepository.GetByIdAsync(id.Value);
             if (subject == null)
             {
                 return NotFound();
@@ -46,28 +46,26 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // GET: Subjects/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseName");
-            ViewData["TeacherId"] = new SelectList(_context.Teachers, "Id", "UserId");
+            ViewData["CourseId"] = new SelectList(await _courseRepository.GetAll().ToListAsync(), "Id", "CourseName");
+            ViewData["TeacherId"] = new SelectList(await _teacherRepository.GetAll().ToListAsync(), "Id", "FullName");
             return View();
         }
 
         // POST: Subjects/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,SubjectName,Description,CourseId,TeacherId")] Subject subject)
+        public async Task<IActionResult> Create([Bind("Id,SubjectName,Description,CourseId,TeacherId,StartTime,EndTime,SchoolClassId")] Subject subject)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(subject);
-                await _context.SaveChangesAsync();
+                await _subjectRepository.CreateAsync(subject);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseName", subject.CourseId);
-            ViewData["TeacherId"] = new SelectList(_context.Teachers, "Id", "UserId", subject.TeacherId);
+
+            ViewData["CourseId"] = new SelectList(await _courseRepository.GetAll().ToListAsync(), "Id", "CourseName", subject.CourseId);
+            ViewData["TeacherId"] = new SelectList(await _teacherRepository.GetAll().ToListAsync(), "Id", "FullName", subject.TeacherId);
             return View(subject);
         }
 
@@ -79,22 +77,21 @@ namespace SchoolManagementSystem.Controllers
                 return NotFound();
             }
 
-            var subject = await _context.Subjects.FindAsync(id);
+            var subject = await _subjectRepository.GetByIdAsync(id.Value);
             if (subject == null)
             {
                 return NotFound();
             }
-            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseName", subject.CourseId);
-            ViewData["TeacherId"] = new SelectList(_context.Teachers, "Id", "UserId", subject.TeacherId);
+
+            ViewData["CourseId"] = new SelectList(await _courseRepository.GetAll().ToListAsync(), "Id", "CourseName", subject.CourseId);
+            ViewData["TeacherId"] = new SelectList(await _teacherRepository.GetAll().ToListAsync(), "Id", "FullName", subject.TeacherId);
             return View(subject);
         }
 
         // POST: Subjects/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,SubjectName,Description,CourseId,TeacherId")] Subject subject)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,SubjectName,Description,CourseId,TeacherId,StartTime,EndTime,SchoolClassId")] Subject subject)
         {
             if (id != subject.Id)
             {
@@ -105,12 +102,11 @@ namespace SchoolManagementSystem.Controllers
             {
                 try
                 {
-                    _context.Update(subject);
-                    await _context.SaveChangesAsync();
+                    await _subjectRepository.UpdateAsync(subject);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SubjectExists(subject.Id))
+                    if (!await SubjectExists(subject.Id))
                     {
                         return NotFound();
                     }
@@ -121,8 +117,9 @@ namespace SchoolManagementSystem.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "CourseName", subject.CourseId);
-            ViewData["TeacherId"] = new SelectList(_context.Teachers, "Id", "UserId", subject.TeacherId);
+
+            ViewData["CourseId"] = new SelectList(await _courseRepository.GetAll().ToListAsync(), "Id", "CourseName", subject.CourseId);
+            ViewData["TeacherId"] = new SelectList(await _teacherRepository.GetAll().ToListAsync(), "Id", "FullName", subject.TeacherId);
             return View(subject);
         }
 
@@ -134,10 +131,7 @@ namespace SchoolManagementSystem.Controllers
                 return NotFound();
             }
 
-            var subject = await _context.Subjects
-                .Include(s => s.Course)
-                .Include(s => s.Teacher)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var subject = await _subjectRepository.GetByIdAsync(id.Value);
             if (subject == null)
             {
                 return NotFound();
@@ -151,19 +145,18 @@ namespace SchoolManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var subject = await _context.Subjects.FindAsync(id);
+            var subject = await _subjectRepository.GetByIdAsync(id);
             if (subject != null)
             {
-                _context.Subjects.Remove(subject);
+                await _subjectRepository.DeleteAsync(subject);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool SubjectExists(int id)
+        private async Task<bool> SubjectExists(int id)
         {
-            return _context.Subjects.Any(e => e.Id == id);
+            return await _subjectRepository.ExistAsync(id);
         }
     }
 }

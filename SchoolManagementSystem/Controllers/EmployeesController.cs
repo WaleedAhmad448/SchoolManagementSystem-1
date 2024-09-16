@@ -10,29 +10,29 @@ using SchoolManagementSystem.Models;
 
 namespace SchoolManagementSystem.Controllers
 {
-    public class TeachersController : Controller
+    public class EmployeesController : Controller
     {
-        private readonly ITeacherRepository _teacherRepository;
+        private readonly IEmployeeRepository _employeeRepository;
         private readonly IUserHelper _userHelper;
         private readonly IBlobHelper _blobHelper;
         private readonly IConverterHelper _converterHelper;
 
-        public TeachersController(ITeacherRepository teacherRepository, IUserHelper userHelper, IBlobHelper blobHelper, IConverterHelper converterHelper)
+        public EmployeesController(IEmployeeRepository employeeRepository, IUserHelper userHelper, IBlobHelper blobHelper, IConverterHelper converterHelper)
         {
-            _teacherRepository = teacherRepository;
+            _employeeRepository = employeeRepository;
             _userHelper = userHelper;
             _blobHelper = blobHelper;
             _converterHelper = converterHelper;
         }
 
-        // GET: Teachers
+        // GET: Employees
         public async Task<IActionResult> Index()
         {
-            var teachers = await _teacherRepository.GetAll().ToListAsync();
-            return View(teachers);
+            var employees = await _employeeRepository.GetAll().ToListAsync();
+            return View(employees);
         }
 
-        // GET: Teachers/Details/5
+        // GET: Employees/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -40,47 +40,47 @@ namespace SchoolManagementSystem.Controllers
                 return NotFound();
             }
 
-            var teacher = await _teacherRepository.GetByIdAsync(id.Value);
-            if (teacher == null)
+            var employee = await _employeeRepository.GetByIdAsync(id.Value);
+            if (employee == null)
             {
                 return NotFound();
             }
 
-            return View(teacher);
+            return View(employee);
         }
 
-        // GET: Teachers/Create
+        // GET: Employees/Create
         public async Task<IActionResult> Create()
         {
-            var users = await _userHelper.GetAllUsersInRoleAsync("Teacher");
+            var users = await _userHelper.GetAllUsersInRoleAsync("Employee");
             ViewData["UserId"] = new SelectList(users, "Id", "FullName");
             return View();
         }
 
-        // POST: Teachers/Create
+        // POST: Employees/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(TeacherViewModel model)
+        public async Task<IActionResult> Create(EmployeeViewModel model)
         {
             if (ModelState.IsValid)
             {
                 Guid imageId = Guid.Empty;
                 if (model.ImageFile != null)
                 {
-                    imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "teachers");
+                    imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "employees");
                 }
 
-                var teacher = _converterHelper.ToTeacher(model, imageId, true);
-                await _teacherRepository.CreateAsync(teacher);
+                var employee = _converterHelper.ToEmployee(model, imageId, true);
+                await _employeeRepository.CreateAsync(employee);
                 return RedirectToAction(nameof(Index));
             }
 
-            var users = await _userHelper.GetAllUsersInRoleAsync("Teacher");
+            var users = await _userHelper.GetAllUsersInRoleAsync("Employee");
             ViewData["UserId"] = new SelectList(users, "Id", "FullName", model.UserId);
             return View(model);
         }
 
-        // GET: Teachers/Edit/5
+        // GET: Employees/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -88,22 +88,22 @@ namespace SchoolManagementSystem.Controllers
                 return NotFound();
             }
 
-            var teacher = await _teacherRepository.GetByIdAsync(id.Value);
-            if (teacher == null)
+            var employee = await _employeeRepository.GetByIdAsync(id.Value);
+            if (employee == null)
             {
                 return NotFound();
             }
 
-            var model = _converterHelper.ToTeacherViewModel(teacher);
-            var users = await _userHelper.GetAllUsersInRoleAsync("Teacher");
+            var model = _converterHelper.ToEmployeeViewModel(employee);
+            var users = await _userHelper.GetAllUsersInRoleAsync("Employee");
             ViewData["UserId"] = new SelectList(users, "Id", "FullName", model.UserId);
             return View(model);
         }
 
-        // POST: Teachers/Edit/5
+        // POST: Employees/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, TeacherViewModel model)
+        public async Task<IActionResult> Edit(int id, EmployeeViewModel model)
         {
             if (id != model.Id)
             {
@@ -117,15 +117,15 @@ namespace SchoolManagementSystem.Controllers
                     Guid imageId = model.ImageId;
                     if (model.ImageFile != null)
                     {
-                        imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "teachers");
+                        imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "employees");
                     }
 
-                    var teacher = _converterHelper.ToTeacher(model, imageId, false);
-                    await _teacherRepository.UpdateAsync(teacher);
+                    var employee = _converterHelper.ToEmployee(model, imageId, false);
+                    await _employeeRepository.UpdateAsync(employee);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await TeacherExists(model.Id))
+                    if (!await EmployeeExists(model.Id))
                     {
                         return NotFound();
                     }
@@ -137,12 +137,12 @@ namespace SchoolManagementSystem.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var users = await _userHelper.GetAllUsersInRoleAsync("Teacher");
+            var users = await _userHelper.GetAllUsersInRoleAsync("Employee");
             ViewData["UserId"] = new SelectList(users, "Id", "FullName", model.UserId);
             return View(model);
         }
 
-        // GET: Teachers/Delete/5
+        // GET: Employees/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -150,32 +150,32 @@ namespace SchoolManagementSystem.Controllers
                 return NotFound();
             }
 
-            var teacher = await _teacherRepository.GetByIdAsync(id.Value);
-            if (teacher == null)
+            var employee = await _employeeRepository.GetByIdAsync(id.Value);
+            if (employee == null)
             {
                 return NotFound();
             }
 
-            return View(teacher);
+            return View(employee);
         }
 
-        // POST: Teachers/Delete/5
+        // POST: Employees/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var teacher = await _teacherRepository.GetByIdAsync(id);
-            if (teacher != null)
+            var employee = await _employeeRepository.GetByIdAsync(id);
+            if (employee != null)
             {
-                await _teacherRepository.DeleteAsync(teacher);
+                await _employeeRepository.DeleteAsync(employee);
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task<bool> TeacherExists(int id)
+        private async Task<bool> EmployeeExists(int id)
         {
-            return await _teacherRepository.ExistAsync(id);
+            return await _employeeRepository.ExistAsync(id);
         }
     }
 }

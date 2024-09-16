@@ -61,5 +61,8 @@ namespace SchoolManagementSystem.Helpers
 
         Task RemoveUserFromRoleAsync(User user, string roleName);
         Task<List<User>> GetAllUsersInRoleAsync(string roleName);
+
+        // Adiciona o método para notificar a secretaria sobre novos utilizadores "Pending"
+        Task NotifySecretaryPendingUserAsync(User user);
     }
 }

@@ -108,6 +108,10 @@ namespace SchoolManagementSystem.Controllers
                     // Automatically assign the role "Pending" to the new user
                     await _userHelper.AddUserToRoleAsync(user, "Pending");
 
+
+                    // Notifica os funcionários da secretaria sobre o novo utilizador "Pending"
+                    await _userHelper.NotifySecretaryPendingUserAsync(user);
+
                     // Email confirmation logic (optional)
                     string myToken = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
                     string tokenLink = Url.Action("ConfirmEmail", "Account", new { userid = user.Id, token = myToken }, protocol: HttpContext.Request.Scheme);

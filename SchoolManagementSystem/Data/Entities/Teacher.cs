@@ -28,5 +28,13 @@ namespace SchoolManagementSystem.Data.Entities
 
         // Coleção de disciplinas que o professor ensina. Representa o relacionamento de um-para-muitos com `Subject`.
         public ICollection<Subject> Subjects { get; set; } // Disciplinas ensinadas
+
+        [Display(Name = "Image")]
+        public Guid ImageId { get; set; }
+
+        public string ImageFullPath => ImageId == Guid.Empty
+            ? $"https://supershop88.azurewebsites.net/images/noimage.png"
+            //Caso tenha imagem
+            : $"https://supershopsi88.blob.core.windows.net/products/{ImageId}";
     }
 }

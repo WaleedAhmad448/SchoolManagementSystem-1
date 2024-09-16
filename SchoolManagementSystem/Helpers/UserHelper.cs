@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SchoolManagementSystem.Data.Entities;
 using SchoolManagementSystem.Models;
+using SchoolManagementSystem.Repositories;
 
 namespace SchoolManagementSystem.Helpers
 {
@@ -18,6 +19,8 @@ namespace SchoolManagementSystem.Helpers
         // Classe RoleManager que gere os papéis (roles) dos utilizadores.
         // Inclui funcionalidades para criar, eliminar e verificar papéis.
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IEmployeeRepository _employeeRepository;
+        private readonly IAlertRepository _alertRepository;
 
         // Construtor que recebe as instâncias do UserManager, SignInManager e RoleManager 
         // e as atribui às propriedades privadas correspondentes.
@@ -27,11 +30,15 @@ namespace SchoolManagementSystem.Helpers
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             //Ctrl  + . em cima do roleManager e clicar em "Create and assign field roleManager"
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            IEmployeeRepository employeeRepository,
+            IAlertRepository alertRepository)
         {
             _userManager = userManager;       // Inicializa o UserManager
             _signInManager = signInManager;   // Inicializa o SignInManager
             _roleManager = roleManager;       // Inicializa o RoleManager
+            _employeeRepository = employeeRepository;
+            _alertRepository = alertRepository;
         }
 
         // Método assíncrono para criar um novo utilizador com uma palavra-passe específica.
@@ -167,5 +174,24 @@ namespace SchoolManagementSystem.Helpers
             IList<User> usersInRole = await _userManager.GetUsersInRoleAsync(roleName);
             return usersInRole.ToList();
         }
+
+        public async Task NotifySecretaryPendingUserAsync(User user)
+        {
+            var secretaryEmployees = await _employeeRepository.GetEmployeesByDepartmentAsync("Secretary");
+
+            foreach (var secretaryEmployee in secretaryEmployees)
+            {
+                var alert = new Alert
+                {
+                    Message = $"New User 'Pending': {user.FullName}",
+                    CreatedAt = DateTime.UtcNow,
+                    IsResolved = false,
+                    EmployeeId = secretaryEmployee.Id
+                };
+
+                await _alertRepository.CreateAsync(alert);
+            }
+        }
+
     }
 }

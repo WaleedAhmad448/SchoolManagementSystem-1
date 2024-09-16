@@ -1,28 +1,35 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using SchoolManagementSystem.Data.Entities;
+using SchoolManagementSystem.Repositories;
+using SchoolManagementSystem.Helpers;
+using Microsoft.EntityFrameworkCore;
+using SchoolManagementSystem.Models;
 
 namespace SchoolManagementSystem.Controllers
 {
     public class StudentsController : Controller
     {
-        private readonly SchoolDbContext _context;
+        private readonly IStudentRepository _studentRepository;
+        private readonly IUserHelper _userHelper;
+        private readonly IBlobHelper _blobHelper;
+        private readonly IConverterHelper _converterHelper;
 
-        public StudentsController(SchoolDbContext context)
+        public StudentsController(IStudentRepository studentRepository, IUserHelper userHelper, IBlobHelper blobHelper, IConverterHelper converterHelper)
         {
-            _context = context;
+            _studentRepository = studentRepository;
+            _userHelper = userHelper;
+            _blobHelper = blobHelper;
+            _converterHelper = converterHelper;
         }
 
         // GET: Students
         public async Task<IActionResult> Index()
         {
-            var schoolDbContext = _context.Students.Include(s => s.User);
-            return View(await schoolDbContext.ToListAsync());
+            var students = await _studentRepository.GetAll().ToListAsync();
+            return View(students);
         }
 
         // GET: Students/Details/5
@@ -33,9 +40,7 @@ namespace SchoolManagementSystem.Controllers
                 return NotFound();
             }
 
-            var student = await _context.Students
-                .Include(s => s.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var student = await _studentRepository.GetByIdAsync(id.Value);
             if (student == null)
             {
                 return NotFound();
@@ -45,27 +50,34 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // GET: Students/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
+            var users = await _userHelper.GetAllUsersInRoleAsync("Student");
+            ViewData["UserId"] = new SelectList(users, "Id", "FullName");
             return View();
         }
 
         // POST: Students/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,UserId,EnrollmentDate,Status")] Student student)
+        public async Task<IActionResult> Create(StudentViewModel model)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(student);
-                await _context.SaveChangesAsync();
+                Guid imageId = Guid.Empty;
+                if (model.ImageFile != null)
+                {
+                    imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "students");
+                }
+
+                var student = _converterHelper.ToStudent(model, imageId, true);
+                await _studentRepository.CreateAsync(student);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", student.UserId);
-            return View(student);
+
+            var users = await _userHelper.GetAllUsersInRoleAsync("Student");
+            ViewData["UserId"] = new SelectList(users, "Id", "FullName", model.UserId);
+            return View(model);
         }
 
         // GET: Students/Edit/5
@@ -76,23 +88,24 @@ namespace SchoolManagementSystem.Controllers
                 return NotFound();
             }
 
-            var student = await _context.Students.FindAsync(id);
+            var student = await _studentRepository.GetByIdAsync(id.Value);
             if (student == null)
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", student.UserId);
-            return View(student);
+
+            var model = _converterHelper.ToStudentViewModel(student);
+            var users = await _userHelper.GetAllUsersInRoleAsync("Student");
+            ViewData["UserId"] = new SelectList(users, "Id", "FullName", model.UserId);
+            return View(model);
         }
 
         // POST: Students/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,EnrollmentDate,Status")] Student student)
+        public async Task<IActionResult> Edit(int id, StudentViewModel model)
         {
-            if (id != student.Id)
+            if (id != model.Id)
             {
                 return NotFound();
             }
@@ -101,12 +114,18 @@ namespace SchoolManagementSystem.Controllers
             {
                 try
                 {
-                    _context.Update(student);
-                    await _context.SaveChangesAsync();
+                    Guid imageId = model.ImageId;
+                    if (model.ImageFile != null)
+                    {
+                        imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "students");
+                    }
+
+                    var student = _converterHelper.ToStudent(model, imageId, false);
+                    await _studentRepository.UpdateAsync(student);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!StudentExists(student.Id))
+                    if (!await StudentExists(model.Id))
                     {
                         return NotFound();
                     }
@@ -117,8 +136,10 @@ namespace SchoolManagementSystem.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", student.UserId);
-            return View(student);
+
+            var users = await _userHelper.GetAllUsersInRoleAsync("Student");
+            ViewData["UserId"] = new SelectList(users, "Id", "FullName", model.UserId);
+            return View(model);
         }
 
         // GET: Students/Delete/5
@@ -129,9 +150,7 @@ namespace SchoolManagementSystem.Controllers
                 return NotFound();
             }
 
-            var student = await _context.Students
-                .Include(s => s.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var student = await _studentRepository.GetByIdAsync(id.Value);
             if (student == null)
             {
                 return NotFound();
@@ -145,19 +164,18 @@ namespace SchoolManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var student = await _context.Students.FindAsync(id);
+            var student = await _studentRepository.GetByIdAsync(id);
             if (student != null)
             {
-                _context.Students.Remove(student);
+                await _studentRepository.DeleteAsync(student);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool StudentExists(int id)
+        private async Task<bool> StudentExists(int id)
         {
-            return _context.Students.Any(e => e.Id == id);
+            return await _studentRepository.ExistAsync(id);
         }
     }
 }
