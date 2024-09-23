@@ -21,7 +21,7 @@ namespace SchoolManagementSystem.Data.Entities
         [Required]
         public DateTime PaymentDate { get; set; }
 
-        [MaxLength(20)]
+        [MaxLength(20)] 
         public string Status { get; set; }
 
         [MaxLength(50)]
