@@ -11,7 +11,7 @@ using System.Text;
 namespace SchoolManagementSystem
 {
     public class Program
-    {
+    { 
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
