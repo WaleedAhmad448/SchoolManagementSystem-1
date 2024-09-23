@@ -1,0 +1,34 @@
+﻿@model SchoolManagementSystem.Models.EmployeeViewModel
+
+@{
+    ViewData["Title"] = "Delete Employee";
+}
+
+<h2>Delete Employee</h2>
+
+<h3>Are you sure you want to delete this employee?</h3>
+
+<div>
+    <label>Name:</label>
+    <p>@Model.User.FullName</p>
+</div>
+
+<div>
+    <label>Department:</label>
+    <p>@Model.Department</p>
+</div>
+
+<div>
+    <label>Phone Number:</label>
+    <p>@Model.PhoneNumber</p>
+</div>
+
+<div>
+    <img src="@Model.ImageFullPath" alt="Employee Image" class="img-thumbnail" style="max-width: 150px;" />
+</div>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

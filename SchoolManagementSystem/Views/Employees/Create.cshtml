@@ -1,0 +1,37 @@
+﻿@model SchoolManagementSystem.Models.EmployeeViewModel
+
+@{
+    ViewData["Title"] = "Create New Employee";
+}
+
+<h2>Create New Employee</h2>
+
+<form asp-action="Create" enctype="multipart/form-data">
+    <div class="form-group">
+        <label asp-for="UserId" class="control-label">Select User</label>
+        <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Department" class="control-label"></label>
+        <input asp-for="Department" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="PhoneNumber" class="control-label"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="HireDate" class="control-label"></label>
+        <input asp-for="HireDate" class="form-control" type="date" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ImageFile" class="control-label">Upload Image</label>
+        <input asp-for="ImageFile" class="form-control-file" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

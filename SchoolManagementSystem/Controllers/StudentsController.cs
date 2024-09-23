@@ -29,8 +29,10 @@ namespace SchoolManagementSystem.Controllers
         public async Task<IActionResult> Index()
         {
             var students = await _studentRepository.GetAll().ToListAsync();
-            return View(students);
+            var studentViewModels = students.Select(s => _converterHelper.ToStudentViewModel(s)).ToList();
+            return View(studentViewModels);
         }
+
 
         // GET: Students/Details/5
         public async Task<IActionResult> Details(int? id)

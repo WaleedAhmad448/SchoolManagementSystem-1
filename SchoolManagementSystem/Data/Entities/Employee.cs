@@ -30,8 +30,8 @@ namespace SchoolManagementSystem.Data.Entities
         public Guid ImageId { get; set; }
 
         public string ImageFullPath => ImageId == Guid.Empty
-            ? $"https://supershop88.azurewebsites.net/images/noimage.png"
+            ? $"https://schoolstorageaccount.blob.core.windows.net/images/noimage.png"
             //Caso tenha imagem
-            : $"https://supershopsi88.blob.core.windows.net/products/{ImageId}";
+            : $"https://schoolstorageaccount.blob.core.windows.net/employees{ImageId}";
     }
 }

@@ -35,5 +35,11 @@ namespace SchoolManagementSystem.Repositories
             return await _context.Subjects
                 .AnyAsync(s => s.SchoolClassId == classId && s.StartTime < endTime && s.EndTime > startTime);
         }
+
+        public async Task<Subject> GetByNameAsync(string subjectName)
+        {
+            return await _context.Subjects
+                .FirstOrDefaultAsync(s => s.SubjectName == subjectName);
+        }
     }
 }

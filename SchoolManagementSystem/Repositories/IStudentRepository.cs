@@ -7,5 +7,7 @@ namespace SchoolManagementSystem.Repositories
         Task<IEnumerable<Student>> GetStudentsByClassIdAsync(int classId);
         Task<IEnumerable<Student>> GetStudentsByStatusAsync(string status);
         Task<Student> GetStudentWithCoursesAsync(int studentId);
+        Task<Student> GetByFullNameAsync(string fullName);
+
     }
 }

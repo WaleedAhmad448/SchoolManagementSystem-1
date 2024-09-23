@@ -1,53 +1,37 @@
-﻿@model IEnumerable<Student>
+﻿@model IEnumerable<SchoolManagementSystem.Models.StudentViewModel>
 
-@{
-    ViewData["Title"] = "Index";
-}
+<h2>List of Students</h2>
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EnrollmentDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SchoolClass)
-            </th>
-            <th></th>
+            <th>Profile Picture</th>
+            <th>Name</th>
+            <th>Enrollment Date</th>
+            <th>Status</th>
+            <th>Class</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EnrollmentDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SchoolClass.ClassName)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var student in Model)
+        {
+            <tr>
+                <td>
+                    <img src="@student.ImageFullPath" alt="Profile Picture" width="50" height="50" />
+                </td>
+                <td>@student.Name</td>
+                <td>@student.EnrollmentDate.ToShortDateString()</td>
+                <td>@student.Status</td>
+                <td>@student.SchoolClass.ClassName</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@student.Id" class="btn btn-info btn-sm">Details</a>
+                    <a asp-action="Edit" asp-route-id="@student.Id" class="btn btn-warning btn-sm">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@student.Id" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+<a asp-action="Create" class="btn btn-primary">Add New Student</a>

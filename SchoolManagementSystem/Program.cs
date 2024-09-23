@@ -64,8 +64,11 @@ namespace SchoolManagementSystem
                 });
 
             // Repositories
+            builder.Services.AddScoped<IAlertRepository, AlertRepository>();
             builder.Services.AddScoped<ICourseRepository, CourseRepository>();
             builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+            builder.Services.AddScoped<IGradeRepository, GradeRepository>();
+            builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
             builder.Services.AddScoped<ISchoolClassRepository, SchoolClassRepository>();
             builder.Services.AddScoped<IStudentRepository, StudentRepository>();
             builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
@@ -79,6 +82,8 @@ namespace SchoolManagementSystem
             // Inject UserHelper and MailHelper
             builder.Services.AddScoped<IUserHelper, UserHelper>();
             builder.Services.AddTransient<IMailHelper, MailHelper>();
+            builder.Services.AddScoped<IBlobHelper, BlobHelper>();
+            builder.Services.AddScoped<IConverterHelper, ConverterHelper>();
 
             var app = builder.Build();
 

@@ -12,6 +12,13 @@ namespace SchoolManagementSystem.Repositories
             _context = context;
         }
 
+        public async Task<Student> GetByFullNameAsync(string fullName)
+        {
+            return await _context.Students
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.User.FullName == fullName);
+        }
+
         public async Task<IEnumerable<Student>> GetStudentsByClassIdAsync(int classId)
         {
             return await _context.Students

@@ -1,0 +1,33 @@
+﻿@model IEnumerable<SchoolManagementSystem.Models.AttendanceViewModel>
+
+<h2>Attendance Records</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Subject</th>
+            <th>Date</th>
+            <th>Presence</th>
+            <th>Remarks</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.StudentName</td>
+                <td>@item.SubjectName</td>
+                <td>@item.Date.ToShortDateString()</td>
+                <td>@item.Presence ? "Present" : "Absent"</td>
+                <td>@item.Remarks</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
