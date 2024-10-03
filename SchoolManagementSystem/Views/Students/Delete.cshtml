@@ -1,19 +1,60 @@
-﻿@* @model SchoolManagementSystem.Models.StudentViewModel
+﻿@model SchoolManagementSystem.Models.StudentViewModel
+
+@{
+    ViewData["Title"] = "Delete Student";
+}
 
 <h2>Delete Student</h2>
 
-<h3>Are you sure you want to delete this student?</h3>
+<h3>Are you sure you want to delete this?</h3>
 
-<div>
-    <h4>@Model.Name</h4>
-    <p>Email: @Model.Email</p>
-    <p>Phone: @Model.PhoneNumber</p>
-    <p>Class: @Model.SchoolClass.ClassName</p>
+<div class="form-group">
+    <label>First Name:</label>
+    <p>@Model.FirstName</p>
 </div>
 
-<form asp-action="Delete">
+<div class="form-group">
+    <label>Last Name:</label>
+    <p>@Model.LastName</p>
+</div>
+
+<div class="form-group">
+    <label>Enrollment Date:</label>
+    <p>@Model.EnrollmentDate?.ToString("d")</p>
+</div>
+
+<div class="form-group">
+    <label>Status:</label>
+    <p>@Model.Status</p>
+</div>
+
+<div class="form-group">
+    <label>School Class:</label>
+    <p>@Model.SchoolClassId</p>
+</div>
+
+<form id="deleteForm" asp-action="Delete" method="post">
     <input type="hidden" asp-for="Id" />
-    <input type="submit" value="Delete" class="btn btn-danger" /> |
+    <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button> <!-- Alterado para type="button" -->
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
- *@
+
+@section Scripts {
+    <script>
+        document.getElementById("confirmDelete").addEventListener("click", function () {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById("deleteForm").submit(); // Submit the form
+                }
+            });
+        });
+    </script>
+}

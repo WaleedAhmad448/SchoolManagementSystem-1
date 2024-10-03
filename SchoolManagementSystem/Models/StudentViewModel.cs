@@ -1,14 +1,44 @@
-﻿using SchoolManagementSystem.Data.Entities;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using SchoolManagementSystem.Data.Entities;
 using System.ComponentModel.DataAnnotations;
 
 namespace SchoolManagementSystem.Models
 {
-    public class StudentViewModel : Student
+    public class StudentViewModel
     {
-        public string Name => $"{User?.FirstName} {User?.LastName}";
+        public int Id { get; set; }
 
-        // Este campo serve apenas para o upload de imagem, não vai para a base de dados
+        [Required(ErrorMessage = "Pending User is required")]
+        [Display(Name = "Pending User")]
+        public string UserId { get; set; }
+
+        [Required(ErrorMessage = "First Name is required")]
+        [Display(Name = "First Name")]
+        public string FirstName { get; set; }
+
+        [Required(ErrorMessage = "Last Name is required")]
+        [Display(Name = "Last Name")]
+        public string LastName { get; set; }
+
+        [Required(ErrorMessage = "School Class is required")]
+        [Display(Name = "School Class")]
+        public int? SchoolClassId { get; set; }
+
+        public Guid ImageId { get; set; }
+
         [Display(Name = "Image")]
-        public IFormFile ImageFile { get; set; }
+        public IFormFile? ImageFile { get; set; }
+
+        public DateTime? EnrollmentDate { get; set; }
+
+        public StudentStatus Status { get; set; }
+
+        public IEnumerable<User>? PendingUsers { get; set; } // Adicione esta propriedade
+
+        public string ImageFullPath => ImageId == Guid.Empty
+    ? "https://schoolstorageaccount.blob.core.windows.net/images/noimage.png"
+    : $"https://schoolstorageaccount.blob.core.windows.net/students/{ImageId}";
+
+        public SchoolClass? SchoolClass { get; set; } // Adiciona esta propriedade
     }
 }

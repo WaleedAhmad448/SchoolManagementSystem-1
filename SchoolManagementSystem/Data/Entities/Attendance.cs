@@ -4,31 +4,28 @@ namespace SchoolManagementSystem.Data.Entities
 {
     public class Attendance : IEntity
     {
-        // Implementação da interface IEntity
-        public int Id { get; set; }  // Esta será a chave primária, conforme exigido pela interface IEntity
+        public int Id { get; set; } // This will be the primary key, as required by the IEntity interface
 
-        // Identificador do aluno (chave estrangeira)
-        [Required]
+
         public int StudentId { get; set; }
 
-        // Navegação para a entidade Student
+        // Navigation to the Student entity
         public Student Student { get; set; }
 
-        // Identificador da disciplina (chave estrangeira)
-        [Required]
+
         public int SubjectId { get; set; }
 
-        // Navegação para a entidade Subject
+        // Navigation to the Subject entity
         public Subject Subject { get; set; }
 
-        // Data da aula
+        // Class date
         [Required]
         public DateTime Date { get; set; }
 
-        // Presença: Presente ou Ausente
+        // Presence: Present or Absent
         public bool Presence { get; set; }
 
-        // Comentários adicionais (opcional)
+        // Additional comments (optional)
         public string Remarks { get; set; }
     
     }

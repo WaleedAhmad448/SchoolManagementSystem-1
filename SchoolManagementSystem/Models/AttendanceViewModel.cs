@@ -7,19 +7,19 @@ namespace SchoolManagementSystem.Models
     {
         public int Id { get; set; }
 
-        [Required]
+
         public int StudentId { get; set; }
 
         [Display(Name = "Student Name")]
         public string StudentName { get; set; }
 
-        [Required]
+
         public int SubjectId { get; set; }
 
         [Display(Name = "Subject Name")]
         public string SubjectName { get; set; }
 
-        [Required]
+
         public DateTime Date { get; set; }
 
         [Display(Name = "Presence")]

@@ -171,8 +171,9 @@ namespace SchoolManagementSystem.Helpers
 
         public async Task<List<User>> GetAllUsersInRoleAsync(string roleName)
         {
-            IList<User> usersInRole = await _userManager.GetUsersInRoleAsync(roleName);
-            return usersInRole.ToList();
+            // Obter todos os utilizadores com o papel especificado
+            var usersInRole = await _userManager.GetUsersInRoleAsync(roleName);
+            return usersInRole.ToList(); // Retornar a lista de utilizadores
         }
 
         public async Task NotifySecretaryPendingUserAsync(User user)

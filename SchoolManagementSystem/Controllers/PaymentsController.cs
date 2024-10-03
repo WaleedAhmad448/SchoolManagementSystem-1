@@ -138,7 +138,8 @@ namespace SchoolManagementSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Verifica se o pagamento existe
+
+        // Checks if the payment exists
         private async Task<bool> PaymentExists(int id)
         {
             return await _paymentRepository.ExistAsync(id);

@@ -16,7 +16,7 @@ namespace SchoolManagementSystem.Repositories
             _context = context;
         }
 
-        // Implementação do método para obter funcionários por departamento
+        // Implementation of the method to obtain employees by department
         public async Task<IEnumerable<Employee>> GetEmployeesByDepartmentAsync(string department)
         {
             return await _context.Employees

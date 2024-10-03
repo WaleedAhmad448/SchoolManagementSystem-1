@@ -13,7 +13,6 @@ namespace SchoolManagementSystem.Controllers
         private readonly ICourseRepository _courseRepository;
         private readonly ITeacherRepository _teacherRepository;
 
-        // Injeção dos repositórios
         public SubjectsController(ISubjectRepository subjectRepository, ICourseRepository courseRepository, ITeacherRepository teacherRepository)
         {
             _subjectRepository = subjectRepository;

@@ -6,33 +6,54 @@ namespace SchoolManagementSystem.Helpers
 {
     public class ConverterHelper : IConverterHelper
     {
-        // Conversão de StudentViewModel para Student
-        public Student ToStudent(StudentViewModel model, Guid imageId, bool isNew)
+        // Converte o StudentViewModel em Student (entidade)
+        private readonly IUserHelper _userHelper;
+
+        public ConverterHelper(IUserHelper userHelper)
         {
+            _userHelper = userHelper;
+        }
+
+
+        // Converte o StudentViewModel em Student (entidade)
+        public async Task<Student> ToStudentAsync(StudentViewModel model, Guid imageId, bool isNew)
+        {
+            // Busca o utilizador com o role "Pending" selecionado na dropdown
+            var user = await _userHelper.GetUserByIdAsync(model.UserId);
+            if (user == null) throw new Exception("User not found");
+
             return new Student
             {
-                Id = isNew ? 0 : model.Id,
-                UserId = model.UserId,
-                SchoolClassId = model.SchoolClassId,
-                EnrollmentDate = model.EnrollmentDate,
-                Status = model.Status,
-                ImageId = imageId
+                Id = isNew ? 0 : model.Id, // Se for novo, define o Id como 0
+                UserId = user.Id, // Usa o UserId correto
+                FirstName = model.FirstName, // Utiliza o FirstName do ViewModel
+                LastName = model.LastName, // Utiliza o LastName do ViewModel
+                EnrollmentDate = model.EnrollmentDate, // Usa a data de matrícula do ViewModel
+                Status = model.Status, // Converte o status diretamente do ViewModel
+                SchoolClassId = model.SchoolClassId, // Relaciona o aluno à turma a partir do ViewModel
+                SchoolClass = model.SchoolClass,
+                ImageId = imageId // Usa o ID da imagem, que foi gerado ao fazer upload (ou o que já existia)
             };
         }
 
-        // Conversão de Student para StudentViewModel
+        // Converte o Student (entidade) para StudentViewModel
         public StudentViewModel ToStudentViewModel(Student student)
         {
             return new StudentViewModel
             {
                 Id = student.Id,
-                UserId = student.UserId,
+                UserId = student.UserId, // Mapeia corretamente o UserId do estudante
+                FirstName = student.FirstName, // Mapeia o FirstName do estudante
+                LastName = student.LastName, // Mapeia o LastName do estudante
+                EnrollmentDate = student.EnrollmentDate, // Data de matrícula
+                Status = student.Status, // Converte o status enum
                 SchoolClassId = student.SchoolClassId,
-                EnrollmentDate = student.EnrollmentDate,
-                Status = student.Status,
-                ImageId = student.ImageId
+                SchoolClass = student.SchoolClass,// Relaciona com a turma
+                ImageId = student.ImageId // Mantém o ImageId atual no ViewModel
             };
         }
+
+
 
         // Conversão de TeacherViewModel para Teacher
         public Teacher ToTeacher(TeacherViewModel model, Guid imageId, bool isNew)
@@ -89,5 +110,7 @@ namespace SchoolManagementSystem.Helpers
                 ImageId = employee.ImageId
             };
         }
+
+
     }
 }

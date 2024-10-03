@@ -1,164 +1,135 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SchoolManagementSystem.Data.Entities;
-using SchoolManagementSystem.Repositories;
 
-namespace SchoolManagementSystem.Controllers
+public class CoursesController : Controller
 {
-    public class CoursesController : Controller
+    private readonly ICourseRepository _courseRepository;
+
+    public CoursesController(ICourseRepository courseRepository)
     {
-        private readonly ICourseRepository _courseRepository;
+        _courseRepository = courseRepository;
+    }
 
-        // Injeção do repositório no construtor
-        public CoursesController(ICourseRepository courseRepository)
+    public async Task<IActionResult> Index()
+    {
+        var courses = await _courseRepository.GetAll().ToListAsync();
+        return View(courses);
+    }
+
+    public async Task<IActionResult> Details(int? id)
+    {
+        if (id == null)
         {
-            _courseRepository = courseRepository;
+            return NotFound();
         }
 
-        // GET: Courses
-        public async Task<IActionResult> Index()
+        var course = await _courseRepository.GetByIdAsync(id.Value);
+        if (course == null)
         {
-            // Usando o repositório para obter todos os cursos
-            var courses = await _courseRepository.GetAll().ToListAsync();
-            return View(courses);
+            return NotFound();
         }
 
-        // GET: Courses/Details/5
-        public async Task<IActionResult> Details(int? id)
+        return View(course);
+    }
+
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create([Bind("Id,CourseName,Description,Duration,Credits")] Course course)
+    {
+        if (ModelState.IsValid)
         {
-            if (id == null)
+            if ((await _courseRepository.GetCoursesByNameAsync(course.CourseName)).Any())
             {
-                return NotFound();
+                ModelState.AddModelError(string.Empty, "This course already exists.");
+                return View(course);
             }
 
-            // Usando o repositório para obter os detalhes de um curso específico
-            var course = await _courseRepository.GetByIdAsync(id.Value);
-            if (course == null)
-            {
-                return NotFound();
-            }
-
-            return View(course);
-        }
-
-        // GET: Courses/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Courses/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CourseName,Description,Duration,Credits")] Course course)
-        {
-            if (ModelState.IsValid)
-            {
-                var existingCourse = await _courseRepository.GetCoursesByNameAsync(course.CourseName);
-                if (existingCourse.Any())
-                {
-                    ModelState.AddModelError(string.Empty, "This course already exists.");
-                    return View(course);
-                }
-
-                await _courseRepository.CreateAsync(course);
-                return RedirectToAction(nameof(Index));
-            }
-            return View(course);
-        }
-
-
-        // GET: Courses/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            // Usando o repositório para obter um curso específico para edição
-            var course = await _courseRepository.GetByIdAsync(id.Value);
-            if (course == null)
-            {
-                return NotFound();
-            }
-            return View(course);
-        }
-
-        // POST: Courses/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CourseName,Description,Duration,Credits")] Course course)
-        {
-            if (id != course.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    // Usando o repositório para atualizar o curso
-                    await _courseRepository.UpdateAsync(course);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!await CourseExists(course.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(course);
-        }
-
-        // GET: Courses/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            // Usando o repositório para obter o curso a ser deletado
-            var course = await _courseRepository.GetByIdAsync(id.Value);
-            if (course == null)
-            {
-                return NotFound();
-            }
-
-            return View(course);
-        }
-
-        // POST: Courses/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var course = await _courseRepository.GetByIdAsync(id);
-            if (course != null)
-            {
-                // Usando o repositório para deletar o curso
-                await _courseRepository.DeleteAsync(course);
-            }
-
+            await _courseRepository.CreateAsync(course);
             return RedirectToAction(nameof(Index));
         }
+        return View(course);
+    }
 
-        private async Task<bool> CourseExists(int id)
+    public async Task<IActionResult> Edit(int? id)
+    {
+        if (id == null)
         {
-            // Usando o repositório para verificar se o curso existe
-            return await _courseRepository.ExistAsync(id);
+            return NotFound();
         }
+
+        var course = await _courseRepository.GetByIdAsync(id.Value);
+        if (course == null)
+        {
+            return NotFound();
+        }
+        return View(course);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, [Bind("Id,CourseName,Description,Duration,Credits")] Course course)
+    {
+        if (id != course.Id)
+        {
+            return NotFound();
+        }
+
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                await _courseRepository.UpdateAsync(course);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await CourseExists(course.Id))
+                {
+                    return NotFound();
+                }
+                throw;
+            }
+            return RedirectToAction(nameof(Index));
+        }
+        return View(course);
+    }
+
+    public async Task<IActionResult> Delete(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var course = await _courseRepository.GetByIdAsync(id.Value);
+        if (course == null)
+        {
+            return NotFound();
+        }
+
+        return View(course);
+    }
+
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var course = await _courseRepository.GetByIdAsync(id);
+        if (course != null)
+        {
+            await _courseRepository.DeleteAsync(course);
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    private async Task<bool> CourseExists(int id)
+    {
+        return await _courseRepository.ExistAsync(id);
     }
 }

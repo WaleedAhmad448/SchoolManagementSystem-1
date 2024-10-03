@@ -8,8 +8,7 @@ namespace SchoolManagementSystem.Data.Entities
         // Identificador único do curso. É a chave primária da tabela.
         public int Id { get; set; }
 
-        // Nome do curso. É obrigatório e tem um comprimento máximo de 100 caracteres.
-        [Required]
+
         [MaxLength(100)]
         public string CourseName { get; set; }
 

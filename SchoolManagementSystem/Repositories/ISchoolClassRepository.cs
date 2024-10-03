@@ -7,6 +7,8 @@ namespace SchoolManagementSystem.Repositories
         Task<IEnumerable<SchoolClass>> GetClassesByCourseIdAsync(int courseId);
         Task<int> GetStudentCountByClassIdAsync(int classId);
         Task<SchoolClass> GetClassWithSubjectsAsync(int classId);
+        Task<IEnumerable<SchoolClass>> GetAllAsync();
+
     }
 
 }

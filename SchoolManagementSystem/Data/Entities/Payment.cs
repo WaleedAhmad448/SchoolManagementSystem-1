@@ -8,17 +8,17 @@ namespace SchoolManagementSystem.Data.Entities
     {
         public int Id { get; set; }
 
-        [Required]
+
         public int StudentId { get; set; }
 
         public Student Student { get; set; }
 
-        [Required]
+
         [Range(0.01, 10000.00)]
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Amount { get; set; }
 
-        [Required]
+
         public DateTime PaymentDate { get; set; }
 
         [MaxLength(20)] 

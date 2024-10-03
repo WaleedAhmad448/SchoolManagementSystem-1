@@ -1,63 +1,99 @@
-﻿@* @model SchoolManagementSystem.Models.StudentViewModel
+﻿@model SchoolManagementSystem.Models.StudentViewModel
+
+@{
+    ViewData["Title"] = "Edit Student";
+}
 
 <h2>Edit Student</h2>
 
-<form asp-action="Edit" enctype="multipart/form-data">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+<form id="editStudentForm" asp-action="Edit" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="UserId" /> <!-- Adicionado para manter o UserId -->
 
     <div class="form-group">
-        <label asp-for="User.FirstName" class="control-label"></label>
-        <input asp-for="User.FirstName" class="form-control" />
-        <span asp-validation-for="User.FirstName" class="text-danger"></span>
+        <label asp-for="FirstName" class="control-label">First Name <span class="text-danger">*</span></label>
+        <input asp-for="FirstName" class="form-control" required />
+        <span asp-validation-for="FirstName" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="User.LastName" class="control-label"></label>
-        <input asp-for="User.LastName" class="form-control" />
-        <span asp-validation-for="User.LastName" class="text-danger"></span>
+        <label asp-for="LastName" class="control-label">Last Name <span class="text-danger">*</span></label>
+        <input asp-for="LastName" class="form-control" required />
+        <span asp-validation-for="LastName" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="User.Email" class="control-label"></label>
-        <input asp-for="User.Email" class="form-control" />
-        <span asp-validation-for="User.Email" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="User.PhoneNumber" class="control-label"></label>
-        <input asp-for="User.PhoneNumber" class="form-control" />
-        <span asp-validation-for="User.PhoneNumber" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="User.Address" class="control-label"></label>
-        <input asp-for="User.Address" class="form-control" />
-        <span asp-validation-for="User.Address" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="SchoolClassId" class="control-label"></label>
-        <select asp-for="SchoolClassId" class="form-control" asp-items="ViewBag.SchoolClassId"></select>
+        <label asp-for="SchoolClassId" class="control-label">School Class <span class="text-danger">*</span></label>
+        <select asp-for="SchoolClassId" class="form-control" asp-items="ViewBag.SchoolClassId" required>
+            <option value="">Selecionar Turma</option>
+        </select>
         <span asp-validation-for="SchoolClassId" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Status" class="control-label"></label>
-        <input asp-for="Status" class="form-control" />
-        <span asp-validation-for="Status" class="text-danger"></span>
+        <label asp-for="EnrollmentDate" class="control-label">Enrollment Date <span class="text-danger">*</span></label>
+        <input asp-for="EnrollmentDate" type="date" class="form-control" required />
+        <span asp-validation-for="EnrollmentDate" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="ImageFile" class="control-label">Profile Picture</label>
-        <input asp-for="ImageFile" class="form-control-file" type="file" />
+        <label asp-for="ImageFile" class="control-label">Image</label>
+        <input asp-for="ImageFile" type="file" class="form-control" />
         <span asp-validation-for="ImageFile" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <input type="submit" value="Save Changes" class="btn btn-primary" />
+        <label asp-for="Status" class="control-label">Status <span class="text-danger">*</span></label>
+        <select asp-for="Status" class="form-control" required>
+            <option value="">Selecionar Status</option> <!-- Adicionando opção padrão -->
+            @foreach (var status in Enum.GetValues(typeof(SchoolManagementSystem.Data.Entities.StudentStatus)).Cast<SchoolManagementSystem.Data.Entities.StudentStatus>())
+            {
+                <option value="@status">@status</option>
+            }
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
     </div>
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
 
-<a asp-action="Index" class="btn btn-secondary">Back to List</a>
- *@
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Usar SweetAlert2 para confirmação ao submeter o formulário
+        document.getElementById("editStudentForm").onsubmit = function (event) {
+            // Verifica se todos os campos obrigatórios estão preenchidos
+            var isValid = this.checkValidity();
+            if (!isValid) {
+                return; // Se não for válido, não faz nada
+            }
+
+            event.preventDefault(); // Previne o envio padrão do formulário
+
+            Swal.fire({
+                title: 'Success!',
+                text: "Student updated successfully.",
+                icon: 'success',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'OK'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.submit(); // Envia o formulário se o usuário confirmar
+                }
+            });
+        };
+    </script>
+}

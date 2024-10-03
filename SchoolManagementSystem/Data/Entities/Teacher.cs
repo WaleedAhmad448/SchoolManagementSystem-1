@@ -7,8 +7,7 @@ namespace SchoolManagementSystem.Data.Entities
         // Identificador único do professor. É a chave primária da tabela.
         public int Id { get; set; }
 
-        // Identificador do utilizador associado ao professor. É obrigatório e serve como chave estrangeira.
-        [Required]
+
         public string UserId { get; set; }
 
         // Navegação para a entidade `User`. Representa o utilizador associado ao professor.

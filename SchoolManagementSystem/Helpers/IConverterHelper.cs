@@ -7,8 +7,8 @@ namespace SchoolManagementSystem.Helpers
 {
     public interface IConverterHelper
     {
-        // Conversão de StudentViewModel para Student
-        Student ToStudent(StudentViewModel model, Guid imageId, bool isNew);
+        // Conversão de StudentViewModel para Student (assíncrono)
+        Task<Student> ToStudentAsync(StudentViewModel model, Guid imageId, bool isNew);
 
         // Conversão de Student para StudentViewModel
         StudentViewModel ToStudentViewModel(Student student);

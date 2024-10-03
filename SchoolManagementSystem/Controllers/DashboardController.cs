@@ -20,11 +20,11 @@ namespace SchoolManagementSystem.Controllers
             var activeAlerts = await _alertRepository.GetActiveAlertsAsync();
             ViewData["ActiveAlerts"] = activeAlerts;
 
-            // Dados de exemplo para gráficos
+            // Example data for graphs
             ViewData["StudentStatistics"] = new[] {
-                new { Category = "Alunos Ativos", Value = 350 },
-                new { Category = "Alunos Inativos", Value = 50 },
-                new { Category = "Alunos Pendentes", Value = 20 }
+                new { Category = "Active Students", Value = 350 },
+                new { Category = "Inactive Students", Value = 50 },
+                new { Category = "Pending Students", Value = 20 }
             };
 
             return View();

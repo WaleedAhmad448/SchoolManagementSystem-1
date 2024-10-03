@@ -7,8 +7,6 @@ namespace SchoolManagementSystem.Data.Entities
         // Implementação da interface IEntity
         public int Id { get; set; }
 
-        // Relacionamento com a entidade User
-        [Required]
         public string UserId { get; set; }
 
         // Navegação para a entidade User (associada ao funcionário)
@@ -18,8 +16,6 @@ namespace SchoolManagementSystem.Data.Entities
         [MaxLength(50)]
         public string Department { get; set; }
 
-        // Data de contratação do funcionário
-        [Required]
         public DateTime HireDate { get; set; }
 
         // Telefone do funcionário

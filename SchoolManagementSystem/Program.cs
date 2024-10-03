@@ -7,14 +7,23 @@ using SchoolManagementSystem.Data.Entities;
 using SchoolManagementSystem.Helpers;
 using SchoolManagementSystem.Repositories;
 using System.Text;
+using Syncfusion.Licensing;
+
+
 
 namespace SchoolManagementSystem
 {
     public class Program
-    { 
+    {
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Configurar o logging para escrever logs em ficheiros
+            builder.Logging.ClearProviders(); // Opcional: limpar provedores anteriores (como console)
+            builder.Logging.AddConsole(); // Continuar a logar no console
+            builder.Logging.AddFile("Logs/schoolmanagementsystem-{Date}.txt"); // Gravar logs em ficheiros
+            builder.Logging.AddFile("Logs/students-log-{Date}.txt"); // Define o nome do log para estudantes
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
@@ -26,21 +35,16 @@ namespace SchoolManagementSystem
             // Identity Configuration
             builder.Services.AddIdentity<User, IdentityRole>(cfg =>
             {
-                // Configure token provider for authentication
                 cfg.Tokens.AuthenticatorTokenProvider = TokenOptions.DefaultAuthenticatorProvider;
-
-                // Require email confirmation for login
                 cfg.SignIn.RequireConfirmedEmail = true;
-
-                // Ensure unique email for each user
                 cfg.User.RequireUniqueEmail = true;
 
                 // Password settings
-                cfg.Password.RequireDigit = false;
-                cfg.Password.RequiredUniqueChars = 0;
-                cfg.Password.RequireUppercase = false;
-                cfg.Password.RequireLowercase = false;
-                cfg.Password.RequireNonAlphanumeric = false;
+                cfg.Password.RequireDigit = false; // Exemplo de segurança
+                cfg.Password.RequiredUniqueChars = 0; // Exemplo de segurança
+                cfg.Password.RequireUppercase = false; // Exemplo de segurança
+                cfg.Password.RequireLowercase = false; // Exemplo de segurança
+                cfg.Password.RequireNonAlphanumeric = false; // Exemplo de segurança
                 cfg.Password.RequiredLength = 6;
             })
             .AddDefaultTokenProviders()
@@ -48,12 +52,9 @@ namespace SchoolManagementSystem
 
             // Authentication services
             builder.Services.AddAuthentication()
-                // Enable cookie-based authentication
                 .AddCookie()
-                // Enable JWT authentication
                 .AddJwtBearer(cfg =>
                 {
-                    // Configure JWT token validation parameters
                     cfg.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidIssuer = builder.Configuration["Tokens:Issuer"],
@@ -74,8 +75,6 @@ namespace SchoolManagementSystem
             builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
             builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
 
-
-
             // Generic repository
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
@@ -85,15 +84,22 @@ namespace SchoolManagementSystem
             builder.Services.AddScoped<IBlobHelper, BlobHelper>();
             builder.Services.AddScoped<IConverterHelper, ConverterHelper>();
 
-            var app = builder.Build();
+            // Register SeedDb to seed the database with initial data
+            builder.Services.AddTransient<SeedDb>();
 
-            // Create roles on startup
+            var app = builder.Build();
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NDaF5cWWtCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWH9ec3RTRWhfWUx3XUY=");
+
+            //SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NDaF5cWWtCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWH9ec3RTRWhfWUx3XUY=");
+
+            // Seed the database with initial data
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
-                var userHelper = services.GetRequiredService<IUserHelper>();
+                var seedDb = services.GetRequiredService<SeedDb>();
+                await seedDb.SeedAsync();
 
-                // Ensure the roles are created at startup
+                var userHelper = services.GetRequiredService<IUserHelper>();
                 await userHelper.CheckRoleAsync("Admin");
                 await userHelper.CheckRoleAsync("Employee");
                 await userHelper.CheckRoleAsync("Student");

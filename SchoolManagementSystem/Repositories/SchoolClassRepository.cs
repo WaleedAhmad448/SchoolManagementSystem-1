@@ -31,6 +31,11 @@ namespace SchoolManagementSystem.Repositories
                 .Include(c => c.Subjects)
                 .FirstOrDefaultAsync(c => c.Id == classId);
         }
+
+        public async Task<IEnumerable<SchoolClass>> GetAllAsync()
+        {
+            return await _context.SchoolClasses.ToListAsync();
+        }
     }
 
 }

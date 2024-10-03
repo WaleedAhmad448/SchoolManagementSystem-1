@@ -8,6 +8,6 @@ namespace SchoolManagementSystem.Repositories
         Task<IEnumerable<Student>> GetStudentsByStatusAsync(string status);
         Task<Student> GetStudentWithCoursesAsync(int studentId);
         Task<Student> GetByFullNameAsync(string fullName);
-
+        Task<IEnumerable<Student>> GetAllWithIncludesAsync(); // Adicionado
     }
 }

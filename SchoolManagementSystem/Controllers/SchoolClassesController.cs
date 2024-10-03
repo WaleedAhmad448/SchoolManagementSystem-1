@@ -25,7 +25,7 @@ namespace SchoolManagementSystem.Controllers
         // GET: SchoolClasses
         public async Task<IActionResult> Index()
         {
-            // Usando o repositório para obter as turmas com seus respectivos cursos
+            // Using the repository to obtain classes with their respective courses
             var classes = await _classRepository.GetAll()
                 .Include(c => c.Course)
                 .ToListAsync();
@@ -54,7 +54,7 @@ namespace SchoolManagementSystem.Controllers
         // GET: SchoolClasses/Create
         public IActionResult Create()
         {
-            // Usando o repositório de cursos para popular o dropdown
+            // Using the course repository to populate the dropdown
             ViewData["CourseId"] = new SelectList(_courseRepository.GetAll(), "Id", "CourseName");
             return View();
         }
