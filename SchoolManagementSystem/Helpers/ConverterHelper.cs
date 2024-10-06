@@ -54,18 +54,35 @@ namespace SchoolManagementSystem.Helpers
         }
 
 
-
         // Conversão de TeacherViewModel para Teacher
-        public Teacher ToTeacher(TeacherViewModel model, Guid imageId, bool isNew)
+        public async Task<Teacher> ToTeacherAsync(TeacherViewModel model, Guid imageId, bool isNew)
         {
+            // Busca o utilizador relacionado ao Teacher
+            var user = await _userHelper.GetUserByIdAsync(model.UserId);
+            if (user == null) throw new Exception("User not found");
+
             return new Teacher
             {
                 Id = isNew ? 0 : model.Id,
-                UserId = model.UserId,
+                UserId = user.Id, // Usa o UserId correto
+                FirstName = model.FirstName,
+                LastName = model.LastName,
                 AcademicDegree = model.AcademicDegree,
-                Department = model.Department,
                 HireDate = model.HireDate,
-                ImageId = imageId
+                Status = model.Status,
+                ImageId = imageId,
+
+                // Criando as associações para TeacherSchoolClass e TeacherSubject
+                TeacherSchoolClasses = model.SchoolClassIds.Select(id => new TeacherSchoolClass
+                {
+                    SchoolClassId = id // Aqui, deve usar a chave da tabela de junção se tiver
+                }).ToList(),
+
+                TeacherSubjects = model.SubjectIds.Select(subjectId => new TeacherSubject
+                {
+                    TeacherId = isNew ? 0 : model.Id, // O ID do Teacher deve ser definido
+                    SubjectId = subjectId
+                }).ToList()
             };
         }
 
@@ -76,12 +93,25 @@ namespace SchoolManagementSystem.Helpers
             {
                 Id = teacher.Id,
                 UserId = teacher.UserId,
+                FirstName = teacher.FirstName,
+                LastName = teacher.LastName,
                 AcademicDegree = teacher.AcademicDegree,
-                Department = teacher.Department,
                 HireDate = teacher.HireDate,
-                ImageId = teacher.ImageId
+                ImageId = teacher.ImageId,
+                Status = teacher.Status,
+
+                // Coletando os IDs das turmas e disciplinas
+                SchoolClassIds = teacher.TeacherSchoolClasses.Select(tsc => tsc.SchoolClassId).ToList(),
+                SubjectIds = teacher.TeacherSubjects.Select(ts => ts.SubjectId).ToList(),
+
+                // Coletando as instâncias completas para exibição
+                SchoolClasses = teacher.TeacherSchoolClasses.Select(tsc => tsc.SchoolClass).ToList(),
+                Subjects = teacher.TeacherSubjects.Select(ts => ts.Subject).ToList()
             };
         }
+
+
+
 
         // Conversão de EmployeeViewModel para Employee
         public Employee ToEmployee(EmployeeViewModel model, Guid imageId, bool isNew)

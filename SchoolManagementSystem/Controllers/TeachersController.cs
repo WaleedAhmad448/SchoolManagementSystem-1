@@ -1,60 +1,86 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using SchoolManagementSystem.Data.Entities;
+using SchoolManagementSystem.Models;
 using SchoolManagementSystem.Repositories;
 using SchoolManagementSystem.Helpers;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using SchoolManagementSystem.Models;
+using Microsoft.Extensions.Logging;
 
 namespace SchoolManagementSystem.Controllers
 {
     public class TeachersController : Controller
     {
         private readonly ITeacherRepository _teacherRepository;
-        private readonly IUserHelper _userHelper;
+        private readonly ISubjectRepository _subjectRepository;
+        private readonly ISchoolClassRepository _schoolClassRepository;
         private readonly IBlobHelper _blobHelper;
         private readonly IConverterHelper _converterHelper;
+        private readonly IUserHelper _userHelper; // Adicionado para obter usuários pendentes
+        private readonly ILogger<TeachersController> _logger;
 
-        public TeachersController(ITeacherRepository teacherRepository, IUserHelper userHelper, IBlobHelper blobHelper, IConverterHelper converterHelper)
+        public TeachersController(
+            ITeacherRepository teacherRepository,
+            ISubjectRepository subjectRepository,
+            ISchoolClassRepository schoolClassRepository,
+            IBlobHelper blobHelper,
+            IConverterHelper converterHelper,
+            IUserHelper userHelper, // Adicionado
+            ILogger<TeachersController> logger)
         {
             _teacherRepository = teacherRepository;
-            _userHelper = userHelper;
+            _subjectRepository = subjectRepository;
+            _schoolClassRepository = schoolClassRepository;
             _blobHelper = blobHelper;
             _converterHelper = converterHelper;
+            _userHelper = userHelper; // Adicionado
+            _logger = logger;
         }
 
         // GET: Teachers
         public async Task<IActionResult> Index()
         {
-            var teachers = await _teacherRepository.GetAll().ToListAsync();
+            var teachers = await _teacherRepository.GetAllWithIncludesAsync();
             return View(teachers);
         }
 
         // GET: Teachers/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return new NotFoundViewResult("TeacherNotFound");
 
-            var teacher = await _teacherRepository.GetByIdAsync(id.Value);
-            if (teacher == null)
-            {
-                return NotFound();
-            }
+            // Busca o professor com turmas e disciplinas associadas
+            var selectedTeacher = await _teacherRepository.GetTeacherWithDetailsAsync(id.Value);
 
-            return View(teacher);
+            if (selectedTeacher == null) return new NotFoundViewResult("TeacherNotFound");
+
+            // Converte o professor para o ViewModel
+            var model = _converterHelper.ToTeacherViewModel(selectedTeacher);
+
+            return View(model);
         }
+
+
+
 
         // GET: Teachers/Create
         public async Task<IActionResult> Create()
         {
-            var users = await _userHelper.GetAllUsersInRoleAsync("Teacher");
-            ViewData["UserId"] = new SelectList(users, "Id", "FullName");
-            return View();
+            var pendingUsers = await _userHelper.GetAllUsersInRoleAsync("Pending");
+
+            // Initialize the ViewModel with the list of pending users
+            var model = new TeacherViewModel
+            {
+                PendingUsers = pendingUsers // Populates the PendingUsers property
+            };
+
+            // Load subjects and classes for dropdowns
+            await LoadDropdownData();
+            ViewBag.PendingUsers = new SelectList(pendingUsers, "Id", "Email"); // Populates the dropdown for pending users
+
+            return View(model);
         }
 
         // POST: Teachers/Create
@@ -62,102 +88,130 @@ namespace SchoolManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TeacherViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+            {
+                await LoadDropdownData(); // Recarregar dropdowns em caso de erro
+                var pendingUsers = await _userHelper.GetAllUsersInRoleAsync("Pending");
+                ViewBag.PendingUsers = new SelectList(pendingUsers, "Id", "Email");
+                return View(model); // Retornar a view com os erros de validação
+            }
+
+            try
             {
                 Guid imageId = Guid.Empty;
-                if (model.ImageFile != null)
+
+                // Verificar se uma imagem foi carregada
+                if (model.ImageFile != null && model.ImageFile.Length > 0)
                 {
                     imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "teachers");
                 }
 
-                var teacher = _converterHelper.ToTeacher(model, imageId, true);
+                var teacher = await _converterHelper.ToTeacherAsync(model, imageId, true);
+
                 await _teacherRepository.CreateAsync(teacher);
-                return RedirectToAction(nameof(Index));
+
+                var user = await _userHelper.GetUserByIdAsync(model.UserId);
+                await _userHelper.RemoveUserFromRoleAsync(user, "Pending");
+                await _userHelper.AddUserToRoleAsync(user, "Teacher");
+
+                return RedirectToAction(nameof(Index)); // Redirecionar após o sucesso
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating teacher");
+                ModelState.AddModelError("", "An unexpected error occurred. Please try again.");
             }
 
-            var users = await _userHelper.GetAllUsersInRoleAsync("Teacher");
-            ViewData["UserId"] = new SelectList(users, "Id", "FullName", model.UserId);
-            return View(model);
+            await LoadDropdownData(); // Recarregar dropdowns em caso de erro
+            var pendingUsersReload = await _userHelper.GetAllUsersInRoleAsync("Pending");
+            ViewBag.PendingUsers = new SelectList(pendingUsersReload, "Id", "Email");
+            return View(model); // Retornar a view com os erros de validação
         }
+
 
         // GET: Teachers/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return new NotFoundViewResult("TeacherNotFound");
 
-            var teacher = await _teacherRepository.GetByIdAsync(id.Value);
-            if (teacher == null)
-            {
-                return NotFound();
-            }
+            var teacher = await _teacherRepository.GetTeacherWithDetailsAsync(id.Value);
+            if (teacher == null) return new NotFoundViewResult("TeacherNotFound");
 
+            // Convert Teacher entity to TeacherViewModel
             var model = _converterHelper.ToTeacherViewModel(teacher);
-            var users = await _userHelper.GetAllUsersInRoleAsync("Teacher");
-            ViewData["UserId"] = new SelectList(users, "Id", "FullName", model.UserId);
+
+            // Load subjects and classes for dropdowns
+            await LoadDropdownData();
+
+            // Ensure selected classes and subjects are included in the model
+            model.SchoolClassIds = teacher.TeacherSchoolClasses.Select(tsc => tsc.SchoolClassId).ToList();
+            model.SubjectIds = teacher.TeacherSubjects.Select(ts => ts.SubjectId).ToList();
+
             return View(model);
         }
+
 
         // POST: Teachers/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, TeacherViewModel model)
         {
-            if (id != model.Id)
-            {
-                return NotFound();
-            }
+            if (id != model.Id) return new NotFoundViewResult("TeacherNotFound");
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    Guid imageId = model.ImageId;
-                    if (model.ImageFile != null)
+                    Guid imageId = model.ImageId; // Usa a imagem existente
+
+                    // Verifica se uma nova imagem foi carregada
+                    if (model.ImageFile != null && model.ImageFile.Length > 0)
                     {
                         imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "teachers");
                     }
 
-                    var teacher = _converterHelper.ToTeacher(model, imageId, false);
-                    await _teacherRepository.UpdateAsync(teacher);
+                    // Converte o ViewModel para a entidade Teacher
+                    var teacher = await _converterHelper.ToTeacherAsync(model, imageId, false);
+
+                    // Atualiza as disciplinas e turmas
+                    await _teacherRepository.UpdateTeacherSubjectsAsync(teacher.Id, model.SubjectIds);
+                    await _teacherRepository.UpdateTeacherClassesAsync(teacher.Id, model.SchoolClassIds);
+
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await TeacherExists(model.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!await TeacherExists(model.Id)) return new NotFoundViewResult("TeacherNotFound");
+                    throw;
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating teacher");
+                    ModelState.AddModelError("", "An unexpected error occurred. Please try again.");
+                }
             }
 
-            var users = await _userHelper.GetAllUsersInRoleAsync("Teacher");
-            ViewData["UserId"] = new SelectList(users, "Id", "FullName", model.UserId);
+            // Recarrega os dados em caso de erro
+            await LoadDropdownData();
             return View(model);
         }
+
 
         // GET: Teachers/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return new NotFoundViewResult("TeacherNotFound");
 
-            var teacher = await _teacherRepository.GetByIdAsync(id.Value);
-            if (teacher == null)
-            {
-                return NotFound();
-            }
+            // Buscar o professor pelo ID
+            var teacher = await _teacherRepository.GetTeacherWithDetailsAsync(id.Value);
+            if (teacher == null) return new NotFoundViewResult("TeacherNotFound");
 
-            return View(teacher);
+            // Converter o Teacher para TeacherViewModel
+            var model = _converterHelper.ToTeacherViewModel(teacher);
+
+            return View(model);
         }
+
 
         // POST: Teachers/Delete/5
         [HttpPost, ActionName("Delete")]
@@ -165,17 +219,53 @@ namespace SchoolManagementSystem.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var teacher = await _teacherRepository.GetByIdAsync(id);
-            if (teacher != null)
+            if (teacher == null) return new NotFoundViewResult("TeacherNotFound");
+
+            try
             {
                 await _teacherRepository.DeleteAsync(teacher);
+                return RedirectToAction(nameof(Index));
             }
-
-            return RedirectToAction(nameof(Index));
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException != null && ex.InnerException.Message.Contains("DELETE"))
+                {
+                    ViewBag.ErrorTitle = $"{teacher.FirstName} {teacher.LastName} is being used!";
+                    ViewBag.ErrorMessage = "This teacher cannot be deleted because it has associated data.";
+                }
+                return View("Error");
+            }
         }
+
 
         private async Task<bool> TeacherExists(int id)
         {
             return await _teacherRepository.ExistAsync(id);
+        }
+
+        // Load subjects and classes for dropdowns
+        private async Task LoadDropdownData()
+        {
+            var subjects = await _subjectRepository.GetAllAsync();
+            var classes = await _schoolClassRepository.GetAllAsync();
+
+            // Certifique-se de que Subject e SchoolClass têm as propriedades Id e Name/ClassName
+            ViewBag.Subjects = subjects.Select(s => new SelectListItem
+            {
+                Value = s.Id.ToString(),
+                Text = s.SubjectName // Ou a propriedade que representa o nome da disciplina
+            });
+
+            ViewBag.SchoolClasses = classes.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.ClassName // Ou a propriedade que representa o nome da turma
+            });
+        }
+
+        public IActionResult TeacherNotFound()
+        {
+            return View();
         }
     }
 }

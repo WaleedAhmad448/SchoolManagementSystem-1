@@ -21,5 +21,7 @@ namespace SchoolManagementSystem.Data.Entities
         public ICollection<Student>? Students { get; set; } // Coleção de alunos
 
         public ICollection<Subject>? Subjects { get; set; } // Coleção de disciplinas
+
+        public ICollection<TeacherSchoolClass>? TeacherSchoolClasses { get; set; } // Coleção de professores
     }
 }

@@ -14,13 +14,13 @@ namespace SchoolManagementSystem.Data.Entities
         public int? CourseId { get; set; } // Chave estrangeira nullable
         public Course? Course { get; set; }
 
-        public int? TeacherId { get; set; } // Chave estrangeira nullable
-        public Teacher? Teacher { get; set; }
-
         public int? SchoolClassId { get; set; } // Chave estrangeira nullable
         public SchoolClass? SchoolClass { get; set; }
 
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
+
+        // Coleção de professores associados a esta disciplina
+        public ICollection<TeacherSubject> TeacherSubjects { get; set; } = new List<TeacherSubject>();
     }
 }

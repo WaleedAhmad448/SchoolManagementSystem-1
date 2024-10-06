@@ -22,6 +22,7 @@ public class SeedDb
         // Criar roles e utilizadores
         await _userHelper.CheckRoleAsync("Admin");
         await _userHelper.CheckRoleAsync("Student");
+        await _userHelper.CheckRoleAsync("Teacher");
 
         var studentUser1 = await CreateUserAsync("student1@school.com", "Student1", "User", "Student123!", "Student");
         var studentUser2 = await CreateUserAsync("student2@school.com", "Student2", "User", "Student123!", "Student");
@@ -64,11 +65,23 @@ public class SeedDb
             var class1 = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "Turma A");
             var class2 = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "Turma B");
 
+            // Adicionar a disciplina "No Subject"
+            var noSubject = new Subject
+            {
+                SubjectName = "No Subject", // Nome da disciplina
+                CourseId = null, // Sem curso associado
+                SchoolClassId = null, // Sem turma associada
+                StartTime = DateTime.UtcNow,
+                EndTime = DateTime.UtcNow.AddHours(1) // Defina as datas conforme necessário
+            };
+
             var subject1 = new Subject { SubjectName = "Álgebra", CourseId = class1?.CourseId, SchoolClassId = class1?.Id, StartTime = DateTime.UtcNow, EndTime = DateTime.UtcNow.AddHours(1) };
             var subject2 = new Subject { SubjectName = "Biologia", CourseId = class2?.CourseId, SchoolClassId = class2?.Id, StartTime = DateTime.UtcNow, EndTime = DateTime.UtcNow.AddHours(1) };
-            _context.Subjects.AddRange(subject1, subject2);
+
+            _context.Subjects.AddRange(noSubject, subject1, subject2); // Adicionar "No Subject"
             await _context.SaveChangesAsync(); // Guardar disciplinas
         }
+
 
         // Criar estudantes com FirstName e LastName diretos
         if (!_context.Students.Any())
@@ -101,6 +114,54 @@ public class SeedDb
             _context.Students.AddRange(student1, student2);
             await _context.SaveChangesAsync(); // Guardar estudantes
         }
+
+        // Verificar se existem professores
+        if (!_context.Teachers.Any())
+        {
+            var teacherUser = await CreateUserAsync("teacher1@school.com", "Teacher1", "User", "Teacher123!", "Teacher");
+
+            var class1 = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "Turma A");
+            var class2 = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "Turma B");
+
+            var subject1 = _context.Subjects.FirstOrDefault(s => s.SubjectName == "Álgebra");
+            var subject2 = _context.Subjects.FirstOrDefault(s => s.SubjectName == "Biologia");
+
+            // Criar o professor
+            var teacher = new Teacher
+            {
+                FirstName = "Teacher1",
+                LastName = "User",
+                UserId = teacherUser.Id,
+                HireDate = DateTime.UtcNow,
+                Status = TeacherStatus.Active,
+                AcademicDegree = AcademicDegree.BachelorsDegree,
+                ImageId = Guid.Empty // Imagem padrão
+            };
+
+            _context.Teachers.Add(teacher);
+            await _context.SaveChangesAsync();
+
+            // Associar professor a turmas
+            var teacherSchoolClasses = new TeacherSchoolClass[]
+            {
+        new TeacherSchoolClass { TeacherId = teacher.Id, SchoolClassId = class1.Id },
+        new TeacherSchoolClass { TeacherId = teacher.Id, SchoolClassId = class2.Id }
+            };
+
+            _context.TeacherSchoolClasses.AddRange(teacherSchoolClasses);
+
+            // Associar professor a disciplinas
+            var teacherSubjects = new TeacherSubject[]
+            {
+        new TeacherSubject { TeacherId = teacher.Id, SubjectId = subject1.Id },
+        new TeacherSubject { TeacherId = teacher.Id, SubjectId = subject2.Id }
+            };
+
+            _context.TeacherSubjects.AddRange(teacherSubjects);
+
+            await _context.SaveChangesAsync(); // Guardar associações
+        }
+
 
         // Criar notas
         if (!_context.Grades.Any())

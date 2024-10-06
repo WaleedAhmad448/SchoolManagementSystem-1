@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SchoolManagementSystem.Data.Entities;
-using SchoolManagementSystem.Models;
 
 public class SchoolDbContext : IdentityDbContext<User>
 {
@@ -16,8 +15,8 @@ public class SchoolDbContext : IdentityDbContext<User>
     public DbSet<Grade> Grades { get; set; }
     public DbSet<Payment> Payments { get; set; }
     public DbSet<Alert> Alerts { get; set; }
-
-
+    public DbSet<TeacherSubject> TeacherSubjects { get; set; }
+    public DbSet<TeacherSchoolClass> TeacherSchoolClasses { get; set; } // Entidade de junção
 
     public SchoolDbContext(DbContextOptions<SchoolDbContext> options) : base(options)
     {
@@ -27,34 +26,41 @@ public class SchoolDbContext : IdentityDbContext<User>
     {
         base.OnModelCreating(modelBuilder);
 
-        // Relacionamento entre SchoolClass e Subject (restrito para não apagar em cascata)
+        // Relacionamentos para SchoolClass
         modelBuilder.Entity<Subject>()
             .HasOne(s => s.SchoolClass)
             .WithMany(sc => sc.Subjects)
             .HasForeignKey(s => s.SchoolClassId)
             .OnDelete(DeleteBehavior.Restrict); // Restringe a exclusão
 
-
-        // Relacionamento entre Student e SchoolClass (restrito para não apagar em cascata)
         modelBuilder.Entity<Student>()
             .HasOne(s => s.SchoolClass)
             .WithMany(sc => sc.Students)
             .HasForeignKey(s => s.SchoolClassId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Relacionamento entre Student e User (sem exclusão em cascata)
+        // Relacionamento entre Student e User
         modelBuilder.Entity<Student>()
             .HasOne(s => s.User)
-            .WithMany() // Nenhuma exclusão em cascata entre Aluno e Utilizador
+            .WithMany()
             .HasForeignKey(s => s.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Relacionamento entre Subject e Teacher
-        modelBuilder.Entity<Subject>()
-            .HasOne(s => s.Teacher)
-            .WithMany(t => t.Subjects)
-            .HasForeignKey(s => s.TeacherId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // Relacionamento muitos-para-muitos entre Teacher e Subject
+        modelBuilder.Entity<TeacherSubject>()
+            .HasKey(ts => new { ts.TeacherId, ts.SubjectId }); // Chave composta
+
+        modelBuilder.Entity<TeacherSubject>()
+            .HasOne(ts => ts.Teacher)
+            .WithMany(t => t.TeacherSubjects)
+            .HasForeignKey(ts => ts.TeacherId)
+            .OnDelete(DeleteBehavior.Cascade); // Exclui automaticamente as associações ao deletar um Teacher
+
+        modelBuilder.Entity<TeacherSubject>()
+            .HasOne(ts => ts.Subject)
+            .WithMany(s => s.TeacherSubjects)
+            .HasForeignKey(ts => ts.SubjectId)
+            .OnDelete(DeleteBehavior.Restrict); // Restrição na exclusão da disciplina
 
         // Relacionamento entre Course e Subject
         modelBuilder.Entity<Subject>()
@@ -62,9 +68,21 @@ public class SchoolDbContext : IdentityDbContext<User>
             .WithMany(c => c.Subjects)
             .HasForeignKey(s => s.CourseId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Relacionamento entre Teacher e SchoolClass
+        modelBuilder.Entity<TeacherSchoolClass>()
+            .HasKey(tsc => new { tsc.TeacherId, tsc.SchoolClassId }); // Chave composta
+
+        modelBuilder.Entity<TeacherSchoolClass>()
+            .HasOne(tsc => tsc.Teacher)
+            .WithMany(t => t.TeacherSchoolClasses)
+            .HasForeignKey(tsc => tsc.TeacherId)
+            .OnDelete(DeleteBehavior.Cascade); // Exclui automaticamente as associações ao deletar um Teacher
+
+        modelBuilder.Entity<TeacherSchoolClass>()
+            .HasOne(tsc => tsc.SchoolClass)
+            .WithMany(sc => sc.TeacherSchoolClasses)
+            .HasForeignKey(tsc => tsc.SchoolClassId)
+            .OnDelete(DeleteBehavior.Restrict); // Restrição na exclusão da turma
     }
-
-
-
-
 }

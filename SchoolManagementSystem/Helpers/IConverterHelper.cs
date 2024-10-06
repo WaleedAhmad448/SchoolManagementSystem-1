@@ -14,7 +14,7 @@ namespace SchoolManagementSystem.Helpers
         StudentViewModel ToStudentViewModel(Student student);
 
         // Conversão de TeacherViewModel para Teacher
-        Teacher ToTeacher(TeacherViewModel model, Guid imageId, bool isNew);
+        Task<Teacher> ToTeacherAsync(TeacherViewModel model, Guid imageId, bool isNew);
 
         // Conversão de Teacher para TeacherViewModel
         TeacherViewModel ToTeacherViewModel(Teacher teacher);

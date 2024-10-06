@@ -103,6 +103,7 @@ namespace SchoolManagementSystem
                 await userHelper.CheckRoleAsync("Admin");
                 await userHelper.CheckRoleAsync("Employee");
                 await userHelper.CheckRoleAsync("Student");
+                await userHelper.CheckRoleAsync("Teacher");
                 await userHelper.CheckRoleAsync("Anonymous");
                 await userHelper.CheckRoleAsync("Pending");
             }

@@ -181,11 +181,14 @@ namespace SchoolManagementSystem.Controllers
         {
             if (id == null) return new NotFoundViewResult("StudentNotFound");
 
-            var student = await _studentRepository.GetByIdAsync(id.Value);
+            // Certifique-se de que está a carregar a SchoolClass com o estudante
+            var student = await _studentRepository.GetStudentWithCoursesAsync(id.Value); // Usar o método que inclui as relações
+
             if (student == null) return new NotFoundViewResult("StudentNotFound");
 
             return View(_converterHelper.ToStudentViewModel(student));
         }
+
 
         // POST: Students/Delete/5
         [HttpPost, ActionName("Delete")]
