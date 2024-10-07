@@ -110,7 +110,7 @@ namespace SchoolManagementSystem.Controllers
 
 
                     // Notifica os funcionários da secretaria sobre o novo utilizador "Pending"
-                    await _userHelper.NotifySecretaryPendingUserAsync(user);
+                    await _userHelper.NotifyAdministrativeEmployeesPendingUserAsync(user);
 
                     // Email confirmation logic (optional)
                     string myToken = await _userHelper.GenerateEmailConfirmationTokenAsync(user);

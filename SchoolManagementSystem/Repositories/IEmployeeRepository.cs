@@ -6,7 +6,15 @@ namespace SchoolManagementSystem.Repositories
 {
     public interface IEmployeeRepository : IGenericRepository<Employee>
     {
-        // Método específico para obter funcionários por departamento
-        Task<IEnumerable<Employee>> GetEmployeesByDepartmentAsync(string department);
+        Task<IEnumerable<Employee>> GetEmployeesByDepartmentAsync(Department department);
+        Task<IEnumerable<Employee>> GetEmployeesByStatusAsync(EmployeeStatus status);
+        Task<IEnumerable<Employee>> GetRecentlyHiredEmployeesAsync();
+        Task<IEnumerable<Employee>> GetAdministrativeEmployeesAsync();
+        Task<bool> CanEmployeeManageUserCreationAsync(int employeeId);
+        Task<int> CountEmployeesByDepartmentAsync(Department department);
+        Task<IEnumerable<Employee>> GetEmployeesWithCompleteProfileAsync();
+        Task<Employee> GetEmployeeByUserIdAsync(string userId);
+        Task<IEnumerable<Employee>> GetAllWithIncludesAsync();
+
     }
 }

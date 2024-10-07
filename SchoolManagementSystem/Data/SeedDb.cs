@@ -23,6 +23,7 @@ public class SeedDb
         await _userHelper.CheckRoleAsync("Admin");
         await _userHelper.CheckRoleAsync("Student");
         await _userHelper.CheckRoleAsync("Teacher");
+        await _userHelper.CheckRoleAsync("Employee");
 
         var studentUser1 = await CreateUserAsync("student1@school.com", "Student1", "User", "Student123!", "Student");
         var studentUser2 = await CreateUserAsync("student2@school.com", "Student2", "User", "Student123!", "Student");
@@ -82,6 +83,40 @@ public class SeedDb
             await _context.SaveChangesAsync(); // Guardar disciplinas
         }
 
+        // Criar funcionários
+        if (!_context.Employees.Any())
+        {
+            // Criar utilizadores para os funcionários
+            var employeeUser1 = await CreateUserAsync("employee1@school.com", "Employee1", "User", "Employee123!", "Employee");
+            var employeeUser2 = await CreateUserAsync("employee2@school.com", "Employee2", "User", "Employee123!", "Employee");
+
+            var employee1 = new Employee
+            {
+                FirstName = "Employee1",
+                LastName = "User",
+                UserId = employeeUser1.Id, // Associar o utilizador criado
+                Department = Department.Administration, // Atribuir um departamento
+                HireDate = DateTime.UtcNow,
+                PhoneNumber = "123-456-7890",
+                Status = EmployeeStatus.Active,
+                ImageId = Guid.Empty // Imagem padrão
+            };
+
+            var employee2 = new Employee
+            {
+                FirstName = "Employee2",
+                LastName = "User",
+                UserId = employeeUser2.Id, // Associar o utilizador criado
+                Department = Department.HumanResources, // Atribuir um departamento
+                HireDate = DateTime.UtcNow,
+                PhoneNumber = "987-654-3210",
+                Status = EmployeeStatus.Active,
+                ImageId = Guid.Empty // Imagem padrão
+            };
+
+            _context.Employees.AddRange(employee1, employee2);
+            await _context.SaveChangesAsync(); // Guardar funcionários
+        }
 
         // Criar estudantes com FirstName e LastName diretos
         if (!_context.Students.Any())

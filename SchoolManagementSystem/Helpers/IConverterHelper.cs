@@ -7,22 +7,22 @@ namespace SchoolManagementSystem.Helpers
 {
     public interface IConverterHelper
     {
-        // Conversão de StudentViewModel para Student (assíncrono)
+        // Conversion from StudentViewModel to Student (asynchronous)
         Task<Student> ToStudentAsync(StudentViewModel model, Guid imageId, bool isNew);
 
-        // Conversão de Student para StudentViewModel
+        // Conversion from Student to StudentViewModel
         StudentViewModel ToStudentViewModel(Student student);
 
-        // Conversão de TeacherViewModel para Teacher
+        // Conversion from TeacherViewModel to Teacher
         Task<Teacher> ToTeacherAsync(TeacherViewModel model, Guid imageId, bool isNew);
 
-        // Conversão de Teacher para TeacherViewModel
+        // Conversion from Teacher to TeacherViewModel
         TeacherViewModel ToTeacherViewModel(Teacher teacher);
 
-        // Conversão de EmployeeViewModel para Employee
-        Employee ToEmployee(EmployeeViewModel model, Guid imageId, bool isNew);
+        // Conversion from EmployeeViewModel to Employee (asynchronous)
+        Task<Employee> ToEmployeeAsync(EmployeeViewModel model, Guid imageId, bool isNew);
 
-        // Conversão de Employee para EmployeeViewModel
+        // Conversion from Employee to EmployeeViewModel
         EmployeeViewModel ToEmployeeViewModel(Employee employee);
     }
 }

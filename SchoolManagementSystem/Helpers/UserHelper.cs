@@ -176,23 +176,24 @@ namespace SchoolManagementSystem.Helpers
             return usersInRole.ToList(); // Retornar a lista de utilizadores
         }
 
-        public async Task NotifySecretaryPendingUserAsync(User user)
+        public async Task NotifyAdministrativeEmployeesPendingUserAsync(User user)
         {
-            var secretaryEmployees = await _employeeRepository.GetEmployeesByDepartmentAsync("Secretary");
+            var administrativeEmployees = await _employeeRepository.GetAdministrativeEmployeesAsync();
 
-            foreach (var secretaryEmployee in secretaryEmployees)
+            foreach (var adminEmployee in administrativeEmployees)
             {
                 var alert = new Alert
                 {
                     Message = $"New User 'Pending': {user.FullName}",
                     CreatedAt = DateTime.UtcNow,
                     IsResolved = false,
-                    EmployeeId = secretaryEmployee.Id
+                    EmployeeId = adminEmployee.Id
                 };
 
                 await _alertRepository.CreateAsync(alert);
             }
         }
+
 
     }
 }

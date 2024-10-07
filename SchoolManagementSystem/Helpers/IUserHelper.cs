@@ -63,6 +63,6 @@ namespace SchoolManagementSystem.Helpers
         Task<List<User>> GetAllUsersInRoleAsync(string roleName);
 
         // Adiciona o método para notificar a secretaria sobre novos utilizadores "Pending"
-        Task NotifySecretaryPendingUserAsync(User user);
+        Task NotifyAdministrativeEmployeesPendingUserAsync(User user);
     }
 }
