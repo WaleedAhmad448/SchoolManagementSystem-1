@@ -1,11 +1,94 @@
-﻿@model SchoolManagementSystem.Data.Entities.Course
+﻿@model SchoolManagementSystem.Models.CourseViewModel
 
 @{
     ViewData["Title"] = "Create Course";
 }
 
 <h2>Create Course</h2>
-<form asp-action="Create">
-    @Html.Partial("_Form", Model)
-    <button type="submit" class="btn btn-primary">Save</button>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+<form id="createCourseForm" asp-action="Create" method="post">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="CourseName" class="form-label">Course Name <span class="text-danger">*</span></label>
+            <input asp-for="CourseName" class="form-control" required />
+            <span asp-validation-for="CourseName" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Credits" class="form-label">Credits <span class="text-danger">*</span></label>
+            <input asp-for="Credits" type="number" class="form-control" required />
+            <span asp-validation-for="Credits" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="Duration" class="form-label">Duration (weeks) <span class="text-danger">*</span></label>
+            <input asp-for="Duration" type="number" class="form-control" required />
+            <span asp-validation-for="Duration" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="IsActive" class="form-label">Is Active</label>
+            <input asp-for="IsActive" type="checkbox" class="form-check-input" checked="checked" />
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label">Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Associated Subjects</label>
+        @foreach (var subject in ViewBag.Subjects)
+        {
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="SubjectIds" value="@subject.Value" id="subject_@subject.Value"
+                @(Model.SubjectIds.Contains(int.Parse(subject.Value)) ? "checked" : "") />
+                <label class="form-check-label" for="subject_@subject.Value">
+                    @subject.Text
+                </label>
+            </div>
+        }
+        <span asp-validation-for="SubjectIds" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Associated Classes</label>
+        @foreach (var schoolClass in ViewBag.SchoolClasses)
+        {
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="SchoolClassIds" value="@schoolClass.Value" id="schoolClass_@schoolClass.Value"
+                @(Model.SchoolClassIds.Contains(int.Parse(schoolClass.Value)) ? "checked" : "") />
+                <label class="form-check-label" for="schoolClass_@schoolClass.Value">
+                    @schoolClass.Text
+                </label>
+            </div>
+        }
+        <span asp-validation-for="SchoolClassIds" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Course</button>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/formHelpers.js"></script>
+
+    <script>
+        // SweetAlert2 confirmation before submitting the form
+        setupSweetAlertOnSubmit("createCourseForm", "Course created successfully.");
+    </script>
+}

@@ -26,12 +26,12 @@ public class SchoolDbContext : IdentityDbContext<User>
     {
         base.OnModelCreating(modelBuilder);
 
-        // Relacionamentos para SchoolClass
-        modelBuilder.Entity<Subject>()
-            .HasOne(s => s.SchoolClass)
-            .WithMany(sc => sc.Subjects)
-            .HasForeignKey(s => s.SchoolClassId)
-            .OnDelete(DeleteBehavior.Restrict); // Restringe a exclusão
+        //// Relacionamentos para SchoolClass
+        //modelBuilder.Entity<Subject>()
+        //    .HasOne(s => s.SchoolClass)
+        //    .WithMany(sc => sc.Subjects)
+        //    .HasForeignKey(s => s.SchoolClassId)
+        //    .OnDelete(DeleteBehavior.Restrict); // Restringe a exclusão
 
         modelBuilder.Entity<Student>()
             .HasOne(s => s.SchoolClass)
@@ -62,12 +62,20 @@ public class SchoolDbContext : IdentityDbContext<User>
             .HasForeignKey(ts => ts.SubjectId)
             .OnDelete(DeleteBehavior.Restrict); // Restrição na exclusão da disciplina
 
-        // Relacionamento entre Course e Subject
-        modelBuilder.Entity<Subject>()
-            .HasOne(s => s.Course)
-            .WithMany(c => c.Subjects)
-            .HasForeignKey(s => s.CourseId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // Relacionamento entre Course e Subject usando a tabela de junção
+        modelBuilder.Entity<CourseSubject>()
+            .HasKey(cs => new { cs.CourseId, cs.SubjectId }); // Chave composta
+
+        modelBuilder.Entity<CourseSubject>()
+            .HasOne(cs => cs.Course)
+            .WithMany(c => c.CourseSubjects)
+            .HasForeignKey(cs => cs.CourseId);
+
+        modelBuilder.Entity<CourseSubject>()
+            .HasOne(cs => cs.Subject)
+            .WithMany(s => s.CourseSubjects)
+            .HasForeignKey(cs => cs.SubjectId);
+
 
         // Relacionamento entre Teacher e SchoolClass
         modelBuilder.Entity<TeacherSchoolClass>()

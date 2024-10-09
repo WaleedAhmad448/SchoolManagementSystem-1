@@ -6,21 +6,18 @@ namespace SchoolManagementSystem.Data.Entities
     {
         public int Id { get; set; }
 
+        [Required]
         [MaxLength(100)]
         public string SubjectName { get; set; }
 
         public string? Description { get; set; } // Descrição opcional
 
-        public int? CourseId { get; set; } // Chave estrangeira nullable
-        public Course? Course { get; set; }
-
-        public int? SchoolClassId { get; set; } // Chave estrangeira nullable
-        public SchoolClass? SchoolClass { get; set; }
-
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public int Credits { get; set; } // Créditos que a disciplina vale
 
         // Coleção de professores associados a esta disciplina
         public ICollection<TeacherSubject> TeacherSubjects { get; set; } = new List<TeacherSubject>();
+
+        // Coleção de cursos associados a esta disciplina
+        public ICollection<CourseSubject> CourseSubjects { get; set; } = new List<CourseSubject>(); // Adicionada para associação
     }
 }

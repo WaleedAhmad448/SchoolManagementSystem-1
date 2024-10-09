@@ -1,34 +1,73 @@
-﻿@model IEnumerable<SchoolManagementSystem.Data.Entities.Course>
+﻿@using Newtonsoft.Json
+@model IEnumerable<SchoolManagementSystem.Data.Entities.Course>
 
 @{
-    ViewData["Title"] = "Courses";
+    ViewData["Title"] = "Courses List";
+
+    // JSON settings to avoid circular references
+    var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                Formatting = Formatting.Indented // Indented for better readability during debug
+            };
+
+    // Serialize model using these settings
+    var serializedData = JsonConvert.SerializeObject(Model, jsonSerializerSettings);
 }
 
-<h2>Courses List</h2>
-<p><a asp-action="Create" class="btn btn-primary">Add New Course</a></p>
+<h2>Courses</h2>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.First().CourseName)</th>
-            <th>@Html.DisplayNameFor(model => model.Duration)</th>
-            <th>@Html.DisplayNameFor(model => model.Credits)</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var course in Model)
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => course.CourseName)</td>
-                <td>@Html.DisplayFor(modelItem => course.Duration)</td>
-                <td>@Html.DisplayFor(modelItem => course.Credits)</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-warning">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@course.Id" class="btn btn-info">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@course.Id" class="btn btn-danger">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div>
+    <a asp-action="Create" class="btn btn-success mb-3">Create Course</a>
+</div>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">No courses found.</div>
+}
+else
+{
+    <div id="Grid"></div>
+}
+
+@section Scripts {
+    <script id="actionTemplate" type="text/x-template">
+        <a href="/Courses/Edit/${Id}" class="btn btn-warning">Edit</a>
+        <a href="/Courses/Delete/${Id}" class="btn btn-danger">Delete</a>
+        <a href="/Courses/Details/${Id}" class="btn btn-primary">Details</a>
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            var serializedData = @Html.Raw(serializedData); // Uses the serialized JSON data here
+
+            var grid = new ej.grids.Grid({
+                dataSource: serializedData,
+                allowPaging: true,            // Enables pagination
+                allowSorting: true,           // Enables sorting
+                allowFiltering: true,         // Enables filtering
+                allowGrouping: true,          // Enables grouping
+                filterSettings: { type: 'Menu' }, // Enables menu filtering
+                pageSettings: { pageSize: 10 },
+                toolbar: ['Search'],           // Adds search toolbar
+                groupSettings: { showGroupedColumn: true }, // Displays grouped column
+                columns: [
+                    { field: "CourseName", headerText: "Course Name", width: 150 },
+                    { field: "Description", headerText: "Description", width: 200 },
+                    { field: "Duration", headerText: "Duration (weeks)", width: 150 },
+                    { field: "Credits", headerText: "Credits", width: 100 },
+                    { field: "IsActive", headerText: "Active", width: 100, template: "<span>${IsActive ? 'Yes' : 'No'}</span>" }, // Displays active status
+                    { field: "CreatedAt", headerText: "Created At", width: 150, format: "{0:dd/MM/yyyy}" }, // Formats created date
+                    {
+                        headerText: "Actions",
+                        width: 180,
+                        textAlign: "Center",
+                        template: "#actionTemplate"
+                    }
+                ]
+            });
+
+            grid.appendTo("#Grid"); // Applies the grid to the DOM element with id 'Grid'
+        });
+    </script>
+}

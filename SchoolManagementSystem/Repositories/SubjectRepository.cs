@@ -25,20 +25,20 @@ namespace SchoolManagementSystem.Repositories
                 .ToListAsync();
         }
 
-        // Consulta baseada no CourseId continua válida
-        public async Task<IEnumerable<Subject>> GetSubjectsByCourseIdAsync(int courseId)
-        {
-            return await _context.Subjects
-                .Where(s => s.CourseId == courseId)
-                .ToListAsync();
-        }
+        //// Consulta baseada no CourseId continua válida
+        //public async Task<IEnumerable<Subject>> GetSubjectsByCourseIdAsync(int courseId)
+        //{
+        //    return await _context.Subjects
+        //        .Where(s => s.CourseId == courseId)
+        //        .ToListAsync();
+        //}
 
-        // Verifica conflitos de horário
-        public async Task<bool> CheckForScheduleConflictsAsync(int classId, DateTime startTime, DateTime endTime)
-        {
-            return await _context.Subjects
-                .AnyAsync(s => s.SchoolClassId == classId && s.StartTime < endTime && s.EndTime > startTime);
-        }
+        //// Verifica conflitos de horário
+        //public async Task<bool> CheckForScheduleConflictsAsync(int classId, DateTime startTime, DateTime endTime)
+        //{
+        //    return await _context.Subjects
+        //        .AnyAsync(s => s.SchoolClassId == classId && s.StartTime < endTime && s.EndTime > startTime);
+        //}
 
         // Busca por nome da disciplina
         public async Task<Subject> GetByNameAsync(string subjectName)

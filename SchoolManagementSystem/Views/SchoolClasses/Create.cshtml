@@ -1,47 +1,59 @@
-﻿@model SchoolManagementSystem.Data.Entities.SchoolClass
+﻿@model SchoolManagementSystem.Models.SchoolClassViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create School Class";
 }
 
-<h1>Create</h1>
+<h2>Create School Class</h2>
 
-<h4>SchoolClass</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="ClassName" class="control-label"></label>
-                <input asp-for="ClassName" class="form-control" />
-                <span asp-validation-for="ClassName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CourseId" class="control-label"></label>
-                <select asp-for="CourseId" class ="form-control" asp-items="ViewBag.CourseId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="StartDate" class="control-label"></label>
-                <input asp-for="StartDate" class="form-control" />
-                <span asp-validation-for="StartDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EndDate" class="control-label"></label>
-                <input asp-for="EndDate" class="form-control" />
-                <span asp-validation-for="EndDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
     </div>
-</div>
+}
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<form id="createClassForm" asp-action="Create" method="post">
+    <div class="mb-3">
+        <label asp-for="ClassName" class="form-label">Class Name <span class="text-danger">*</span></label>
+        <input asp-for="ClassName" class="form-control" required />
+        <span asp-validation-for="ClassName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CourseId" class="form-label">Course <span class="text-danger">*</span></label>
+        <select asp-for="CourseId" class="form-select" asp-items="@(new SelectList(ViewBag.CourseId, "Id", "CourseName"))" required>
+            <option value="">Select Course</option> <!-- Default option -->
+        </select>
+        <span asp-validation-for="CourseId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="StartDate" class="form-label">Start Date <span class="text-danger">*</span></label>
+        <input asp-for="StartDate" type="date" class="form-control" required />
+        <span asp-validation-for="StartDate" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="EndDate" class="form-label">End Date <span class="text-danger">*</span></label>
+        <input asp-for="EndDate" type="date" class="form-control" required />
+        <span asp-validation-for="EndDate" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Class</button>
+</form>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/formHelpers.js"></script>
+
+    <script>
+        // SweetAlert2 confirmation before submitting the form
+        setupSweetAlertOnSubmit("createClassForm", "School class created successfully.");
+    </script>
 }

@@ -1,0 +1,38 @@
+﻿@model SchoolManagementSystem.Models.SubjectViewModel
+
+@{
+    ViewData["Title"] = "Subject Details";
+}
+
+<h2>Subject Details</h2>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <h4>@Model.SubjectName</h4>
+                <hr />
+                <dl class="row">
+                    <!-- Descrição -->
+                    <dt class="col-sm-3">Description:</dt>
+                    <dd class="col-sm-9">@Model.Description</dd>
+
+                    <!-- Créditos -->
+                    <dt class="col-sm-3">Credits:</dt>
+                    <dd class="col-sm-9">@Model.Credits</dd>
+                </dl>
+            </div>
+        </div>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Any specific scripts for this page can be added here
+    </script>
+}

@@ -23,7 +23,7 @@ namespace SchoolManagementSystem
             builder.Logging.ClearProviders(); // Opcional: limpar provedores anteriores (como console)
             builder.Logging.AddConsole(); // Continuar a logar no console
             builder.Logging.AddFile("Logs/schoolmanagementsystem-{Date}.txt"); // Gravar logs em ficheiros
-            builder.Logging.AddFile("Logs/students-log-{Date}.txt"); // Define o nome do log para estudantes
+   
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();

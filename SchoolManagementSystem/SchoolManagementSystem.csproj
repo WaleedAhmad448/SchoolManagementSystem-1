@@ -34,7 +34,6 @@
   <ItemGroup>
     <Folder Include="Logs\" />
     <Folder Include="Migrations\" />
-    <Folder Include="Views\Subjects\" />
   </ItemGroup>
 
   <ItemGroup>

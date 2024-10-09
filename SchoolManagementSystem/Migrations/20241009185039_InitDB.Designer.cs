@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SchoolManagementSystem.Migrations
 {
     [DbContext(typeof(SchoolDbContext))]
-    [Migration("20241006184451_InitDb")]
-    partial class InitDb
+    [Migration("20241009185039_InitDB")]
+    partial class InitDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -266,6 +266,9 @@ namespace SchoolManagementSystem.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Credits")
                         .HasColumnType("int");
 
@@ -276,9 +279,30 @@ namespace SchoolManagementSystem.Migrations
                     b.Property<int>("Duration")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.ToTable("Courses");
+                });
+
+            modelBuilder.Entity("SchoolManagementSystem.Data.Entities.CourseSubject", b =>
+                {
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SubjectId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CourseId", "SubjectId");
+
+                    b.HasIndex("SubjectId");
+
+                    b.ToTable("CourseSubject");
                 });
 
             modelBuilder.Entity("SchoolManagementSystem.Data.Entities.Employee", b =>
@@ -451,17 +475,14 @@ namespace SchoolManagementSystem.Migrations
                     b.Property<int?>("CourseId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Credits")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("datetime2");
-
                     b.Property<int?>("SchoolClassId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("SubjectName")
                         .IsRequired()
@@ -732,6 +753,25 @@ namespace SchoolManagementSystem.Migrations
                     b.Navigation("Subject");
                 });
 
+            modelBuilder.Entity("SchoolManagementSystem.Data.Entities.CourseSubject", b =>
+                {
+                    b.HasOne("SchoolManagementSystem.Data.Entities.Course", "Course")
+                        .WithMany("CourseSubjects")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolManagementSystem.Data.Entities.Subject", "Subject")
+                        .WithMany("CourseSubjects")
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Subject");
+                });
+
             modelBuilder.Entity("SchoolManagementSystem.Data.Entities.Employee", b =>
                 {
                     b.HasOne("SchoolManagementSystem.Data.Entities.User", "User")
@@ -783,19 +823,13 @@ namespace SchoolManagementSystem.Migrations
 
             modelBuilder.Entity("SchoolManagementSystem.Data.Entities.Subject", b =>
                 {
-                    b.HasOne("SchoolManagementSystem.Data.Entities.Course", "Course")
+                    b.HasOne("SchoolManagementSystem.Data.Entities.Course", null)
                         .WithMany("Subjects")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CourseId");
 
-                    b.HasOne("SchoolManagementSystem.Data.Entities.SchoolClass", "SchoolClass")
+                    b.HasOne("SchoolManagementSystem.Data.Entities.SchoolClass", null)
                         .WithMany("Subjects")
-                        .HasForeignKey("SchoolClassId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Course");
-
-                    b.Navigation("SchoolClass");
+                        .HasForeignKey("SchoolClassId");
                 });
 
             modelBuilder.Entity("SchoolManagementSystem.Data.Entities.Teacher", b =>
@@ -849,6 +883,8 @@ namespace SchoolManagementSystem.Migrations
 
             modelBuilder.Entity("SchoolManagementSystem.Data.Entities.Course", b =>
                 {
+                    b.Navigation("CourseSubjects");
+
                     b.Navigation("SchoolClasses");
 
                     b.Navigation("Subjects");
@@ -865,6 +901,8 @@ namespace SchoolManagementSystem.Migrations
 
             modelBuilder.Entity("SchoolManagementSystem.Data.Entities.Subject", b =>
                 {
+                    b.Navigation("CourseSubjects");
+
                     b.Navigation("TeacherSubjects");
                 });
 

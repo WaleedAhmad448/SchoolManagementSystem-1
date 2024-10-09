@@ -147,5 +147,123 @@ namespace SchoolManagementSystem.Helpers
                 Status = employee.Status
             };
         }
+
+        public async Task<Subject> ToSubjectAsync(SubjectViewModel model)
+        {
+            if (model == null) throw new ArgumentNullException(nameof(model));
+
+            return new Subject
+            {
+                Id = model.Id,
+                SubjectName = model.SubjectName,
+                Description = model.Description,
+                Credits = model.Credits,
+            };
+        }
+
+        // Conversão de Subject para SubjectViewModel
+        public SubjectViewModel ToSubjectViewModel(Subject subject)
+        {
+            if (subject == null) throw new ArgumentNullException(nameof(subject));
+
+            return new SubjectViewModel
+            {
+                Id = subject.Id,
+                SubjectName = subject.SubjectName,
+                Description = subject.Description,
+                Credits = subject.Credits,
+            };
+        }
+
+        // Conversion from CourseViewModel to Course
+        public async Task<Course> ToCourseAsync(CourseViewModel model)
+        {
+            if (model == null) throw new ArgumentNullException(nameof(model));
+
+            return new Course
+            {
+                Id = model.Id,
+                CourseName = model.CourseName,
+                Description = model.Description,
+                Duration = model.Duration,
+                Credits = model.Credits,
+                IsActive = model.IsActive,
+
+                // Ensuring SchoolClasses and Subjects are not null and creating associations
+                SchoolClasses = model.SchoolClassIds.Select(id => new SchoolClass { Id = id }).ToList(),
+                //Subjects = model.SubjectIds.Select(id => new Subject { Id = id }).ToList()
+            };
+        }
+
+        // Conversion from Course to CourseViewModel
+        public CourseViewModel ToCourseViewModel(Course course)
+        {
+            if (course == null) throw new ArgumentNullException(nameof(course));
+
+            return new CourseViewModel
+            {
+                Id = course.Id,
+                CourseName = course.CourseName,
+                Description = course.Description,
+                Duration = course.Duration,
+                Credits = course.Credits,
+                IsActive = course.IsActive,
+
+                // Ensuring SchoolClassIds and SubjectIds are properly populated
+                SchoolClassIds = course.SchoolClasses.Select(sc => sc.Id).ToList(),
+                //SubjectIds = course.Subjects.Select(s => s.Id).ToList(),
+
+                //// Populating the full instances for display
+                //Subjects = course.Subjects,
+                SchoolClasses = course.SchoolClasses
+            };
+        }
+
+        // Conversion from SchoolClassViewModel to SchoolClass
+        public async Task<SchoolClass> ToSchoolClassAsync(SchoolClassViewModel model, bool isNew)
+        {
+            if (model == null) throw new ArgumentNullException(nameof(model));
+
+            return new SchoolClass
+            {
+                Id = isNew ? 0 : model.Id, // If new, sets Id to 0
+                ClassName = model.ClassName, // Sets ClassName from the ViewModel
+                //CourseId = model.CourseId, // Uses the selected course (nullable)
+                StartDate = model.StartDate, // Uses the start date
+                EndDate = model.EndDate, // Uses the end date
+
+                // Garantir que os Subjects e Students não sejam null
+                Subjects = model.SubjectIds?.Select(id => new Subject { Id = id }).ToList()
+                          ?? new List<Subject>(),
+
+                Students = model.StudentIds?.Select(id => new Student { Id = id }).ToList()
+                          ?? new List<Student>()
+            };
+        }
+
+        // Conversion from SchoolClass to SchoolClassViewModel
+        public SchoolClassViewModel ToSchoolClassViewModel(SchoolClass schoolClass)
+        {
+            if (schoolClass == null) throw new ArgumentNullException(nameof(schoolClass));
+
+            return new SchoolClassViewModel
+            {
+                Id = schoolClass.Id,
+                ClassName = schoolClass.ClassName, // Maps the ClassName
+                CourseId = schoolClass.CourseId, // Sets the related CourseId (nullable)
+                StartDate = schoolClass.StartDate, // Maps the StartDate
+                EndDate = schoolClass.EndDate, // Maps the EndDate
+
+                // Garantir que os Subjects e Students não sejam null
+                SubjectIds = schoolClass.Subjects?.Select(s => s.Id).ToList() ?? new List<int>(),
+                StudentIds = schoolClass.Students?.Select(s => s.Id).ToList() ?? new List<int>(),
+
+                Subjects = schoolClass.Subjects ?? new List<Subject>(),
+                Students = schoolClass.Students ?? new List<Student>()
+            };
+        }
+
+
+
     }
 }

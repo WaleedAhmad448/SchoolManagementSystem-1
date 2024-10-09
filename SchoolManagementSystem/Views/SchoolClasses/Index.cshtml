@@ -1,53 +1,45 @@
-﻿@model IEnumerable<SchoolManagementSystem.Data.Entities.SchoolClass>
+﻿@model IEnumerable<SchoolManagementSystem.Models.SchoolClassViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "School Classes";
 }
 
-<h1>Index</h1>
+<h2>School Classes</h2>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ClassName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Course)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StartDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EndDate)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ClassName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Course.CourseName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EndDate)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+<div>
+    <a asp-action="Create" class="btn btn-success mb-3">Create New Class</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No classes found.</div>
 }
-    </tbody>
-</table>
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Class Name</th>
+                <th>Course</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var schoolClass in Model)
+            {
+                <tr>
+                    <td>@schoolClass.ClassName</td>
+                    <td>@schoolClass.CourseId</td> <!-- Ideally, you might want to show the Course Name instead -->
+                    <td>@schoolClass.StartDate.ToString("d")</td>
+                    <td>@schoolClass.EndDate.ToString("d")</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@schoolClass.Id" class="btn btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@schoolClass.Id" class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

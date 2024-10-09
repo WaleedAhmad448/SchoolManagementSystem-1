@@ -24,5 +24,16 @@ namespace SchoolManagementSystem.Helpers
 
         // Conversion from Employee to EmployeeViewModel
         EmployeeViewModel ToEmployeeViewModel(Employee employee);
+
+        Task<Course> ToCourseAsync(CourseViewModel model); // Make sure this method is async
+        CourseViewModel ToCourseViewModel(Course course);
+
+        // Conversão SchoolClass
+        Task<SchoolClass> ToSchoolClassAsync(SchoolClassViewModel model, bool isNew);
+        SchoolClassViewModel ToSchoolClassViewModel(SchoolClass schoolClass);
+
+        // Conversão de Subject
+        Task<Subject> ToSubjectAsync(SubjectViewModel model); // Método para converter SubjectViewModel para Subject
+        SubjectViewModel ToSubjectViewModel(Subject subject); // Método para converter Subject para SubjectViewModel
     }
 }

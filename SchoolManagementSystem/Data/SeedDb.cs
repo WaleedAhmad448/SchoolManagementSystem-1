@@ -31,98 +31,99 @@ public class SeedDb
         // Criar cursos
         if (!_context.Courses.Any())
         {
-            var course1 = new Course { CourseName = "Matemática", Description = "Curso de Matemática", Duration = 16, Credits = 5 };
-            var course2 = new Course { CourseName = "Ciências", Description = "Curso de Ciências", Duration = 16, Credits = 5 };
-            _context.Courses.AddRange(course1, course2);
-            await _context.SaveChangesAsync(); // Guardar cursos
-        }
-
-        // Criar turmas
-        if (!_context.SchoolClasses.Any())
-        {
-            var course1 = _context.Courses.FirstOrDefault(c => c.CourseName == "Matemática");
-            var course2 = _context.Courses.FirstOrDefault(c => c.CourseName == "Ciências");
-
-            // Adicionar a turma "No Class"
-            var noClass = new SchoolClass
+            var course1 = new Course
             {
-                ClassName = "No Class", // Nome da turma
-                CourseId = null, // Sem curso associado
-                StartDate = DateTime.UtcNow,
-                EndDate = DateTime.UtcNow.AddMonths(6) // Defina as datas conforme necessário
+                CourseName = "Mathematics",
+                Description = "Mathematics Course",
+                Duration = 16,
+                Credits = 5,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
 
-            var class1 = new SchoolClass { ClassName = "Turma A", CourseId = course1?.Id, StartDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddMonths(6) };
-            var class2 = new SchoolClass { ClassName = "Turma B", CourseId = course2?.Id, StartDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddMonths(6) };
+            var course2 = new Course
+            {
+                CourseName = "Science",
+                Description = "Science Course",
+                Duration = 16,
+                Credits = 5,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
 
-            _context.SchoolClasses.AddRange(noClass, class1, class2); // Adicione "No Class" aqui
-            await _context.SaveChangesAsync(); // Guardar turmas
+            _context.Courses.AddRange(course1, course2);
+            await _context.SaveChangesAsync(); // Salvar cursos
         }
 
+        // Criar turmas após garantir que os cursos existem
+        if (!_context.SchoolClasses.Any())
+        {
+            var course1 = _context.Courses.FirstOrDefault(c => c.CourseName == "Mathematics");
+            var course2 = _context.Courses.FirstOrDefault(c => c.CourseName == "Science");
+
+            var class1 = new SchoolClass
+            {
+                ClassName = "Class A",
+                CourseId = course1.Id, // Associa com o curso "Mathematics"
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddMonths(6)
+            };
+
+            var class2 = new SchoolClass
+            {
+                ClassName = "Class B",
+                CourseId = null, // Esta turma não está associada a um curso neste momento
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddMonths(6)
+            };
+
+            var noClass = new SchoolClass
+            {
+                ClassName = "No Class",
+                CourseId = null, // Sem curso associado
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddMonths(6)
+            };
+
+            _context.SchoolClasses.AddRange(class1, class2, noClass);
+            await _context.SaveChangesAsync(); // Salvar turmas
+        }
 
         // Criar disciplinas
         if (!_context.Subjects.Any())
         {
-            var class1 = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "Turma A");
-            var class2 = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "Turma B");
-
-            // Adicionar a disciplina "No Subject"
-            var noSubject = new Subject
+            var subject1 = new Subject
             {
-                SubjectName = "No Subject", // Nome da disciplina
-                CourseId = null, // Sem curso associado
-                SchoolClassId = null, // Sem turma associada
-                StartTime = DateTime.UtcNow,
-                EndTime = DateTime.UtcNow.AddHours(1) // Defina as datas conforme necessário
+                SubjectName = "Mathematics",
+                Description = "Basic Mathematics",
             };
 
-            var subject1 = new Subject { SubjectName = "Álgebra", CourseId = class1?.CourseId, SchoolClassId = class1?.Id, StartTime = DateTime.UtcNow, EndTime = DateTime.UtcNow.AddHours(1) };
-            var subject2 = new Subject { SubjectName = "Biologia", CourseId = class2?.CourseId, SchoolClassId = class2?.Id, StartTime = DateTime.UtcNow, EndTime = DateTime.UtcNow.AddHours(1) };
+            var subject2 = new Subject
+            {
+                SubjectName = "Science",
+                Description = "Basic Science",
 
-            _context.Subjects.AddRange(noSubject, subject1, subject2); // Adicionar "No Subject"
-            await _context.SaveChangesAsync(); // Guardar disciplinas
+            };
+
+            var subject3 = new Subject
+            {
+                SubjectName = "No Subject",
+                Description = "No specific subject assigned.",
+
+            };
+
+            _context.Subjects.AddRange(subject1, subject2, subject3);
+            await _context.SaveChangesAsync(); // Salvar disciplinas
         }
 
-        // Criar funcionários
-        if (!_context.Employees.Any())
-        {
-            // Criar utilizadores para os funcionários
-            var employeeUser1 = await CreateUserAsync("employee1@school.com", "Employee1", "User", "Employee123!", "Employee");
-            var employeeUser2 = await CreateUserAsync("employee2@school.com", "Employee2", "User", "Employee123!", "Employee");
-
-            var employee1 = new Employee
-            {
-                FirstName = "Employee1",
-                LastName = "User",
-                UserId = employeeUser1.Id, // Associar o utilizador criado
-                Department = Department.Administration, // Atribuir um departamento
-                HireDate = DateTime.UtcNow,
-                PhoneNumber = "123-456-7890",
-                Status = EmployeeStatus.Active,
-                ImageId = Guid.Empty // Imagem padrão
-            };
-
-            var employee2 = new Employee
-            {
-                FirstName = "Employee2",
-                LastName = "User",
-                UserId = employeeUser2.Id, // Associar o utilizador criado
-                Department = Department.HumanResources, // Atribuir um departamento
-                HireDate = DateTime.UtcNow,
-                PhoneNumber = "987-654-3210",
-                Status = EmployeeStatus.Active,
-                ImageId = Guid.Empty // Imagem padrão
-            };
-
-            _context.Employees.AddRange(employee1, employee2);
-            await _context.SaveChangesAsync(); // Guardar funcionários
-        }
-
-        // Criar estudantes com FirstName e LastName diretos
+        // Criar estudantes
         if (!_context.Students.Any())
         {
-            var class1 = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "Turma A");
-            var class2 = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "Turma B");
+            var class1 = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "Class A");
+            var class2 = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "Class B");
+            var noClass = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "No Class");
 
             var student1 = new Student
             {
@@ -131,8 +132,8 @@ public class SeedDb
                 UserId = studentUser1.Id,
                 EnrollmentDate = DateTime.UtcNow,
                 Status = StudentStatus.Active,
-                SchoolClassId = class1?.Id,
-                ImageId = Guid.Empty // Imagem padrão
+                SchoolClassId = class1?.Id ?? noClass?.Id, // Se Class A não existir, usa No Class
+                ImageId = Guid.Empty
             };
 
             var student2 = new Student
@@ -142,26 +143,30 @@ public class SeedDb
                 UserId = studentUser2.Id,
                 EnrollmentDate = DateTime.UtcNow,
                 Status = StudentStatus.Active,
-                SchoolClassId = class2?.Id,
-                ImageId = Guid.Empty // Imagem padrão
+                SchoolClassId = class2?.Id ?? noClass?.Id, // Se Class B não existir, usa No Class
+                ImageId = Guid.Empty
             };
 
             _context.Students.AddRange(student1, student2);
-            await _context.SaveChangesAsync(); // Guardar estudantes
+            await _context.SaveChangesAsync(); // Salvar estudantes
         }
 
-        // Verificar se existem professores
+        // Criar professores
         if (!_context.Teachers.Any())
         {
             var teacherUser = await CreateUserAsync("teacher1@school.com", "Teacher1", "User", "Teacher123!", "Teacher");
 
-            var class1 = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "Turma A");
-            var class2 = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "Turma B");
+            var class1 = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "Class A");
+            var class2 = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "Class B");
 
-            var subject1 = _context.Subjects.FirstOrDefault(s => s.SubjectName == "Álgebra");
-            var subject2 = _context.Subjects.FirstOrDefault(s => s.SubjectName == "Biologia");
+            if (class1 == null || class2 == null)
+            {
+                throw new InvalidOperationException("Classes must be created before associating teachers to them.");
+            }
 
-            // Criar o professor
+            var subject1 = _context.Subjects.FirstOrDefault(s => s.SubjectName == "Mathematics");
+            var subject2 = _context.Subjects.FirstOrDefault(s => s.SubjectName == "Science");
+
             var teacher = new Teacher
             {
                 FirstName = "Teacher1",
@@ -170,7 +175,7 @@ public class SeedDb
                 HireDate = DateTime.UtcNow,
                 Status = TeacherStatus.Active,
                 AcademicDegree = AcademicDegree.BachelorsDegree,
-                ImageId = Guid.Empty // Imagem padrão
+                ImageId = Guid.Empty
             };
 
             _context.Teachers.Add(teacher);
@@ -179,8 +184,8 @@ public class SeedDb
             // Associar professor a turmas
             var teacherSchoolClasses = new TeacherSchoolClass[]
             {
-        new TeacherSchoolClass { TeacherId = teacher.Id, SchoolClassId = class1.Id },
-        new TeacherSchoolClass { TeacherId = teacher.Id, SchoolClassId = class2.Id }
+                new TeacherSchoolClass { TeacherId = teacher.Id, SchoolClassId = class1.Id },
+                new TeacherSchoolClass { TeacherId = teacher.Id, SchoolClassId = class2.Id }
             };
 
             _context.TeacherSchoolClasses.AddRange(teacherSchoolClasses);
@@ -188,29 +193,47 @@ public class SeedDb
             // Associar professor a disciplinas
             var teacherSubjects = new TeacherSubject[]
             {
-        new TeacherSubject { TeacherId = teacher.Id, SubjectId = subject1.Id },
-        new TeacherSubject { TeacherId = teacher.Id, SubjectId = subject2.Id }
+                new TeacherSubject { TeacherId = teacher.Id, SubjectId = subject1.Id },
+                new TeacherSubject { TeacherId = teacher.Id, SubjectId = subject2.Id }
             };
 
             _context.TeacherSubjects.AddRange(teacherSubjects);
 
-            await _context.SaveChangesAsync(); // Guardar associações
+            await _context.SaveChangesAsync(); // Salvar associações
         }
 
-
-        // Criar notas
-        if (!_context.Grades.Any())
+        // Criar funcionários
+        if (!_context.Employees.Any())
         {
-            var student1 = _context.Students.FirstOrDefault(s => s.UserId == studentUser1.Id);
-            var student2 = _context.Students.FirstOrDefault(s => s.UserId == studentUser2.Id);
+            var employeeUser1 = await CreateUserAsync("employee1@school.com", "Employee1", "User", "Employee123!", "Employee");
+            var employeeUser2 = await CreateUserAsync("employee2@school.com", "Employee2", "User", "Employee123!", "Employee");
 
-            var subject1 = _context.Subjects.FirstOrDefault(s => s.SubjectName == "Álgebra");
-            var subject2 = _context.Subjects.FirstOrDefault(s => s.SubjectName == "Biologia");
+            var employee1 = new Employee
+            {
+                FirstName = "Employee1",
+                LastName = "User",
+                UserId = employeeUser1.Id,
+                Department = Department.Administration,
+                HireDate = DateTime.UtcNow,
+                PhoneNumber = "123-456-7890",
+                Status = EmployeeStatus.Active,
+                ImageId = Guid.Empty
+            };
 
-            var grade1 = new Grade { StudentId = student1?.Id, SubjectId = subject1?.Id, Value = 90, Status = "Passed", DateRecorded = DateTime.UtcNow };
-            var grade2 = new Grade { StudentId = student2?.Id, SubjectId = subject2?.Id, Value = 85, Status = "Passed", DateRecorded = DateTime.UtcNow };
-            _context.Grades.AddRange(grade1, grade2);
-            await _context.SaveChangesAsync(); // Guardar notas
+            var employee2 = new Employee
+            {
+                FirstName = "Employee2",
+                LastName = "User",
+                UserId = employeeUser2.Id,
+                Department = Department.HumanResources,
+                HireDate = DateTime.UtcNow,
+                PhoneNumber = "987-654-3210",
+                Status = EmployeeStatus.Active,
+                ImageId = Guid.Empty
+            };
+
+            _context.Employees.AddRange(employee1, employee2);
+            await _context.SaveChangesAsync(); // Salvar funcionários
         }
     }
 
