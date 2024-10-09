@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SchoolManagementSystem.Migrations
 {
     [DbContext(typeof(SchoolDbContext))]
-    [Migration("20241009185039_InitDB")]
+    [Migration("20241009212345_InitDB")]
     partial class InitDB
     {
         /// <inheritdoc />
@@ -481,9 +481,6 @@ namespace SchoolManagementSystem.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("SchoolClassId")
-                        .HasColumnType("int");
-
                     b.Property<string>("SubjectName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -492,8 +489,6 @@ namespace SchoolManagementSystem.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CourseId");
-
-                    b.HasIndex("SchoolClassId");
 
                     b.ToTable("Subjects");
                 });
@@ -826,10 +821,6 @@ namespace SchoolManagementSystem.Migrations
                     b.HasOne("SchoolManagementSystem.Data.Entities.Course", null)
                         .WithMany("Subjects")
                         .HasForeignKey("CourseId");
-
-                    b.HasOne("SchoolManagementSystem.Data.Entities.SchoolClass", null)
-                        .WithMany("Subjects")
-                        .HasForeignKey("SchoolClassId");
                 });
 
             modelBuilder.Entity("SchoolManagementSystem.Data.Entities.Teacher", b =>
@@ -893,8 +884,6 @@ namespace SchoolManagementSystem.Migrations
             modelBuilder.Entity("SchoolManagementSystem.Data.Entities.SchoolClass", b =>
                 {
                     b.Navigation("Students");
-
-                    b.Navigation("Subjects");
 
                     b.Navigation("TeacherSchoolClasses");
                 });

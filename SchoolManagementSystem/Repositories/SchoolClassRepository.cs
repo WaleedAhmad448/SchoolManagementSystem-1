@@ -1,5 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SchoolManagementSystem.Data.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SchoolManagementSystem.Repositories
 {
@@ -20,48 +24,12 @@ namespace SchoolManagementSystem.Repositories
                 .ToListAsync();
         }
 
-        // Método para contar o número de alunos em uma turma específica
-        public async Task<int> GetStudentCountByClassIdAsync(int classId)
-        {
-            return await _context.Students
-                .CountAsync(s => s.SchoolClassId == classId);
-        }
-
-        // Método para obter uma turma com suas disciplinas associadas
-        public async Task<SchoolClass> GetClassWithSubjectsAsync(int classId)
+        // Método para obter uma turma com seus alunos associados
+        public async Task<SchoolClass> GetClassWithStudentsAsync(int classId)
         {
             return await _context.SchoolClasses
-                .Include(c => c.Subjects)
+                .Include(c => c.Students)
                 .FirstOrDefaultAsync(c => c.Id == classId);
-        }
-
-        // Método para obter todas as turmas
-        public async Task<IEnumerable<SchoolClass>> GetAllAsync()
-        {
-            return await _context.SchoolClasses.ToListAsync();
-        }
-
-        // Método para obter turmas que não estão associadas a nenhum curso
-        public async Task<IEnumerable<SchoolClass>> GetClassesWithoutCourseAsync()
-        {
-            return await _context.SchoolClasses
-                .Where(c => c.CourseId == null)
-                .ToListAsync();
-        }
-
-        // Método para filtrar turmas por período de datas
-        public async Task<IEnumerable<SchoolClass>> GetClassesByDateRangeAsync(DateTime startDate, DateTime endDate)
-        {
-            return await _context.SchoolClasses
-                .Where(c => c.StartDate >= startDate && c.EndDate <= endDate)
-                .ToListAsync();
-        }
-
-        // Método para verificar se uma turma já está associada a um curso
-        public async Task<bool> IsClassAssignedToCourseAsync(int classId)
-        {
-            return await _context.SchoolClasses
-                .AnyAsync(c => c.Id == classId && c.CourseId != null);
         }
 
         // Método para obter uma turma com seus professores associados
@@ -73,12 +41,19 @@ namespace SchoolManagementSystem.Repositories
                 .FirstOrDefaultAsync(c => c.Id == classId);
         }
 
-        // Método para obter uma turma com seus alunos associados
-        public async Task<SchoolClass> GetClassWithStudentsAsync(int classId)
+        // Método para verificar se uma turma já está associada a um curso
+        public async Task<bool> IsClassAssignedToCourseAsync(int classId)
         {
             return await _context.SchoolClasses
-                .Include(c => c.Students)
-                .FirstOrDefaultAsync(c => c.Id == classId);
+                .AnyAsync(c => c.Id == classId && c.CourseId != null);
+        }
+
+        // Método para obter todas as turmas
+        public async Task<IEnumerable<SchoolClass>> GetAllAsync()
+        {
+            return await _context.SchoolClasses
+                .Include(c => c.Students) // Inclui alunos para mais informações, se necessário
+                .ToListAsync();
         }
     }
 }

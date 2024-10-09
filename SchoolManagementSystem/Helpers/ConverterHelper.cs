@@ -226,22 +226,19 @@ namespace SchoolManagementSystem.Helpers
 
             return new SchoolClass
             {
-                Id = isNew ? 0 : model.Id, // If new, sets Id to 0
-                ClassName = model.ClassName, // Sets ClassName from the ViewModel
-                //CourseId = model.CourseId, // Uses the selected course (nullable)
-                StartDate = model.StartDate, // Uses the start date
-                EndDate = model.EndDate, // Uses the end date
+                Id = isNew ? 0 : model.Id, // Se for novo, define Id como 0
+                ClassName = model.ClassName,
+                CourseId = model.CourseId,
+                StartDate = model.StartDate,
+                EndDate = model.EndDate,
 
-                // Garantir que os Subjects e Students não sejam null
-                Subjects = model.SubjectIds?.Select(id => new Subject { Id = id }).ToList()
-                          ?? new List<Subject>(),
-
-                Students = model.StudentIds?.Select(id => new Student { Id = id }).ToList()
-                          ?? new List<Student>()
+                // Associa os alunos e professores
+                Students = model.StudentIds.Select(id => new Student { Id = id }).ToList(),
+                TeacherSchoolClasses = model.TeacherIds.Select(id => new TeacherSchoolClass { TeacherId = id }).ToList()
             };
         }
 
-        // Conversion from SchoolClass to SchoolClassViewModel
+        // Conversão de SchoolClass para SchoolClassViewModel
         public SchoolClassViewModel ToSchoolClassViewModel(SchoolClass schoolClass)
         {
             if (schoolClass == null) throw new ArgumentNullException(nameof(schoolClass));
@@ -249,17 +246,18 @@ namespace SchoolManagementSystem.Helpers
             return new SchoolClassViewModel
             {
                 Id = schoolClass.Id,
-                ClassName = schoolClass.ClassName, // Maps the ClassName
-                CourseId = schoolClass.CourseId, // Sets the related CourseId (nullable)
-                StartDate = schoolClass.StartDate, // Maps the StartDate
-                EndDate = schoolClass.EndDate, // Maps the EndDate
+                ClassName = schoolClass.ClassName,
+                CourseId = schoolClass.CourseId,
+                StartDate = schoolClass.StartDate,
+                EndDate = schoolClass.EndDate,
 
-                // Garantir que os Subjects e Students não sejam null
-                SubjectIds = schoolClass.Subjects?.Select(s => s.Id).ToList() ?? new List<int>(),
-                StudentIds = schoolClass.Students?.Select(s => s.Id).ToList() ?? new List<int>(),
+                // Coleta os IDs dos alunos e professores
+                StudentIds = schoolClass.Students.Select(s => s.Id).ToList(),
+                TeacherIds = schoolClass.TeacherSchoolClasses.Select(t => t.TeacherId).ToList(),
 
-                Subjects = schoolClass.Subjects ?? new List<Subject>(),
-                Students = schoolClass.Students ?? new List<Student>()
+                // Populando as coleções para exibição
+                Students = schoolClass.Students,
+                Teachers = schoolClass.TeacherSchoolClasses.Select(tsc => tsc.Teacher).ToList()
             };
         }
 

@@ -18,34 +18,36 @@
     </div>
 }
 
-<form id="createClassForm" asp-action="Create" method="post">
-    <div class="mb-3">
-        <label asp-for="ClassName" class="form-label">Class Name <span class="text-danger">*</span></label>
-        <input asp-for="ClassName" class="form-control" required />
-        <span asp-validation-for="ClassName" class="text-danger"></span>
+<form id="createSchoolClassForm" asp-action="Create" method="post">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="ClassName" class="form-label">Class Name <span class="text-danger">*</span></label>
+            <input asp-for="ClassName" class="form-control" required />
+            <span asp-validation-for="ClassName" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="CourseId" class="form-label">Associated Course <span class="text-danger">*</span></label>
+            <select asp-for="CourseId" class="form-select" asp-items="ViewBag.Courses" required>
+                <option value="">Select Course</option>
+            </select>
+            <span asp-validation-for="CourseId" class="text-danger"></span>
+        </div>
     </div>
 
-    <div class="mb-3">
-        <label asp-for="CourseId" class="form-label">Course <span class="text-danger">*</span></label>
-        <select asp-for="CourseId" class="form-select" asp-items="@(new SelectList(ViewBag.CourseId, "Id", "CourseName"))" required>
-            <option value="">Select Course</option> <!-- Default option -->
-        </select>
-        <span asp-validation-for="CourseId" class="text-danger"></span>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="StartDate" class="form-label">Start Date <span class="text-danger">*</span></label>
+            <input asp-for="StartDate" type="date" class="form-control" required />
+            <span asp-validation-for="StartDate" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="EndDate" class="form-label">End Date <span class="text-danger">*</span></label>
+            <input asp-for="EndDate" type="date" class="form-control" required />
+            <span asp-validation-for="EndDate" class="text-danger"></span>
+        </div>
     </div>
 
-    <div class="mb-3">
-        <label asp-for="StartDate" class="form-label">Start Date <span class="text-danger">*</span></label>
-        <input asp-for="StartDate" type="date" class="form-control" required />
-        <span asp-validation-for="StartDate" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="EndDate" class="form-label">End Date <span class="text-danger">*</span></label>
-        <input asp-for="EndDate" type="date" class="form-control" required />
-        <span asp-validation-for="EndDate" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Create Class</button>
+    <button type="submit" class="btn btn-primary">Create School Class</button>
 </form>
 
 @section Scripts {
@@ -54,6 +56,6 @@
 
     <script>
         // SweetAlert2 confirmation before submitting the form
-        setupSweetAlertOnSubmit("createClassForm", "School class created successfully.");
+        setupSweetAlertOnSubmit("createSchoolClassForm", "School Class created successfully.");
     </script>
 }

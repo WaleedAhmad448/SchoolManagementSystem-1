@@ -7,81 +7,74 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
 
 namespace SchoolManagementSystem.Controllers
 {
     public class SchoolClassesController : Controller
     {
         private readonly ISchoolClassRepository _schoolClassRepository;
-        private readonly IConverterHelper _converterHelper;
         private readonly ICourseRepository _courseRepository;
+        private readonly IConverterHelper _converterHelper;
         private readonly ILogger<SchoolClassesController> _logger;
 
         public SchoolClassesController(
             ISchoolClassRepository schoolClassRepository,
-            IConverterHelper converterHelper,
             ICourseRepository courseRepository,
+            IConverterHelper converterHelper,
             ILogger<SchoolClassesController> logger)
         {
             _schoolClassRepository = schoolClassRepository;
-            _converterHelper = converterHelper;
             _courseRepository = courseRepository;
+            _converterHelper = converterHelper;
             _logger = logger;
         }
 
-        // GET: SchoolClasses
+        // GET: SchoolClass
         public async Task<IActionResult> Index()
         {
             var schoolClasses = await _schoolClassRepository.GetAllAsync();
-            // Converte SchoolClasses para SchoolClassViewModels
-            var viewModel = schoolClasses.Select(sc => _converterHelper.ToSchoolClassViewModel(sc)).ToList();
-            return View(viewModel);
+            return View(schoolClasses);
         }
 
-        // GET: SchoolClasses/Details/5
+        // GET: SchoolClass/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return new NotFoundViewResult("SchoolClassNotFound");
 
-            var schoolClass = await _schoolClassRepository.GetClassWithSubjectsAsync(id.Value);
+            var schoolClass = await _schoolClassRepository.GetClassWithStudentsAsync(id.Value);
             if (schoolClass == null) return new NotFoundViewResult("SchoolClassNotFound");
 
-            return View(_converterHelper.ToSchoolClassViewModel(schoolClass));
+            var model = _converterHelper.ToSchoolClassViewModel(schoolClass);
+            return View(model);
         }
 
-        // GET: SchoolClasses/Create
+        // GET: SchoolClass/Create
         public async Task<IActionResult> Create()
         {
-            await LoadDropdownData();
+            var courses = await _courseRepository.GetAllCoursesAsync();
+            ViewBag.Courses = new SelectList(courses, "Id", "CourseName");
             return View();
         }
 
-        // POST: SchoolClasses/Create
+        // POST: SchoolClass/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SchoolClassViewModel model)
         {
             if (ModelState.IsValid)
             {
-                try
-                {
-                    var schoolClass = await _converterHelper.ToSchoolClassAsync(model, true);
-                    await _schoolClassRepository.CreateAsync(schoolClass);
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Unexpected error creating school class.");
-                    ModelState.AddModelError("", "An unexpected error occurred. Please try again.");
-                }
+                var schoolClass = await _converterHelper.ToSchoolClassAsync(model, true);
+                await _schoolClassRepository.CreateAsync(schoolClass);
+                return RedirectToAction(nameof(Index));
             }
 
-            await LoadDropdownData(); // Recarregar os cursos no caso de erro
+            // Reload courses if there's a validation error
+            var courses = await _courseRepository.GetAllCoursesAsync();
+            ViewBag.Courses = new SelectList(courses, "Id", "CourseName");
             return View(model);
         }
 
-        // GET: SchoolClasses/Edit/5
+        // GET: SchoolClass/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return new NotFoundViewResult("SchoolClassNotFound");
@@ -90,11 +83,12 @@ namespace SchoolManagementSystem.Controllers
             if (schoolClass == null) return new NotFoundViewResult("SchoolClassNotFound");
 
             var model = _converterHelper.ToSchoolClassViewModel(schoolClass);
-            await LoadDropdownData();
+            var courses = await _courseRepository.GetAllCoursesAsync();
+            ViewBag.Courses = new SelectList(courses, "Id", "CourseName", model.CourseId); // Preselect the course
             return View(model);
         }
 
-        // POST: SchoolClasses/Edit/5
+        // POST: SchoolClass/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, SchoolClassViewModel model)
@@ -103,72 +97,39 @@ namespace SchoolManagementSystem.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    var schoolClass = await _converterHelper.ToSchoolClassAsync(model, false);
-                    await _schoolClassRepository.UpdateAsync(schoolClass);
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!await SchoolClassExists(model.Id)) return new NotFoundViewResult("SchoolClassNotFound");
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error updating school class.");
-                    ModelState.AddModelError("", "An unexpected error occurred. Please try again.");
-                }
+                var schoolClass = await _converterHelper.ToSchoolClassAsync(model, false);
+                await _schoolClassRepository.UpdateAsync(schoolClass);
+                return RedirectToAction(nameof(Index));
             }
 
-            await LoadDropdownData(); // Recarregar os cursos no caso de erro
+            var courses = await _courseRepository.GetAllCoursesAsync();
+            ViewBag.Courses = new SelectList(courses, "Id", "CourseName", model.CourseId);
             return View(model);
         }
 
-        // GET: SchoolClasses/Delete/5
+        // GET: SchoolClass/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return new NotFoundViewResult("SchoolClassNotFound");
 
-            var schoolClass = await _schoolClassRepository.GetByIdAsync(id.Value);
+            var schoolClass = await _schoolClassRepository.GetClassWithStudentsAsync(id.Value);
             if (schoolClass == null) return new NotFoundViewResult("SchoolClassNotFound");
 
-            return View(_converterHelper.ToSchoolClassViewModel(schoolClass));
+            var model = _converterHelper.ToSchoolClassViewModel(schoolClass);
+            return View(model);
         }
 
-        // POST: SchoolClasses/Delete/5
+        // POST: SchoolClass/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var schoolClass = await _schoolClassRepository.GetByIdAsync(id);
-            if (schoolClass == null) return new NotFoundViewResult("SchoolClassNotFound");
-
-            try
+            if (schoolClass != null)
             {
                 await _schoolClassRepository.DeleteAsync(schoolClass);
-                return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateException ex)
-            {
-                if (ex.InnerException != null && ex.InnerException.Message.Contains("DELETE"))
-                {
-                    ViewBag.ErrorTitle = $"{schoolClass.ClassName} is being used!";
-                    ViewBag.ErrorMessage = "This school class cannot be deleted because it has associated data.";
-                }
-                return View("Error");
-            }
-        }
-
-        private async Task<bool> SchoolClassExists(int id)
-        {
-            return await _schoolClassRepository.ExistAsync(id);
-        }
-
-        private async Task LoadDropdownData()
-        {
-            var courses = await _courseRepository.GetAllCoursesAsync();
-            ViewBag.CourseId = new SelectList(courses, "Id", "CourseName");
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult SchoolClassNotFound()

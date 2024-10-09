@@ -10,7 +10,7 @@ namespace SchoolManagementSystem.Data.Entities
         [MaxLength(50)]
         public string ClassName { get; set; }
 
-        public int? CourseId { get; set; } // Foreign key
+        public int? CourseId { get; set; } // Foreign key for associated Course
         public Course Course { get; set; } // Navigation property for Course
 
         [Display(Name = "Start Date")]
@@ -19,11 +19,8 @@ namespace SchoolManagementSystem.Data.Entities
         [Display(Name = "End Date")]
         public DateTime EndDate { get; set; }
 
-        // Collection of students
+        // Collection of students associated with this class
         public ICollection<Student> Students { get; set; } = new List<Student>();
-
-        // Collection of subjects associated with this class
-        public ICollection<Subject> Subjects { get; set; } = new List<Subject>();
 
         // Collection of teachers associated with this class
         public ICollection<TeacherSchoolClass> TeacherSchoolClasses { get; set; } = new List<TeacherSchoolClass>();
