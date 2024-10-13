@@ -14,7 +14,7 @@ namespace SchoolManagementSystem.Helpers
 
         public BlobHelper(IConfiguration configuration)
         {
-            // Conexão com Azure Blob Storage
+            // Connect to Azure Blob Storage
             string keys = configuration["Blob:ConnectionStrings"];
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(keys);
             _blobClient = storageAccount.CreateCloudBlobClient();

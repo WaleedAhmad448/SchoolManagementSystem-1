@@ -4,22 +4,20 @@ namespace SchoolManagementSystem.Models
 {
     public class ChangePasswordViewModel
     {
-        //Vai ser obrigatorio preencher a Password antiga
+        // Current password is required
         [Required]
         [Display(Name = "Current password")]
-        //Aqui vai por a Password antiga
         public string OldPassword { get; set; }
 
-        //Vai ser obrigatorio preencher a Password nova
+        // New password is required
         [Required]
         [Display(Name = "New password")]
-        //Aqui vai por a Password nova
         public string NewPassword { get; set; }
 
-        //Confirmaçao, que serve para o utilizador por a password 2 vexes
+        // Confirmation for the new password
         [Required]
-        //Aqui vai confirmar que o valor que o utilizador poem no segundo campo é igual ao valor que defeniu para a New password
-        [Compare("NewPassword")]
+        // Validates that the confirmation matches the new password
+        [Compare("NewPassword", ErrorMessage = "The confirmation password does not match the new password.")]
         public string Confirm { get; set; }
     }
 }

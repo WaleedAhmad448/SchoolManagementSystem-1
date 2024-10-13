@@ -28,13 +28,13 @@ namespace SchoolManagementSystem.Models
 
         public string FormattedHireDate => HireDate?.ToString("dd/MM/yyyy");
 
-        // Coleção de IDs das turmas associadas ao professor
+        // Collection of associated SchoolClass IDs
         public ICollection<int> SchoolClassIds { get; set; } = new List<int>();
 
-        // Coleção de IDs das disciplinas que o professor leciona
+        // Collection of associated Subject IDs
         public ICollection<int> SubjectIds { get; set; } = new List<int>();
 
-        // ID da imagem para a foto de perfil do professor
+        // ID for the teacher's profile picture
         public Guid ImageId { get; set; }
 
         [Display(Name = "Image")]
@@ -44,16 +44,16 @@ namespace SchoolManagementSystem.Models
             ? "https://schoolstorageaccount.blob.core.windows.net/images/noimage.png"
             : $"https://schoolstorageaccount.blob.core.windows.net/teachers/{ImageId}";
 
-        // Status do professor
+        // Teacher's status
         public TeacherStatus Status { get; set; } = TeacherStatus.Active;
 
-        // Propriedade para armazenar os utilizadores pendentes
+        // Property for pending users
         public IEnumerable<User>? PendingUsers { get; set; }
 
-        // Propriedade para armazenar as turmas associadas ao professor
+        // Property for associated SchoolClasses
         public IEnumerable<SchoolClass>? SchoolClasses { get; set; }
 
-        // Propriedade para armazenar as disciplinas associadas ao professor
+        // Property for associated Subjects
         public IEnumerable<Subject>? Subjects { get; set; }
     }
 }

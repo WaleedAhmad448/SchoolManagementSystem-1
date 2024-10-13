@@ -1,37 +1,32 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using SchoolManagementSystem.Data.Entities;
+using SchoolManagementSystem.Helpers;
 using SchoolManagementSystem.Models;
 using SchoolManagementSystem.Repositories;
-using SchoolManagementSystem.Helpers;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using SchoolManagementSystem.Data.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace SchoolManagementSystem.Controllers
 {
     public class CoursesController : Controller
     {
         private readonly ICourseRepository _courseRepository;
-        private readonly IConverterHelper _converterHelper;
         private readonly ISchoolClassRepository _schoolClassRepository;
         private readonly ISubjectRepository _subjectRepository;
-        private readonly ILogger<CoursesController> _logger;
+        private readonly IConverterHelper _converterHelper;
 
         public CoursesController(
             ICourseRepository courseRepository,
-            IConverterHelper converterHelper,
             ISchoolClassRepository schoolClassRepository,
             ISubjectRepository subjectRepository,
-            ILogger<CoursesController> logger)
+            IConverterHelper converterHelper)
         {
             _courseRepository = courseRepository;
-            _converterHelper = converterHelper;
             _schoolClassRepository = schoolClassRepository;
             _subjectRepository = subjectRepository;
-            _logger = logger;
+            _converterHelper = converterHelper;
         }
 
         // GET: Courses
@@ -41,29 +36,25 @@ namespace SchoolManagementSystem.Controllers
             return View(courses);
         }
 
-        // GET: Courses/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null) return new NotFoundViewResult("CourseNotFound");
-
-            var course = await _courseRepository.GetCourseWithClassesAsync(id.Value);
-            if (course == null) return new NotFoundViewResult("CourseNotFound");
-
-            return View(_converterHelper.ToCourseViewModel(course));
-        }
-
         // GET: Courses/Create
         public async Task<IActionResult> Create()
         {
             var model = new CourseViewModel
             {
-                SubjectIds = new List<int>(), // Inicializando como lista vazia
-                SchoolClassIds = new List<int>() // Inicializando como lista vazia
+                AvailableSchoolClasses = (await _schoolClassRepository.GetAllAvailableAsync()).Select(sc => new SelectListItem
+                {
+                    Value = sc.Id.ToString(),
+                    Text = sc.ClassName
+                }),
+                AvailableSubjects = (await _subjectRepository.GetAllAsync()).Select(s => new SelectListItem
+                {
+                    Value = s.Id.ToString(),
+                    Text = s.SubjectName
+                })
             };
-            await LoadDropdownData();
+
             return View(model);
         }
-
 
         // POST: Courses/Create
         [HttpPost]
@@ -72,41 +63,49 @@ namespace SchoolManagementSystem.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await LoadDropdownData();
-                return View(model); // Retorna a view com os erros
+                // Repopula as listas disponíveis
+                await PopulateAvailableClassesAndSubjects(model);
+                return View(model);
             }
 
             try
             {
-                var course = await _converterHelper.ToCourseAsync(model);
+                var course = await _converterHelper.ToCourseAsync(model, true);
                 await _courseRepository.CreateAsync(course);
                 return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Database error occurred while creating course.");
-                ModelState.AddModelError("", "Database error occurred. Please try again.");
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error creating course.");
-                ModelState.AddModelError("", "An unexpected error occurred. Please try again.");
+                ModelState.AddModelError("", $"An error occurred while creating the course: {ex.Message}");
             }
 
-            await LoadDropdownData();
-            return View(model); // Retorna a view com os erros
+            // Repopula as listas disponíveis em caso de erro
+            await PopulateAvailableClassesAndSubjects(model);
+            return View(model);
         }
 
         // GET: Courses/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null) return new NotFoundViewResult("CourseNotFound");
-
-            var course = await _courseRepository.GetByIdAsync(id.Value);
-            if (course == null) return new NotFoundViewResult("CourseNotFound");
+            var course = await _courseRepository.GetByIdAsync(id);
+            if (course == null) return NotFound();
 
             var model = _converterHelper.ToCourseViewModel(course);
-            await LoadDropdownData();
+
+            model.AvailableSchoolClasses = (await _schoolClassRepository.GetAllAvailableAsync()).Select(sc => new SelectListItem
+            {
+                Value = sc.Id.ToString(),
+                Text = sc.ClassName,
+                Selected = course.SchoolClasses.Any(cs => cs.Id == sc.Id) // Marca as classes associadas
+            });
+
+            model.AvailableSubjects = (await _subjectRepository.GetAllAsync()).Select(s => new SelectListItem
+            {
+                Value = s.Id.ToString(),
+                Text = s.SubjectName,
+                Selected = course.CourseSubjects.Any(cs => cs.SubjectId == s.Id) // Marca as disciplinas associadas
+            });
+
             return View(model);
         }
 
@@ -115,44 +114,59 @@ namespace SchoolManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, CourseViewModel model)
         {
-            if (id != model.Id) return new NotFoundViewResult("CourseNotFound");
+            if (id != model.Id) return NotFound();
 
             if (!ModelState.IsValid)
             {
-                await LoadDropdownData();
-                return View(model); // Retorna a view com os erros
+                // Repopula as listas disponíveis em caso de erro
+                model.AvailableSchoolClasses = (await _schoolClassRepository.GetAllAvailableAsync()).Select(sc => new SelectListItem
+                {
+                    Value = sc.Id.ToString(),
+                    Text = sc.ClassName
+                });
+                model.AvailableSubjects = (await _subjectRepository.GetAllAsync()).Select(s => new SelectListItem
+                {
+                    Value = s.Id.ToString(),
+                    Text = s.SubjectName
+                });
+
+                return View(model);
             }
 
             try
             {
-                var course = await _converterHelper.ToCourseAsync(model);
+                var course = await _converterHelper.ToCourseAsync(model, false);
                 await _courseRepository.UpdateAsync(course);
                 return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await CourseExists(model.Id)) return new NotFoundViewResult("CourseNotFound");
-                throw;
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating course.");
-                ModelState.AddModelError("", "An unexpected error occurred. Please try again.");
+                ModelState.AddModelError("", $"An error occurred while updating the course: {ex.Message}");
             }
 
-            await LoadDropdownData();
-            return View(model); // Retorna a view com os erros
+            // Repopula as listas disponíveis em caso de erro
+            model.AvailableSchoolClasses = (await _schoolClassRepository.GetAllAvailableAsync()).Select(sc => new SelectListItem
+            {
+                Value = sc.Id.ToString(),
+                Text = sc.ClassName
+            });
+            model.AvailableSubjects = (await _subjectRepository.GetAllAsync()).Select(s => new SelectListItem
+            {
+                Value = s.Id.ToString(),
+                Text = s.SubjectName
+            });
+
+            return View(model);
         }
 
         // GET: Courses/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null) return new NotFoundViewResult("CourseNotFound");
+            var course = await _courseRepository.GetCourseWithClassesAndSubjectsAsync(id);
+            if (course == null) return NotFound();
 
-            var course = await _courseRepository.GetByIdAsync(id.Value);
-            if (course == null) return new NotFoundViewResult("CourseNotFound");
-
-            return View(_converterHelper.ToCourseViewModel(course));
+            var model = _converterHelper.ToCourseViewModel(course);
+            return View(model);
         }
 
         // POST: Courses/Delete/5
@@ -161,59 +175,47 @@ namespace SchoolManagementSystem.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var course = await _courseRepository.GetByIdAsync(id);
-            if (course == null) return new NotFoundViewResult("CourseNotFound");
+            if (course == null) return NotFound();
 
             try
             {
                 await _courseRepository.DeleteAsync(course);
                 return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateException ex)
+            catch (Exception ex)
             {
-                if (ex.InnerException != null && ex.InnerException.Message.Contains("DELETE"))
-                {
-                    ViewBag.ErrorTitle = $"{course.CourseName} is being used!";
-                    ViewBag.ErrorMessage = "This course cannot be deleted because it has associated data.";
-                }
-                return View("Error");
+                ModelState.AddModelError("", $"An error occurred while deleting the course: {ex.Message}");
             }
+
+            return View(course);
         }
 
-        private async Task<bool> CourseExists(int id)
+        // GET: Courses/Details/5
+        public async Task<IActionResult> Details(int id)
         {
-            return await _courseRepository.ExistAsync(id);
+            var course = await _courseRepository.GetCourseWithClassesAndSubjectsAsync(id);
+            if (course == null) return NotFound();
+
+            var model = _converterHelper.ToCourseViewModel(course);
+            return View(model);
         }
 
-        // Método para carregar dropdowns de Subjects e SchoolClasses
-        private async Task LoadDropdownData()
+        // Método para repopular as listas de turmas e disciplinas
+        private async Task PopulateAvailableClassesAndSubjects(CourseViewModel model)
         {
-            // Carregar disciplinas (Subjects) - todas as disciplinas devem aparecer, mesmo se associadas a outros cursos
-            var subjects = await _subjectRepository.GetAllAsync();
+            model.AvailableSchoolClasses = (await _schoolClassRepository.GetAllAvailableAsync())
+                .Select(sc => new SelectListItem
+                {
+                    Value = sc.Id.ToString(),
+                    Text = sc.ClassName
+                });
 
-            // Carregar turmas (SchoolClasses) - apenas turmas que ainda não estão associadas a um curso, mas incluindo "No Class"
-            var availableClasses = await _schoolClassRepository.GetAllAsync();
-            var filteredClasses = availableClasses
-                .Where(c => c.CourseId == null || c.ClassName == "No Class") // Filtrar turmas sem curso ou "No Class"
-                .ToList();
-
-            // Popular as dropdowns com os dados filtrados
-            ViewBag.Subjects = subjects.Select(s => new SelectListItem
-            {
-                Value = s.Id.ToString(),
-                Text = s.SubjectName
-            }).ToList();
-
-            ViewBag.SchoolClasses = filteredClasses.Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = c.ClassName
-            }).ToList();
-        }
-
-
-        public IActionResult CourseNotFound()
-        {
-            return View();
+            model.AvailableSubjects = (await _subjectRepository.GetAllAsync())
+                .Select(s => new SelectListItem
+                {
+                    Value = s.Id.ToString(),
+                    Text = s.SubjectName
+                });
         }
     }
 }

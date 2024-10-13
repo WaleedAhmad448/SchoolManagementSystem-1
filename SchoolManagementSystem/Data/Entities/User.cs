@@ -15,7 +15,7 @@ namespace SchoolManagementSystem.Data.Entities
         public string? Address { get; set; }
 
         [Display(Name = "Profile Picture")]
-        public Guid? ProfilePictureId { get; set; } // Tornado opcional
+        public Guid? ProfilePictureId { get; set; }
 
         [Display(Name = "Full Name")]
         public string FullName => $"{FirstName} {LastName}";
@@ -24,6 +24,6 @@ namespace SchoolManagementSystem.Data.Entities
         public DateTime DateCreated { get; set; }
 
         [Display(Name = "Last Login")]
-        public DateTime? LastLogin { get; set; } // Tornado opcional, pois nem sempre terá um valor no início
+        public DateTime? LastLogin { get; set; }
     }
 }

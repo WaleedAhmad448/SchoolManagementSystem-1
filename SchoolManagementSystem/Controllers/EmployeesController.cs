@@ -106,7 +106,7 @@ namespace SchoolManagementSystem.Controllers
                 }
             }
 
-            // Recarregar dropdowns em caso de erro
+            // Reload dropdowns in case of error
             var pendingUsers = await _userHelper.GetAllUsersInRoleAsync("Pending");
             ViewBag.PendingUsers = new SelectList(pendingUsers, "Id", "Email");
 

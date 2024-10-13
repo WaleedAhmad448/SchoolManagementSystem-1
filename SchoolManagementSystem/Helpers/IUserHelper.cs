@@ -6,63 +6,58 @@ namespace SchoolManagementSystem.Helpers
 {
     public interface IUserHelper
     {
-        // Método que recebe um email e devolve o utilizador correspondente a esse email, caso ele exista.
+        // Gets a user by email.
         Task<User> GetUserByEmailAsync(string email);
 
-        // Método que adiciona um novo utilizador ao sistema, recebendo um objeto User e a senha para o registo.
+        // Adds a new user with a password.
         Task<IdentityResult> AddUserAsync(User user, string password);
 
-        // Método que tenta fazer o login de um utilizador com base nas informações de LoginViewModel.
-        // Devolve um resultado de SignIn que indica se o login foi bem-sucedido ou não.
+        // Logs in a user with LoginViewModel data.
         Task<SignInResult> LoginAsync(LoginViewModel model);
 
-        // Método que realiza o logout do utilizador atual.
+        // Logs out the current user.
         Task LogoutAsync();
 
-        // Método para atualizar as informações de um utilizador existente no sistema.
+        // Updates an existing user.
         Task<IdentityResult> UpdateUserAsync(User user);
 
-        // Método para alterar a senha de um utilizador, recebendo a senha antiga e a nova senha.
+        // Changes a user's password.
         Task<IdentityResult> ChangePasswordAsync(User user, string oldPassword, string newPassword);
 
-        //Rolles - Método que verifica se um determinado Role (papel) existe no sistema e, se não existir, cria-o.
+        // Checks if a role exists, creates it if not.
         Task CheckRoleAsync(string roleName);
 
-        //Rolles - Método que adiciona um papel específico a um utilizador.
+        // Adds a user to a specific role.
         Task AddUserToRoleAsync(User user, string roleName);
 
-        //Rolles - Método que verifica se um utilizador já possui um papel específico atribuído.
+        // Checks if a user is in a specific role.
         Task<bool> IsUserInRoleAsync(User user, string roleName);
 
-        // Método que valida a senha de um utilizador, devolvendo o resultado da validação.
+        // Validates a user's password.
         Task<SignInResult> ValidatePasswordAsync(User user, string password);
 
-        // Método que gera um token para confirmação de email e o envia para o email do utilizador.
-        // Esse token é utilizado para garantir que o email fornecido pelo utilizador é válido.
+        // Generates an email confirmation token.
         Task<string> GenerateEmailConfirmationTokenAsync(User user);
 
-        // Método que valida o token de confirmação de email recebido após o usuário clicar no link
-        // de confirmação enviado para o seu email. Se o token for válido, o email do utilizador é confirmado.
+        // Confirms a user's email with a token.
         Task<IdentityResult> ConfirmEmailAsync(User user, string token);
 
-        // Método que retorna um objeto User baseado no ID do utilizador.
-        // Esse método é útil para obter informações detalhadas de um utilizador específico usando seu ID.
+        // Gets a user by their ID.
         Task<User> GetUserByIdAsync(string userId);
 
-        // Método que gera um token para redefinição de senha.
-        // Este token é enviado para o email do utilizador para permitir que ele redefina a sua senha.
-        // Retorna o token gerado.
+        // Generates a password reset token.
         Task<string> GeneratePasswordResetTokenAsync(User user);
 
-        // Método que redefine a senha de um utilizador.
-        // Recebe o utilizador, o token de redefinição e a nova senha.
-        // Retorna um IdentityResult indicando se a redefinição da senha foi bem-sucedida ou se ocorreram erros.
+        // Resets a user's password with a token.
         Task<IdentityResult> ResetPasswordAsync(User user, string token, string password);
 
+        // Removes a user from a role.
         Task RemoveUserFromRoleAsync(User user, string roleName);
+
+        // Gets all users in a specific role.
         Task<List<User>> GetAllUsersInRoleAsync(string roleName);
 
-        // Adiciona o método para notificar a secretaria sobre novos utilizadores "Pending"
+        // Notifies administrative staff about pending users.
         Task NotifyAdministrativeEmployeesPendingUserAsync(User user);
     }
 }

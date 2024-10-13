@@ -12,14 +12,14 @@ namespace SchoolManagementSystem.Models
         [MaxLength(100)]
         public string SubjectName { get; set; }
 
-        public string? Description { get; set; } // Descrição opcional
+        public string? Description { get; set; } 
 
         [Required]
-        public int Credits { get; set; } // Créditos que a disciplina vale
+        public int Credits { get; set; } 
 
         // Foreign keys
-        public int? CourseId { get; set; } // FK opcional para associação a um curso
-        public int? SchoolClassId { get; set; } // FK opcional para associação a uma turma
+        public int? CourseId { get; set; } 
+        public int? SchoolClassId { get; set; } 
 
     }
 }

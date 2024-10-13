@@ -16,7 +16,7 @@ namespace SchoolManagementSystem.Repositories
             _context = context;
         }
 
-        // Método para obter turmas associadas a um curso específico
+        // Method to retrieve classes associated with a specific course
         public async Task<IEnumerable<SchoolClass>> GetClassesByCourseIdAsync(int courseId)
         {
             return await _context.SchoolClasses
@@ -24,7 +24,7 @@ namespace SchoolManagementSystem.Repositories
                 .ToListAsync();
         }
 
-        // Método para obter uma turma com seus alunos associados
+        // Method to retrieve a class with its associated students
         public async Task<SchoolClass> GetClassWithStudentsAsync(int classId)
         {
             return await _context.SchoolClasses
@@ -32,7 +32,7 @@ namespace SchoolManagementSystem.Repositories
                 .FirstOrDefaultAsync(c => c.Id == classId);
         }
 
-        // Método para obter uma turma com seus professores associados
+        // Method to retrieve a class with its associated teachers
         public async Task<SchoolClass> GetClassWithTeachersAsync(int classId)
         {
             return await _context.SchoolClasses
@@ -41,18 +41,26 @@ namespace SchoolManagementSystem.Repositories
                 .FirstOrDefaultAsync(c => c.Id == classId);
         }
 
-        // Método para verificar se uma turma já está associada a um curso
+        // Method to check if a class is already assigned to a course
         public async Task<bool> IsClassAssignedToCourseAsync(int classId)
         {
             return await _context.SchoolClasses
                 .AnyAsync(c => c.Id == classId && c.CourseId != null);
         }
 
-        // Método para obter todas as turmas
+        // Method to retrieve all classes
         public async Task<IEnumerable<SchoolClass>> GetAllAsync()
         {
             return await _context.SchoolClasses
-                .Include(c => c.Students) // Inclui alunos para mais informações, se necessário
+                .Include(c => c.Students) // Include students for additional information if needed
+                .ToListAsync();
+        }
+
+        // Method to retrieve all classes that are not associated with any course
+        public async Task<IEnumerable<SchoolClass>> GetAllAvailableAsync()
+        {
+            return await _context.SchoolClasses
+                .Where(sc => sc.CourseId == null)
                 .ToListAsync();
         }
     }

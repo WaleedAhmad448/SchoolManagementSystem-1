@@ -4,19 +4,17 @@ namespace SchoolManagementSystem.Models
 {
     public class LoginViewModel
     {
-        //O Username é obrigatorio
+        // Username (email) is required
         [Required]
-        //O Username será um email
         [EmailAddress]
         public string Username { get; set; }
 
-        //A Password será obrigatoria
+        // Password is required and must be at least 6 characters long
         [Required]
-        //A Password terá que ter no minimo 6 caracteres
         [MinLength(6)]
         public string Password { get; set; }
 
-        //Esta propriedade vai servir para a pessoa nao precisar de estar sempre a fazer o Login
+        // Option to remember the user, so they don't have to log in again
         public bool RememberMe { get; set; }
     }
 }

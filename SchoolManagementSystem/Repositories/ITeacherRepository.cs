@@ -4,34 +4,37 @@ namespace SchoolManagementSystem.Repositories
 {
     public interface ITeacherRepository : IGenericRepository<Teacher>
     {
-        // Novo método para obter todos os professores com disciplinas
+        // Method to retrieve all teachers with their associated subjects
         Task<IEnumerable<Teacher>> GetAllTeachersWithSubjectsAsync();
 
-        // Obter professores por disciplina, com retorno mais específico
+        // Method to retrieve teachers by subject ID
         Task<IEnumerable<Teacher>> GetTeachersByDisciplineAsync(int subjectId);
 
-        // Novo método para obter professor pelo nome completo
+        // Method to retrieve a teacher by their full name
         Task<Teacher> GetTeacherByFullNameAsync(string fullName);
 
-        // Obter professor específico com suas disciplinas associadas
+        // Method to retrieve a specific teacher with their associated subjects
         Task<Teacher> GetTeacherWithSubjectsAsync(int teacherId);
 
-        // Atualizar as disciplinas de um professor
+        // Method to update the subjects of a teacher
         Task UpdateTeacherSubjectsAsync(int teacherId, IEnumerable<int> subjectIds);
 
-        // Novo método para obter professores por status
+        // Method to retrieve teachers by their status
         Task<IEnumerable<Teacher>> GetTeachersByStatusAsync(TeacherStatus status);
 
-        // Novo método para contar professores por disciplina
+        // Method to count the number of teachers by subject
         Task<int> CountTeachersByDisciplineAsync(int subjectId);
 
-        Task<IEnumerable<Teacher>> GetAllWithIncludesAsync(); // Método que inclui disciplinas e turmas
-        Task<IEnumerable<Teacher>> GetAllAsync(); // Para obter todos os professores
+        // Method to retrieve all teachers including their subjects and classes
+        Task<IEnumerable<Teacher>> GetAllWithIncludesAsync();
 
+        // Method to retrieve all teachers
+        Task<IEnumerable<Teacher>> GetAllAsync();
+
+        // Method to retrieve a specific teacher with detailed information
         Task<Teacher> GetTeacherWithDetailsAsync(int teacherId);
 
+        // Method to update the classes assigned to a teacher
         Task UpdateTeacherClassesAsync(int teacherId, IEnumerable<int> subjectIds);
-        
-
     }
 }

@@ -12,5 +12,6 @@ namespace SchoolManagementSystem.Repositories
         Task<SchoolClass> GetClassWithTeachersAsync(int classId);
         Task<bool> IsClassAssignedToCourseAsync(int classId);
         Task<IEnumerable<SchoolClass>> GetAllAsync();
+        Task<IEnumerable<SchoolClass>> GetAllAvailableAsync();
     }
 }

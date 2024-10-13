@@ -13,16 +13,16 @@ namespace SchoolManagementSystem.Repositories
             _context = context;
         }
 
-        // Obtém todos os professores com suas disciplinas associadas
+        // Retrieves all teachers along with their associated subjects
         public async Task<IEnumerable<Teacher>> GetAllTeachersWithSubjectsAsync()
         {
             return await _context.Teachers
                 .Include(t => t.TeacherSubjects)
-                    .ThenInclude(ts => ts.Subject) // Inclui a entidade Subject através da entidade de junção
+                    .ThenInclude(ts => ts.Subject) // Includes the Subject entity through the junction entity
                 .ToListAsync();
         }
 
-        // Obtém professores que lecionam uma disciplina específica
+        // Retrieves teachers that teach a specific subject
         public async Task<IEnumerable<Teacher>> GetTeachersByDisciplineAsync(int subjectId)
         {
             return await _context.Teachers
@@ -30,24 +30,24 @@ namespace SchoolManagementSystem.Repositories
                 .ToListAsync();
         }
 
-        // Obtém um professor pelo nome completo
+        // Retrieves a teacher by full name
         public async Task<Teacher> GetTeacherByFullNameAsync(string fullName)
         {
-            var names = fullName.Split(' '); // Supondo que o nome completo é fornecido como "FirstName LastName"
+            var names = fullName.Split(' '); // Assuming the full name is provided as "FirstName LastName"
             return await _context.Teachers
                 .FirstOrDefaultAsync(t => t.FirstName == names[0] && t.LastName == names[1]);
         }
 
-        // Obtém um professor específico com suas disciplinas
+        // Retrieves a specific teacher along with their subjects
         public async Task<Teacher> GetTeacherWithSubjectsAsync(int teacherId)
         {
             return await _context.Teachers
                 .Include(t => t.TeacherSubjects)
-                    .ThenInclude(ts => ts.Subject) // Inclui a entidade Subject através da entidade de junção
+                    .ThenInclude(ts => ts.Subject) // Includes the Subject entity through the junction entity
                 .FirstOrDefaultAsync(t => t.Id == teacherId);
         }
 
-        // Atualiza as disciplinas de um professor
+        // Updates a teacher's subjects
         public async Task UpdateTeacherSubjectsAsync(int teacherId, IEnumerable<int> subjectIds)
         {
             var teacher = await _context.Teachers
@@ -56,10 +56,10 @@ namespace SchoolManagementSystem.Repositories
 
             if (teacher != null)
             {
-                // Limpa as disciplinas atuais
+                // Clears current subjects
                 teacher.TeacherSubjects.Clear();
 
-                // Adiciona as novas disciplinas
+                // Adds new subjects
                 foreach (var subjectId in subjectIds)
                 {
                     teacher.TeacherSubjects.Add(new TeacherSubject { TeacherId = teacherId, SubjectId = subjectId });
@@ -69,7 +69,7 @@ namespace SchoolManagementSystem.Repositories
             }
         }
 
-        // Atualiza as turmas de um professor
+        // Updates a teacher's classes
         public async Task UpdateTeacherClassesAsync(int teacherId, IEnumerable<int> schoolClassIds)
         {
             var teacher = await _context.Teachers
@@ -78,10 +78,10 @@ namespace SchoolManagementSystem.Repositories
 
             if (teacher != null)
             {
-                // Limpa as turmas atuais
+                // Clears current classes
                 teacher.TeacherSchoolClasses.Clear();
 
-                // Adiciona as novas turmas
+                // Adds new classes
                 foreach (var schoolClassId in schoolClassIds)
                 {
                     teacher.TeacherSchoolClasses.Add(new TeacherSchoolClass { TeacherId = teacherId, SchoolClassId = schoolClassId });
@@ -91,8 +91,7 @@ namespace SchoolManagementSystem.Repositories
             }
         }
 
-
-        // Obtém professores por status
+        // Retrieves teachers by status
         public async Task<IEnumerable<Teacher>> GetTeachersByStatusAsync(TeacherStatus status)
         {
             return await _context.Teachers
@@ -100,26 +99,25 @@ namespace SchoolManagementSystem.Repositories
                 .ToListAsync();
         }
 
-        // Conta professores por disciplina
+        // Counts teachers by subject
         public async Task<int> CountTeachersByDisciplineAsync(int subjectId)
         {
             return await _context.Teachers
                 .CountAsync(t => t.TeacherSubjects.Any(ts => ts.SubjectId == subjectId));
         }
 
-        // Método que inclui disciplinas e turmas
+        // Method that includes subjects and classes
         public async Task<IEnumerable<Teacher>> GetAllWithIncludesAsync()
         {
             return await _context.Teachers
-                .Include(t => t.TeacherSubjects) // Inclui as disciplinas associadas
-                    .ThenInclude(ts => ts.Subject) // Inclui as entidades de disciplina
-                .Include(t => t.TeacherSchoolClasses) // Inclui a tabela de junção para turmas
-                    .ThenInclude(tsc => tsc.SchoolClass) // Inclui as turmas associadas
+                .Include(t => t.TeacherSubjects) // Includes associated subjects
+                    .ThenInclude(ts => ts.Subject) // Includes subject entities
+                .Include(t => t.TeacherSchoolClasses) // Includes the junction table for classes
+                    .ThenInclude(tsc => tsc.SchoolClass) // Includes associated classes
                 .ToListAsync();
         }
 
-
-        // Método para obter todos os professores
+        // Method to get all teachers
         public async Task<IEnumerable<Teacher>> GetAllAsync()
         {
             return await _context.Teachers.ToListAsync();
@@ -134,6 +132,5 @@ namespace SchoolManagementSystem.Repositories
                     .ThenInclude(ts => ts.Subject)
                 .FirstOrDefaultAsync(t => t.Id == teacherId);
         }
-
     }
 }

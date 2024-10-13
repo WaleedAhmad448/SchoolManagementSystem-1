@@ -6,10 +6,10 @@ public class Grade : IEntity
 {
     public int Id { get; set; }
 
-    public int? StudentId { get; set; } // Chave estrangeira nullable
+    public int? StudentId { get; set; } 
     public Student? Student { get; set; }
 
-    public int? SubjectId { get; set; } // Chave estrangeira nullable
+    public int? SubjectId { get; set; }
     public Subject? Subject { get; set; }
 
     [Range(0, 100)]

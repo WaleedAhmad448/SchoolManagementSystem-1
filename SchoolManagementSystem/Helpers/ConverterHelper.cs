@@ -2,6 +2,7 @@
 using NuGet.DependencyResolver;
 using SchoolManagementSystem.Data.Entities;
 using SchoolManagementSystem.Models;
+using SchoolManagementSystem.Repositories;
 
 namespace SchoolManagementSystem.Helpers
 {
@@ -9,10 +10,16 @@ namespace SchoolManagementSystem.Helpers
     {
         // Converts the StudentViewModel to Student (entity)
         private readonly IUserHelper _userHelper;
+        private readonly ISchoolClassRepository _schoolClassRepository;
+        private readonly ISubjectRepository _subjectRepository;
+        private readonly ICourseRepository _courseRepository;
 
-        public ConverterHelper(IUserHelper userHelper)
+        public ConverterHelper(IUserHelper userHelper, ISchoolClassRepository schoolClassRepository, ISubjectRepository subjectRepository, ICourseRepository courseRepository)
         {
             _userHelper = userHelper;
+            _schoolClassRepository = schoolClassRepository;
+            _subjectRepository = subjectRepository;
+            _courseRepository = courseRepository;
         }
 
         // Converts the StudentViewModel to Student (entity)
@@ -161,7 +168,7 @@ namespace SchoolManagementSystem.Helpers
             };
         }
 
-        // Conversão de Subject para SubjectViewModel
+        
         public SubjectViewModel ToSubjectViewModel(Subject subject)
         {
             if (subject == null) throw new ArgumentNullException(nameof(subject));
@@ -175,31 +182,74 @@ namespace SchoolManagementSystem.Helpers
             };
         }
 
-        // Conversion from CourseViewModel to Course
-        public async Task<Course> ToCourseAsync(CourseViewModel model)
+        public async Task<Course> ToCourseAsync(CourseViewModel model, bool isNew)
         {
-            if (model == null) throw new ArgumentNullException(nameof(model));
-
-            return new Course
+            var course = new Course
             {
-                Id = model.Id,
+                
                 CourseName = model.CourseName,
                 Description = model.Description,
                 Duration = model.Duration,
                 Credits = model.Credits,
                 IsActive = model.IsActive,
-
-                // Ensuring SchoolClasses and Subjects are not null and creating associations
-                SchoolClasses = model.SchoolClassIds.Select(id => new SchoolClass { Id = id }).ToList(),
-                //Subjects = model.SubjectIds.Select(id => new Subject { Id = id }).ToList()
+                CreatedAt = isNew ? DateTime.UtcNow : model.CreatedAt,
+                UpdatedAt = DateTime.UtcNow
             };
+
+            
+            if (isNew)
+            {
+                
+                await _courseRepository.CreateAsync(course);
+            }
+            else
+            {
+                course.Id = model.Id; 
+                await _courseRepository.UpdateAsync(course);
+            }
+
+            
+            if (model.SchoolClassIds != null && model.SchoolClassIds.Any())
+            {
+                foreach (var classId in model.SchoolClassIds)
+                {
+                    var schoolClass = await _schoolClassRepository.GetByIdAsync(classId);
+                    if (schoolClass != null)
+                    {
+                        schoolClass.CourseId = course.Id; 
+                        await _schoolClassRepository.UpdateAsync(schoolClass); 
+                    }
+                }
+            }
+
+            
+            if (model.SubjectIds != null && model.SubjectIds.Any())
+            {
+                course.CourseSubjects = new List<CourseSubject>(); 
+                foreach (var subjectId in model.SubjectIds)
+                {
+                    var subject = await _subjectRepository.GetByIdAsync(subjectId);
+                    if (subject != null)
+                    {
+                        course.CourseSubjects.Add(new CourseSubject
+                        {
+                            CourseId = course.Id, 
+                            SubjectId = subject.Id
+                        });
+                    }
+                }
+            }
+
+            return course;
         }
 
-        // Conversion from Course to CourseViewModel
+
+
+
+
+        
         public CourseViewModel ToCourseViewModel(Course course)
         {
-            if (course == null) throw new ArgumentNullException(nameof(course));
-
             return new CourseViewModel
             {
                 Id = course.Id,
@@ -208,37 +258,37 @@ namespace SchoolManagementSystem.Helpers
                 Duration = course.Duration,
                 Credits = course.Credits,
                 IsActive = course.IsActive,
+                CreatedAt = course.CreatedAt,
+                UpdatedAt = course.UpdatedAt,
 
-                // Ensuring SchoolClassIds and SubjectIds are properly populated
-                SchoolClassIds = course.SchoolClasses.Select(sc => sc.Id).ToList(),
-                //SubjectIds = course.Subjects.Select(s => s.Id).ToList(),
+                
+                SchoolClassIds = course.SchoolClasses?.Select(sc => sc.Id).ToList() ?? new List<int>(),
 
-                //// Populating the full instances for display
-                //Subjects = course.Subjects,
-                SchoolClasses = course.SchoolClasses
+                
+                SubjectIds = course.CourseSubjects?.Select(cs => cs.SubjectId).ToList() ?? new List<int>()
             };
         }
 
-        // Conversion from SchoolClassViewModel to SchoolClass
+        
         public async Task<SchoolClass> ToSchoolClassAsync(SchoolClassViewModel model, bool isNew)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
 
             return new SchoolClass
             {
-                Id = isNew ? 0 : model.Id, // Se for novo, define Id como 0
+                Id = isNew ? 0 : model.Id, 
                 ClassName = model.ClassName,
                 CourseId = model.CourseId,
                 StartDate = model.StartDate,
                 EndDate = model.EndDate,
 
-                // Associa os alunos e professores
+                
                 Students = model.StudentIds.Select(id => new Student { Id = id }).ToList(),
                 TeacherSchoolClasses = model.TeacherIds.Select(id => new TeacherSchoolClass { TeacherId = id }).ToList()
             };
         }
 
-        // Conversão de SchoolClass para SchoolClassViewModel
+      
         public SchoolClassViewModel ToSchoolClassViewModel(SchoolClass schoolClass)
         {
             if (schoolClass == null) throw new ArgumentNullException(nameof(schoolClass));
@@ -251,11 +301,11 @@ namespace SchoolManagementSystem.Helpers
                 StartDate = schoolClass.StartDate,
                 EndDate = schoolClass.EndDate,
 
-                // Coleta os IDs dos alunos e professores
+               
                 StudentIds = schoolClass.Students.Select(s => s.Id).ToList(),
                 TeacherIds = schoolClass.TeacherSchoolClasses.Select(t => t.TeacherId).ToList(),
 
-                // Populando as coleções para exibição
+                
                 Students = schoolClass.Students,
                 Teachers = schoolClass.TeacherSchoolClasses.Select(tsc => tsc.Teacher).ToList()
             };

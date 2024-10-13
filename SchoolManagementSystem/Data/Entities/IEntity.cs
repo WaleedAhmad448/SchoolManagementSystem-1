@@ -2,7 +2,7 @@
 {
     public interface IEntity
     {
-        //Isto será o que vai ser comum em todas as Entidades
+        //This will be what will be common across all Entities
         int Id { get; set; }
     }
 }

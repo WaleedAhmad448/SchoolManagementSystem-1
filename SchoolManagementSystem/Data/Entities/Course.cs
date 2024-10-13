@@ -10,12 +10,13 @@ namespace SchoolManagementSystem.Data.Entities
         [MaxLength(100)]
         public string CourseName { get; set; }
 
+        [MaxLength(500)]
         public string Description { get; set; }
 
         [Range(1, 52)]
-        public int Duration { get; set; }
+        public int Duration { get; set; } // Duração em semanas, por exemplo.
 
-        public int Credits { get; set; }
+        public int Credits { get; set; } // Créditos que o curso vale.
 
         public bool IsActive { get; set; } = true;
 
@@ -23,13 +24,10 @@ namespace SchoolManagementSystem.Data.Entities
 
         public DateTime UpdatedAt { get; set; }
 
-        // Coleção de turmas associadas
+        // Relacionamento: um curso pode ter várias turmas.
         public ICollection<SchoolClass> SchoolClasses { get; set; } = new List<SchoolClass>();
 
-        // Coleção de disciplinas associadas
-        public ICollection<CourseSubject> CourseSubjects { get; set; } = new List<CourseSubject>(); // Adicionada para associação
-
-        public ICollection<Subject> Subjects { get; set; } = new List<Subject>();
-
+        // Relacionamento: um curso pode ter várias disciplinas associadas.
+        public ICollection<CourseSubject> CourseSubjects { get; set; } = new List<CourseSubject>();
     }
 }

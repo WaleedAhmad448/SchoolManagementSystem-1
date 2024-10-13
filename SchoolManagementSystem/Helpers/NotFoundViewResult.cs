@@ -8,7 +8,7 @@ namespace SchoolManagementSystem.Helpers
 {
     public class NotFoundViewResult : ViewResult
     {
-        //Construtor
+        
         public NotFoundViewResult(string viewName)
         {
             ViewName = viewName;

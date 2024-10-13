@@ -16,7 +16,11 @@ public class SchoolDbContext : IdentityDbContext<User>
     public DbSet<Payment> Payments { get; set; }
     public DbSet<Alert> Alerts { get; set; }
     public DbSet<TeacherSubject> TeacherSubjects { get; set; }
-    public DbSet<TeacherSchoolClass> TeacherSchoolClasses { get; set; } // Entidade de junção
+    public DbSet<TeacherSchoolClass> TeacherSchoolClasses { get; set; }
+    public DbSet<CourseSubject> CourseSubjects { get; set; }
+    public DbSet<ClassSession> ClassSessions { get; set; }
+    
+
 
     public SchoolDbContext(DbContextOptions<SchoolDbContext> options) : base(options)
     {
@@ -39,32 +43,32 @@ public class SchoolDbContext : IdentityDbContext<User>
             .HasForeignKey(s => s.SchoolClassId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Relacionamento entre Student e User
+        // Relationship between Student and User
         modelBuilder.Entity<Student>()
             .HasOne(s => s.User)
             .WithMany()
             .HasForeignKey(s => s.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Relacionamento muitos-para-muitos entre Teacher e Subject
+        // Many-to-many relationship between Teacher and Subject
         modelBuilder.Entity<TeacherSubject>()
-            .HasKey(ts => new { ts.TeacherId, ts.SubjectId }); // Chave composta
+            .HasKey(ts => new { ts.TeacherId, ts.SubjectId }); // Composite key
 
         modelBuilder.Entity<TeacherSubject>()
             .HasOne(ts => ts.Teacher)
             .WithMany(t => t.TeacherSubjects)
             .HasForeignKey(ts => ts.TeacherId)
-            .OnDelete(DeleteBehavior.Cascade); // Exclui automaticamente as associações ao deletar um Teacher
+            .OnDelete(DeleteBehavior.Cascade); // Automatically deletes associations when deleting a Teacher
 
         modelBuilder.Entity<TeacherSubject>()
             .HasOne(ts => ts.Subject)
             .WithMany(s => s.TeacherSubjects)
             .HasForeignKey(ts => ts.SubjectId)
-            .OnDelete(DeleteBehavior.Restrict); // Restrição na exclusão da disciplina
+            .OnDelete(DeleteBehavior.Restrict); // Restriction on exclusion from the subject
 
-        // Relacionamento entre Course e Subject usando a tabela de junção
+     
         modelBuilder.Entity<CourseSubject>()
-            .HasKey(cs => new { cs.CourseId, cs.SubjectId }); // Chave composta
+            .HasKey(cs => new { cs.CourseId, cs.SubjectId });
 
         modelBuilder.Entity<CourseSubject>()
             .HasOne(cs => cs.Course)
@@ -77,20 +81,20 @@ public class SchoolDbContext : IdentityDbContext<User>
             .HasForeignKey(cs => cs.SubjectId);
 
 
-        // Relacionamento entre Teacher e SchoolClass
+        // Relationship between Teacher and SchoolClass
         modelBuilder.Entity<TeacherSchoolClass>()
-            .HasKey(tsc => new { tsc.TeacherId, tsc.SchoolClassId }); // Chave composta
+            .HasKey(tsc => new { tsc.TeacherId, tsc.SchoolClassId }); // Composite key
 
         modelBuilder.Entity<TeacherSchoolClass>()
             .HasOne(tsc => tsc.Teacher)
             .WithMany(t => t.TeacherSchoolClasses)
             .HasForeignKey(tsc => tsc.TeacherId)
-            .OnDelete(DeleteBehavior.Cascade); // Exclui automaticamente as associações ao deletar um Teacher
+            .OnDelete(DeleteBehavior.Cascade); // Automatically deletes associations when deleting a Teacher
 
         modelBuilder.Entity<TeacherSchoolClass>()
             .HasOne(tsc => tsc.SchoolClass)
             .WithMany(sc => sc.TeacherSchoolClasses)
             .HasForeignKey(tsc => tsc.SchoolClassId)
-            .OnDelete(DeleteBehavior.Restrict); // Restrição na exclusão da turma
+            .OnDelete(DeleteBehavior.Restrict); // Restriction on class exclusion
     }
 }

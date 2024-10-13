@@ -5,10 +5,10 @@
         public int Id { get; set; }
 
         public int SubjectId { get; set; }
-        public Subject Subject { get; set; } // Navegação para a disciplina
+        public Subject Subject { get; set; }
 
         public int SchoolClassId { get; set; }
-        public SchoolClass SchoolClass { get; set; } // Navegação para a turma
+        public SchoolClass SchoolClass { get; set; }
 
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }

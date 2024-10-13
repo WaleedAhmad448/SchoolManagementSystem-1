@@ -4,46 +4,38 @@ using System.ComponentModel.DataAnnotations;
 namespace SchoolManagementSystem.Models
 {
     public class RegisterNewUserViewModel
-    {   //Vai ser obrigatorio preencher o FirstName
+    {
+        // FirstName is required
         [Required]
-        //Este Display faz com que depois o nome apareça separado 
         [Display(Name = "First Name")]
         public string FirstName { get; set; }
 
-        //Vai ser obrigatorio preencher o LastName
+        // LastName is required
         [Required]
-        //Este Display faz com que depois o nome apareça separado 
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
 
-
-        //Vai ser obrigatorio preencher o Username
+        // Username (email) is required
         [Required]
-        //O Utilizador terá que usar o email para se logar
         [DataType(DataType.EmailAddress)]
         public string Username { get; set; }
 
-        // Campo para o endereço do utilizador com comprimento máximo de 100 caracteres.
-        // O atributo [MaxLength] define a mensagem de erro se o limite for excedido.
-        [MaxLength(100, ErrorMessage = "The field {0} only can contain {1} characters length")]
+        // Address with a max length of 100 characters
+        [MaxLength(100, ErrorMessage = "The field {0} can only contain {1} characters.")]
         public string Address { get; set; }
 
-        // Campo para o número de telefone do utilizador com comprimento máximo de 20 caracteres.
-        // O atributo [MaxLength] define a mensagem de erro se o limite for excedido.
-        [MaxLength(20, ErrorMessage = "The field {0} only can contain {1} characters length")]
+        // PhoneNumber with a max length of 20 characters
+        [MaxLength(20, ErrorMessage = "The field {0} can only contain {1} characters.")]
         public string PhoneNumber { get; set; }
 
-        //Vai ser obrigatorio preencher a Password
+        // Password is required with a minimum length of 6
         [Required]
-        //A password tera que ter no minimo 6 caracteres este valor tem que
-        //ser condizente com o tamanho da passowrd que definimos no ficheiro Startup.cs
-        [MinLength(6)]
+        [MinLength(6, ErrorMessage = "Password must be at least {1} characters long.")]
         public string Password { get; set; }
 
-        //Confirmaçao, que serve para o utilizador por a password 2 vexes
+        // Confirm password, must match the Password field
         [Required]
-        //Aqui vai confirmar que o valor que o utilizador poem no segundo campo é igual ao valor que defeniu para a Password
-        [Compare("Password")]
+        [Compare("Password", ErrorMessage = "The passwords do not match.")]
         public string Confirm { get; set; }
     }
 }

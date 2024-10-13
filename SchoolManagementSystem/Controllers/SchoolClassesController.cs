@@ -39,10 +39,10 @@ namespace SchoolManagementSystem.Controllers
         // GET: SchoolClass/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null) return new NotFoundViewResult("SchoolClassNotFound");
+            if (id == null) return NotFound();
 
             var schoolClass = await _schoolClassRepository.GetClassWithStudentsAsync(id.Value);
-            if (schoolClass == null) return new NotFoundViewResult("SchoolClassNotFound");
+            if (schoolClass == null) return NotFound();
 
             var model = _converterHelper.ToSchoolClassViewModel(schoolClass);
             return View(model);
@@ -77,10 +77,10 @@ namespace SchoolManagementSystem.Controllers
         // GET: SchoolClass/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null) return new NotFoundViewResult("SchoolClassNotFound");
+            if (id == null) return NotFound();
 
             var schoolClass = await _schoolClassRepository.GetByIdAsync(id.Value);
-            if (schoolClass == null) return new NotFoundViewResult("SchoolClassNotFound");
+            if (schoolClass == null) return NotFound();
 
             var model = _converterHelper.ToSchoolClassViewModel(schoolClass);
             var courses = await _courseRepository.GetAllCoursesAsync();
@@ -93,7 +93,7 @@ namespace SchoolManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, SchoolClassViewModel model)
         {
-            if (id != model.Id) return new NotFoundViewResult("SchoolClassNotFound");
+            if (id != model.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -110,10 +110,10 @@ namespace SchoolManagementSystem.Controllers
         // GET: SchoolClass/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null) return new NotFoundViewResult("SchoolClassNotFound");
+            if (id == null) return NotFound();
 
             var schoolClass = await _schoolClassRepository.GetClassWithStudentsAsync(id.Value);
-            if (schoolClass == null) return new NotFoundViewResult("SchoolClassNotFound");
+            if (schoolClass == null) return NotFound();
 
             var model = _converterHelper.ToSchoolClassViewModel(schoolClass);
             return View(model);

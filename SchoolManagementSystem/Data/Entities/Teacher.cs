@@ -5,12 +5,12 @@ namespace SchoolManagementSystem.Data.Entities
 {
     public class Teacher : IEntity
     {
-        // Chave primária da tabela Teacher
+        // Primary key of the Teacher table
         public int Id { get; set; }
 
         public string UserId { get; set; }
 
-        // Propriedade de navegação para a entidade User associada
+        // Navigation property for the associated User entity
         public User User { get; set; }
 
         [Display(Name = "First Name")]
@@ -23,38 +23,38 @@ namespace SchoolManagementSystem.Data.Entities
         [MaxLength(50)]
         public string LastName { get; set; }
 
-        // Grau acadêmico do professor (por exemplo, Bacharel, Mestrado)
+        // Teacher's academic degree (e.g. Bachelor's, Master's)
         [Display(Name = "Academic Degree")]
         public AcademicDegree AcademicDegree { get; set; }
 
-        // Data de contratação do professor, campo obrigatório
+        // Teacher's hire date, required field
         [Display(Name = "Hire Date")]
         public DateTime? HireDate { get; set; }
 
-        // String formatada para exibir a data de contratação
+        // String formatted to display the hire date
         public string FormattedHireDate => HireDate?.ToString("dd/MM/yyyy");
 
-        // Status do professor (Ativo, Inativo, Pendente)
+        // Teacher status (Active, Inactive, Pending)
         [Display(Name = "Status")]
         public TeacherStatus Status { get; set; } = TeacherStatus.Active;
 
-        // Coleção de turmas associadas a este professor através da tabela de junção
+        // Collection of classes associated with this teacher through the join table
         public ICollection<TeacherSchoolClass> TeacherSchoolClasses { get; set; } = new List<TeacherSchoolClass>();
 
-        // Coleção de disciplinas associadas a este professor através da entidade de junção
+        // Collection of subjects associated with this teacher through the junction entity
         public ICollection<TeacherSubject> TeacherSubjects { get; set; } = new List<TeacherSubject>();
 
-        // ID da imagem para a foto de perfil do professor
+        // Image ID for the teacher's profile picture
         [Display(Name = "Image")]
         public Guid ImageId { get; set; }
 
-        // Caminho completo da URL para a imagem de perfil do professor
+        // Full URL path to the teacher's profile image
         public string ImageFullPath => ImageId == Guid.Empty
             ? "https://schoolstorageaccount.blob.core.windows.net/images/noimage.png"
             : $"https://schoolstorageaccount.blob.core.windows.net/teachers/{ImageId}";
     }
 
-    // Enum para padronizar o status do professor
+    // Enum to standardize teacher status
     public enum TeacherStatus
     {
         Pending,

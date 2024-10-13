@@ -33,12 +33,12 @@ namespace SchoolManagementSystem.Models
 
         public StudentStatus Status { get; set; }
 
-        public IEnumerable<User>? PendingUsers { get; set; } // Adicione esta propriedade
+        public IEnumerable<User>? PendingUsers { get; set; } 
 
         public string ImageFullPath => ImageId == Guid.Empty
     ? "https://schoolstorageaccount.blob.core.windows.net/images/noimage.png"
     : $"https://schoolstorageaccount.blob.core.windows.net/students/{ImageId}";
 
-        public SchoolClass? SchoolClass { get; set; } // Adiciona esta propriedade
+        public SchoolClass? SchoolClass { get; set; } 
     }
 }

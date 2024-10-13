@@ -7,33 +7,40 @@ namespace SchoolManagementSystem.Helpers
 {
     public interface IConverterHelper
     {
-        // Conversion from StudentViewModel to Student (asynchronous)
+        // Converts StudentViewModel to Student (async)
         Task<Student> ToStudentAsync(StudentViewModel model, Guid imageId, bool isNew);
 
-        // Conversion from Student to StudentViewModel
+        // Converts Student to StudentViewModel
         StudentViewModel ToStudentViewModel(Student student);
 
-        // Conversion from TeacherViewModel to Teacher
+        // Converts TeacherViewModel to Teacher (async)
         Task<Teacher> ToTeacherAsync(TeacherViewModel model, Guid imageId, bool isNew);
 
-        // Conversion from Teacher to TeacherViewModel
+        // Converts Teacher to TeacherViewModel
         TeacherViewModel ToTeacherViewModel(Teacher teacher);
 
-        // Conversion from EmployeeViewModel to Employee (asynchronous)
+        // Converts EmployeeViewModel to Employee (async)
         Task<Employee> ToEmployeeAsync(EmployeeViewModel model, Guid imageId, bool isNew);
 
-        // Conversion from Employee to EmployeeViewModel
+        // Converts Employee to EmployeeViewModel
         EmployeeViewModel ToEmployeeViewModel(Employee employee);
 
-        Task<Course> ToCourseAsync(CourseViewModel model); // Make sure this method is async
-        CourseViewModel ToCourseViewModel(Course course);
-
-        // Conversão SchoolClass
+        // Converts SchoolClassViewModel to SchoolClass (async)
         Task<SchoolClass> ToSchoolClassAsync(SchoolClassViewModel model, bool isNew);
+
+        // Converts SchoolClass to SchoolClassViewModel
         SchoolClassViewModel ToSchoolClassViewModel(SchoolClass schoolClass);
 
-        // Conversão de Subject
-        Task<Subject> ToSubjectAsync(SubjectViewModel model); // Método para converter SubjectViewModel para Subject
-        SubjectViewModel ToSubjectViewModel(Subject subject); // Método para converter Subject para SubjectViewModel
+        // Converts SubjectViewModel to Subject (async)
+        Task<Subject> ToSubjectAsync(SubjectViewModel model);
+
+        // Converts Subject to SubjectViewModel
+        SubjectViewModel ToSubjectViewModel(Subject subject);
+
+        // Converts CourseViewModel to Course (async)
+        Task<Course> ToCourseAsync(CourseViewModel model, bool isNew);
+
+        // Converts Course to CourseViewModel
+        CourseViewModel ToCourseViewModel(Course course);
     }
 }

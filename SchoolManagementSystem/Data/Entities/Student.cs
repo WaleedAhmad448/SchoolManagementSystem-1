@@ -22,7 +22,6 @@ namespace SchoolManagementSystem.Data.Entities
         [Display(Name = "Enrollment Date")]
         public DateTime? EnrollmentDate { get; set; }
         
-        //Data formatada
         public string FormattedEnrollmentDate => EnrollmentDate?.ToString("dd/MM/yyyy");
 
 
@@ -40,7 +39,7 @@ namespace SchoolManagementSystem.Data.Entities
             : $"https://schoolstorageaccount.blob.core.windows.net/students/{ImageId}";
     }
 
-    // Enum para padronizar o status do estudante
+    // Enum to standardize student status
     public enum StudentStatus
     {
         Pending,

@@ -18,7 +18,7 @@ namespace SchoolManagementSystem.Controllers
         private readonly ISchoolClassRepository _schoolClassRepository;
         private readonly IBlobHelper _blobHelper;
         private readonly IConverterHelper _converterHelper;
-        private readonly IUserHelper _userHelper; // Adicionado para obter usuários pendentes
+        private readonly IUserHelper _userHelper; // Added to get pending users
         private readonly ILogger<TeachersController> _logger;
 
         public TeachersController(
@@ -27,7 +27,7 @@ namespace SchoolManagementSystem.Controllers
             ISchoolClassRepository schoolClassRepository,
             IBlobHelper blobHelper,
             IConverterHelper converterHelper,
-            IUserHelper userHelper, // Adicionado
+            IUserHelper userHelper, 
             ILogger<TeachersController> logger)
         {
             _teacherRepository = teacherRepository;
@@ -35,7 +35,7 @@ namespace SchoolManagementSystem.Controllers
             _schoolClassRepository = schoolClassRepository;
             _blobHelper = blobHelper;
             _converterHelper = converterHelper;
-            _userHelper = userHelper; // Adicionado
+            _userHelper = userHelper; 
             _logger = logger;
         }
 
@@ -51,12 +51,12 @@ namespace SchoolManagementSystem.Controllers
         {
             if (id == null) return new NotFoundViewResult("TeacherNotFound");
 
-            // Busca o professor com turmas e disciplinas associadas
+            // Search for the teacher with associated classes and subjects
             var selectedTeacher = await _teacherRepository.GetTeacherWithDetailsAsync(id.Value);
 
             if (selectedTeacher == null) return new NotFoundViewResult("TeacherNotFound");
 
-            // Converte o professor para o ViewModel
+            // Convert the teacher to the ViewModel
             var model = _converterHelper.ToTeacherViewModel(selectedTeacher);
 
             return View(model);
@@ -90,17 +90,17 @@ namespace SchoolManagementSystem.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await LoadDropdownData(); // Recarregar dropdowns em caso de erro
+                await LoadDropdownData(); // Reload dropdowns in case of error
                 var pendingUsers = await _userHelper.GetAllUsersInRoleAsync("Pending");
                 ViewBag.PendingUsers = new SelectList(pendingUsers, "Id", "Email");
-                return View(model); // Retornar a view com os erros de validação
+                return View(model); // Return the view with validation errors
             }
 
             try
             {
                 Guid imageId = Guid.Empty;
 
-                // Verificar se uma imagem foi carregada
+                // Check if an image has been loaded
                 if (model.ImageFile != null && model.ImageFile.Length > 0)
                 {
                     imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "teachers");
@@ -114,7 +114,7 @@ namespace SchoolManagementSystem.Controllers
                 await _userHelper.RemoveUserFromRoleAsync(user, "Pending");
                 await _userHelper.AddUserToRoleAsync(user, "Teacher");
 
-                return RedirectToAction(nameof(Index)); // Redirecionar após o sucesso
+                return RedirectToAction(nameof(Index)); // Redirect upon success
             }
             catch (Exception ex)
             {
@@ -122,10 +122,10 @@ namespace SchoolManagementSystem.Controllers
                 ModelState.AddModelError("", "An unexpected error occurred. Please try again.");
             }
 
-            await LoadDropdownData(); // Recarregar dropdowns em caso de erro
+            await LoadDropdownData();// Reload dropdowns in case of error
             var pendingUsersReload = await _userHelper.GetAllUsersInRoleAsync("Pending");
             ViewBag.PendingUsers = new SelectList(pendingUsersReload, "Id", "Email");
-            return View(model); // Retornar a view com os erros de validação
+            return View(model); // Return the view with validation errors
         }
 
 
@@ -162,18 +162,18 @@ namespace SchoolManagementSystem.Controllers
             {
                 try
                 {
-                    Guid imageId = model.ImageId; // Usa a imagem existente
+                    Guid imageId = model.ImageId; // Use existing image
 
-                    // Verifica se uma nova imagem foi carregada
+                    // Checks if a new image has been loaded
                     if (model.ImageFile != null && model.ImageFile.Length > 0)
                     {
                         imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "teachers");
                     }
 
-                    // Converte o ViewModel para a entidade Teacher
+                    // Converts the ViewModel to the Teacher entity
                     var teacher = await _converterHelper.ToTeacherAsync(model, imageId, false);
 
-                    // Atualiza as disciplinas e turmas
+                    // Update subjects and classes
                     await _teacherRepository.UpdateTeacherSubjectsAsync(teacher.Id, model.SubjectIds);
                     await _teacherRepository.UpdateTeacherClassesAsync(teacher.Id, model.SchoolClassIds);
 
@@ -191,7 +191,7 @@ namespace SchoolManagementSystem.Controllers
                 }
             }
 
-            // Recarrega os dados em caso de erro
+            // Reload data in case of error
             await LoadDropdownData();
             return View(model);
         }
@@ -202,11 +202,11 @@ namespace SchoolManagementSystem.Controllers
         {
             if (id == null) return new NotFoundViewResult("TeacherNotFound");
 
-            // Buscar o professor pelo ID
+            // Search for the teacher by ID
             var teacher = await _teacherRepository.GetTeacherWithDetailsAsync(id.Value);
             if (teacher == null) return new NotFoundViewResult("TeacherNotFound");
 
-            // Converter o Teacher para TeacherViewModel
+            // Convert Teacher to TeacherViewModel
             var model = _converterHelper.ToTeacherViewModel(teacher);
 
             return View(model);
@@ -249,17 +249,16 @@ namespace SchoolManagementSystem.Controllers
             var subjects = await _subjectRepository.GetAllAsync();
             var classes = await _schoolClassRepository.GetAllAsync();
 
-            // Certifique-se de que Subject e SchoolClass têm as propriedades Id e Name/ClassName
             ViewBag.Subjects = subjects.Select(s => new SelectListItem
             {
                 Value = s.Id.ToString(),
-                Text = s.SubjectName // Ou a propriedade que representa o nome da disciplina
+                Text = s.SubjectName 
             });
 
             ViewBag.SchoolClasses = classes.Select(c => new SelectListItem
             {
                 Value = c.Id.ToString(),
-                Text = c.ClassName // Ou a propriedade que representa o nome da turma
+                Text = c.ClassName 
             });
         }
 

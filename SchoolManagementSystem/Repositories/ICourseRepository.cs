@@ -1,28 +1,40 @@
 ﻿using SchoolManagementSystem.Data.Entities;
-using SchoolManagementSystem.Repositories;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-public interface ICourseRepository : IGenericRepository<Course>
+namespace SchoolManagementSystem.Repositories
 {
-    // Get all courses that contain the specified name
-    Task<IEnumerable<Course>> GetCoursesByNameAsync(string courseName);
+    public interface ICourseRepository : IGenericRepository<Course>
+    {
+        // Searches for courses by name
+        Task<IEnumerable<Course>> GetCoursesByNameAsync(string courseName);
 
-    // Get a course along with its associated classes
-    Task<Course> GetCourseWithClassesAsync(int id);
+        // Retrieves all courses without tracking
+        Task<IEnumerable<Course>> GetAllCoursesAsync();
 
-    // Add a class to the specified course
-    Task AddClassToCourseAsync(SchoolClass schoolClass, int courseId);
+        // Gets a course with its associated classes
+        Task<Course> GetCourseWithClassesAsync(int id);
 
-    // Get all courses
-    Task<IEnumerable<Course>> GetAllCoursesAsync();
+        // Retrieves courses with their associated subjects
+        Task<IEnumerable<Course>> GetCoursesWithSubjectsAsync();
 
-    // Get all courses with their associated subjects
-    Task<IEnumerable<Course>> GetCoursesWithSubjectsAsync();
+        // Adds a class to the specified course
+        Task AddClassToCourseAsync(SchoolClass schoolClass, int courseId);
 
-    // Remove a subject from a specified course
-    Task RemoveSubjectFromCourseAsync(int courseId, int subjectId);
+        // Removes a subject from a course
+        Task RemoveSubjectFromCourseAsync(int courseId, int subjectId);
 
-    // Count the total number of courses
-    Task<int> CountCoursesAsync();
+        // Checks if a subject is already associated with a course
+        Task<bool> IsSubjectInCourseAsync(int courseId, int subjectId);
+
+        // Counts the total number of courses
+        Task<int> CountCoursesAsync();
+
+        // Gets a course with its classes and subjects
+        Task<Course> GetCourseWithClassesAndSubjectsAsync(int id);
+
+        // Retrieves all available subjects
+        Task<IEnumerable<Subject>> GetAllAvailableSubjectsAsync();
+
+        // Retrieves all available school classes
+        Task<IEnumerable<SchoolClass>> GetAllAvailableSchoolClassesAsync();
+    }
 }

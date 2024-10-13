@@ -18,29 +18,17 @@
     </div>
 }
 
-<form id="createCourseForm" asp-action="Create" method="post">
+<form asp-action="Create" method="post">
     <div class="row mb-3">
         <div class="col-md-6">
-            <label asp-for="CourseName" class="form-label">Course Name <span class="text-danger">*</span></label>
-            <input asp-for="CourseName" class="form-control" required />
+            <label asp-for="CourseName" class="form-label">Course Name</label>
+            <input asp-for="CourseName" class="form-control" />
             <span asp-validation-for="CourseName" class="text-danger"></span>
         </div>
         <div class="col-md-6">
-            <label asp-for="Credits" class="form-label">Credits <span class="text-danger">*</span></label>
-            <input asp-for="Credits" type="number" class="form-control" required />
-            <span asp-validation-for="Credits" class="text-danger"></span>
-        </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <label asp-for="Duration" class="form-label">Duration (weeks) <span class="text-danger">*</span></label>
-            <input asp-for="Duration" type="number" class="form-control" required />
+            <label asp-for="Duration" class="form-label">Duration (weeks)</label>
+            <input asp-for="Duration" type="number" class="form-control" />
             <span asp-validation-for="Duration" class="text-danger"></span>
-        </div>
-        <div class="col-md-6">
-            <label asp-for="IsActive" class="form-label">Is Active</label>
-            <input asp-for="IsActive" type="checkbox" class="form-check-input" checked="checked" />
         </div>
     </div>
 
@@ -50,45 +38,45 @@
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
 
-    <div class="mb-3">
-        <label class="form-label">Associated Subjects</label>
-        @foreach (var subject in ViewBag.Subjects)
-        {
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="SubjectIds" value="@subject.Value" id="subject_@subject.Value"
-                @(Model.SubjectIds.Contains(int.Parse(subject.Value)) ? "checked" : "") />
-                <label class="form-check-label" for="subject_@subject.Value">
-                    @subject.Text
-                </label>
-            </div>
-        }
-        <span asp-validation-for="SubjectIds" class="text-danger"></span>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="Credits" class="form-label">Credits</label>
+            <input asp-for="Credits" type="number" class="form-control" />
+            <span asp-validation-for="Credits" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="IsActive" class="form-label">Active</label>
+            <select asp-for="IsActive" class="form-select">
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+        </div>
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Associated Classes</label>
-        @foreach (var schoolClass in ViewBag.SchoolClasses)
-        {
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="SchoolClassIds" value="@schoolClass.Value" id="schoolClass_@schoolClass.Value"
-                @(Model.SchoolClassIds.Contains(int.Parse(schoolClass.Value)) ? "checked" : "") />
-                <label class="form-check-label" for="schoolClass_@schoolClass.Value">
-                    @schoolClass.Text
-                </label>
-            </div>
-        }
-        <span asp-validation-for="SchoolClassIds" class="text-danger"></span>
+        <label asp-for="SchoolClassIds" class="form-label">Select School Classes</label>
+        <select asp-for="SchoolClassIds" class="form-select" multiple="multiple">
+            @foreach (var classItem in Model.AvailableSchoolClasses)
+            {
+                <option value="@classItem.Value">@classItem.Text</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SubjectIds" class="form-label">Select Subjects</label>
+        <select asp-for="SubjectIds" class="form-select" multiple="multiple">
+            @foreach (var subjectItem in Model.AvailableSubjects)
+            {
+                <option value="@subjectItem.Value">@subjectItem.Text</option>
+            }
+        </select>
     </div>
 
     <button type="submit" class="btn btn-primary">Create Course</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script src="~/js/formHelpers.js"></script>
-
-    <script>
-        // SweetAlert2 confirmation before submitting the form
-        setupSweetAlertOnSubmit("createCourseForm", "Course created successfully.");
-    </script>
 }

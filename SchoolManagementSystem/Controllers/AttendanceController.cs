@@ -94,7 +94,7 @@ namespace SchoolManagementSystem.Controllers
             return View(model);
         }
 
-        // Método adicional para verificar exclusão de aluno
+        // Additional method to check student deletion
         public async Task<IActionResult> CheckExclusion(int studentId, int subjectId)
         {
             var attendanceRecords = await _attendanceRepository.GetAttendanceByStudentIdAsync(studentId);

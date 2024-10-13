@@ -22,17 +22,10 @@
     <input type="hidden" asp-for="Id" />
 
     <div class="row mb-3">
-        <div class="col-md-6">
+        <div class="col-md-12">
             <label asp-for="ClassName" class="form-label">Class Name <span class="text-danger">*</span></label>
             <input asp-for="ClassName" class="form-control" required />
             <span asp-validation-for="ClassName" class="text-danger"></span>
-        </div>
-        <div class="col-md-6">
-            <label asp-for="CourseId" class="form-label">Associated Course <span class="text-danger">*</span></label>
-            <select asp-for="CourseId" class="form-select" asp-items="ViewBag.Courses" required>
-                <option value="">Select Course</option>
-            </select>
-            <span asp-validation-for="CourseId" class="text-danger"></span>
         </div>
     </div>
 

@@ -16,7 +16,7 @@ namespace SchoolManagementSystem.Repositories
             _context = context;
         }
 
-        // Obtém funcionários por departamento
+        // Gets employees by department
         public async Task<IEnumerable<Employee>> GetEmployeesByDepartmentAsync(Department department)
         {
             return await _context.Employees
@@ -24,7 +24,7 @@ namespace SchoolManagementSystem.Repositories
                 .ToListAsync();
         }
 
-        // Obtém funcionários por status (Ativo, Inativo, Pendente)
+        // Gets employees by status (Active, Inactive, Pending)
         public async Task<IEnumerable<Employee>> GetEmployeesByStatusAsync(EmployeeStatus status)
         {
             return await _context.Employees
@@ -32,7 +32,7 @@ namespace SchoolManagementSystem.Repositories
                 .ToListAsync();
         }
 
-        // Obtém funcionários contratados nos últimos 30 dias
+        // Gets employees hired in the last 30 days
         public async Task<IEnumerable<Employee>> GetRecentlyHiredEmployeesAsync()
         {
             var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
@@ -41,7 +41,7 @@ namespace SchoolManagementSystem.Repositories
                 .ToListAsync();
         }
 
-        // Obtém funcionários administrativos (administração e recursos humanos)
+        // Gets administrative employees (Administration and Human Resources)
         public async Task<IEnumerable<Employee>> GetAdministrativeEmployeesAsync()
         {
             return await _context.Employees
@@ -49,7 +49,7 @@ namespace SchoolManagementSystem.Repositories
                 .ToListAsync();
         }
 
-        // Verifica se um funcionário pode gerir a criação de usuários
+        // Checks if an employee can manage user creation
         public async Task<bool> CanEmployeeManageUserCreationAsync(int employeeId)
         {
             var employee = await _context.Employees.FirstOrDefaultAsync(e => e.Id == employeeId);
@@ -59,19 +59,19 @@ namespace SchoolManagementSystem.Repositories
                 return false;
             }
 
-            // Verifica se o funcionário está ativo e em um departamento que pode criar usuários
+            // Checks if the employee is active and in a department that can create users
             return employee.Status == EmployeeStatus.Active &&
                    (employee.Department == Department.Administration || employee.Department == Department.HumanResources);
         }
 
-        // Conta o número de funcionários por departamento
+        // Counts the number of employees by department
         public async Task<int> CountEmployeesByDepartmentAsync(Department department)
         {
             return await _context.Employees
                 .CountAsync(e => e.Department == department);
         }
 
-        // Obtém funcionários com perfil completo (todos os campos preenchidos)
+        // Gets employees with a complete profile (all fields filled)
         public async Task<IEnumerable<Employee>> GetEmployeesWithCompleteProfileAsync()
         {
             return await _context.Employees
@@ -83,21 +83,20 @@ namespace SchoolManagementSystem.Repositories
                 .ToListAsync();
         }
 
-        // Método que obtém todos os funcionários com dados completos (incluindo entidades relacionadas)
+        // Gets all employees with complete data (including related entities)
         public async Task<IEnumerable<Employee>> GetAllWithIncludesAsync()
         {
             return await _context.Employees
-                .Include(e => e.User) // Inclui a entidade User associada ao funcionário
-                                      // Se houver associações adicionais que você deseja incluir, adicione-as aqui
+                .Include(e => e.User) // Includes the associated User entity
+                                      // Add additional includes if necessary
                 .ToListAsync();
         }
 
-        // Obtém um funcionário pelo UserId
+        // Gets an employee by UserId
         public async Task<Employee> GetEmployeeByUserIdAsync(string userId)
         {
             return await _context.Employees
                 .FirstOrDefaultAsync(e => e.UserId == userId);
         }
-
     }
 }

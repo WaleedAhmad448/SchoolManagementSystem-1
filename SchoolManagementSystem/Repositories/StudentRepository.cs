@@ -12,17 +12,17 @@ namespace SchoolManagementSystem.Repositories
             _context = context;
         }
 
-        // Método para obter todos os estudantes com as entidades relacionadas
+        // Method to retrieve all students with related entities
         public async Task<IEnumerable<Student>> GetAllWithIncludesAsync()
         {
             return await _context.Students
-                .Include(s => s.User)             // Incluir a entidade User
-                .Include(s => s.SchoolClass)      // Incluir a entidade SchoolClass
-                .AsNoTracking()                   // Não rastrear as entidades
+                .Include(s => s.User)             // Include the User entity
+                .Include(s => s.SchoolClass)      // Include the SchoolClass entity
+                .AsNoTracking()                   // Do not track the entities
                 .ToListAsync();
         }
 
-        // Método para obter um estudante pelo nome completo
+        // Method to retrieve a student by full name
         public async Task<Student> GetByFullNameAsync(string fullName)
         {
             return await _context.Students
@@ -30,42 +30,42 @@ namespace SchoolManagementSystem.Repositories
                 .FirstOrDefaultAsync(s => $"{s.User.FirstName} {s.User.LastName}" == fullName);
         }
 
-        // Método para obter estudantes por ID da turma
+        // Method to retrieve students by class ID
         public async Task<IEnumerable<Student>> GetStudentsByClassIdAsync(int classId)
         {
             return await _context.Students
                 .Where(s => s.SchoolClassId == classId)
-                .Include(s => s.SchoolClass) // Incluir a turma
-                .Include(s => s.User)        // Incluir o usuário
+                .Include(s => s.SchoolClass) // Include the class
+                .Include(s => s.User)        // Include the user
                 .ToListAsync();
         }
 
-        // Método para obter estudantes pelo status
+        // Method to retrieve students by status
         public async Task<IEnumerable<Student>> GetStudentsByStatusAsync(string status)
         {
-            // Converte a string status para o enum StudentStatus
+            // Convert the status string to the enum StudentStatus
             if (Enum.TryParse<StudentStatus>(status, out var studentStatus))
             {
                 return await _context.Students
-                    .Where(s => s.Status == studentStatus)  // Comparação usando enum
-                    .Include(s => s.SchoolClass)            // Incluir a turma
-                    .Include(s => s.User)                   // Incluir o usuário
+                    .Where(s => s.Status == studentStatus)  // Comparison using enum
+                    .Include(s => s.SchoolClass)            // Include the class
+                    .Include(s => s.User)                   // Include the user
                     .ToListAsync();
             }
             else
             {
-                // Caso o status fornecido não seja válido, retorna uma lista vazia ou lança uma exceção
+                // If the provided status is not valid, return an empty list or throw an exception
                 return new List<Student>();
             }
         }
 
-        // Método para obter um estudante com cursos
+        // Method to retrieve a student with courses
         public async Task<Student> GetStudentWithCoursesAsync(int studentId)
         {
             return await _context.Students
                 .Include(s => s.SchoolClass)
                 .ThenInclude(c => c.Course)
-                .Include(s => s.User) 
+                .Include(s => s.User)
                 .FirstOrDefaultAsync(s => s.Id == studentId);
         }
     }
