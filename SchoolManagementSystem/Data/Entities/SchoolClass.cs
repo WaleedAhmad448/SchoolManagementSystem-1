@@ -14,10 +14,10 @@ namespace SchoolManagementSystem.Data.Entities
         public Course Course { get; set; } // Navigation property for Course
 
         [Display(Name = "Start Date")]
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
         [Display(Name = "End Date")]
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         // Collection of students associated with this class
         public ICollection<Student> Students { get; set; } = new List<Student>();

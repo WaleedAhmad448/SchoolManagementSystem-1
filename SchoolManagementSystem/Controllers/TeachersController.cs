@@ -246,13 +246,13 @@ namespace SchoolManagementSystem.Controllers
         // Load subjects and classes for dropdowns
         private async Task LoadDropdownData()
         {
-            var subjects = await _subjectRepository.GetAllAsync();
+            var subjects = await _subjectRepository.GetAllSubjectsAsync();
             var classes = await _schoolClassRepository.GetAllAsync();
 
             ViewBag.Subjects = subjects.Select(s => new SelectListItem
             {
                 Value = s.Id.ToString(),
-                Text = s.SubjectName 
+                Text = s.Name 
             });
 
             ViewBag.SchoolClasses = classes.Select(c => new SelectListItem

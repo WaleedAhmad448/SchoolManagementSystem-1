@@ -17,9 +17,5 @@ namespace SchoolManagementSystem.Models
         [Required]
         public int Credits { get; set; } 
 
-        // Foreign keys
-        public int? CourseId { get; set; } 
-        public int? SchoolClassId { get; set; } 
-
     }
 }

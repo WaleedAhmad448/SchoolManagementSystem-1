@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SchoolManagementSystem.Data;
 using SchoolManagementSystem.Data.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SchoolManagementSystem.Repositories
 {
@@ -16,27 +13,18 @@ namespace SchoolManagementSystem.Repositories
             _context = context;
         }
 
-        
-        public async Task<IEnumerable<Subject>> GetSubjectsByTeacherIdAsync(int teacherId)
-        {
-            return await _context.TeacherSubjects
-                .Where(ts => ts.TeacherId == teacherId)
-                .Select(ts => ts.Subject)  
-                .ToListAsync();
-        }
-
-
-        public async Task<Subject> GetByNameAsync(string subjectName)
-        {
-            return await _context.Subjects
-                .FirstOrDefaultAsync(s => s.SubjectName == subjectName);
-        }
-
-        
-        public async Task<IEnumerable<Subject>> GetAllAsync()
+        public async Task<List<Subject>> GetAllSubjectsAsync()
         {
             return await _context.Subjects.ToListAsync();
         }
 
+        public async Task<List<Subject>> GetSubjectsByIdsAsync(List<int> ids)
+        {
+            return await _context.Subjects
+                .Where(s => ids.Contains(s.Id))
+                .ToListAsync();
+        }
+
     }
+
 }

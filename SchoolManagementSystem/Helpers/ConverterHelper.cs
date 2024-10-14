@@ -1,4 +1,6 @@
 ﻿using System;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using NuGet.DependencyResolver;
 using SchoolManagementSystem.Data.Entities;
 using SchoolManagementSystem.Models;
@@ -10,8 +12,8 @@ namespace SchoolManagementSystem.Helpers
     {
         // Converts the StudentViewModel to Student (entity)
         private readonly IUserHelper _userHelper;
-        private readonly ISchoolClassRepository _schoolClassRepository;
         private readonly ISubjectRepository _subjectRepository;
+        private readonly ISchoolClassRepository _schoolClassRepository;
         private readonly ICourseRepository _courseRepository;
 
         public ConverterHelper(IUserHelper userHelper, ISchoolClassRepository schoolClassRepository, ISubjectRepository subjectRepository, ICourseRepository courseRepository)
@@ -155,159 +157,131 @@ namespace SchoolManagementSystem.Helpers
             };
         }
 
-        public async Task<Subject> ToSubjectAsync(SubjectViewModel model)
-        {
-            if (model == null) throw new ArgumentNullException(nameof(model));
-
-            return new Subject
-            {
-                Id = model.Id,
-                SubjectName = model.SubjectName,
-                Description = model.Description,
-                Credits = model.Credits,
-            };
-        }
-
-        
-        public SubjectViewModel ToSubjectViewModel(Subject subject)
-        {
-            if (subject == null) throw new ArgumentNullException(nameof(subject));
-
-            return new SubjectViewModel
-            {
-                Id = subject.Id,
-                SubjectName = subject.SubjectName,
-                Description = subject.Description,
-                Credits = subject.Credits,
-            };
-        }
-
         public async Task<Course> ToCourseAsync(CourseViewModel model, bool isNew)
         {
-            var course = new Course
-            {
-                
-                CourseName = model.CourseName,
-                Description = model.Description,
-                Duration = model.Duration,
-                Credits = model.Credits,
-                IsActive = model.IsActive,
-                CreatedAt = isNew ? DateTime.UtcNow : model.CreatedAt,
-                UpdatedAt = DateTime.UtcNow
-            };
+            var course = isNew ? new Course() : await _courseRepository.GetCourseWithDetailsAsync(model.Id);
 
-            
-            if (isNew)
+            if (course == null)
             {
-                
-                await _courseRepository.CreateAsync(course);
-            }
-            else
-            {
-                course.Id = model.Id; 
-                await _courseRepository.UpdateAsync(course);
+                return null;
             }
 
-            
-            if (model.SchoolClassIds != null && model.SchoolClassIds.Any())
-            {
-                foreach (var classId in model.SchoolClassIds)
-                {
-                    var schoolClass = await _schoolClassRepository.GetByIdAsync(classId);
-                    if (schoolClass != null)
-                    {
-                        schoolClass.CourseId = course.Id; 
-                        await _schoolClassRepository.UpdateAsync(schoolClass); 
-                    }
-                }
-            }
+            course.Name = model.Name;
 
-            
-            if (model.SubjectIds != null && model.SubjectIds.Any())
+
+            // Associates selected classes
+            course.SchoolClasses = await _schoolClassRepository.GetSchoolClassesByIdsAsync(model.SelectedSchoolClassIds);
+
+            // Associates the selected subjects
+            var subjects = await _subjectRepository.GetSubjectsByIdsAsync(model.SelectedSubjectIds);
+
+            course.CourseSubjects = subjects.Select(s => new CourseSubject
             {
-                course.CourseSubjects = new List<CourseSubject>(); 
-                foreach (var subjectId in model.SubjectIds)
-                {
-                    var subject = await _subjectRepository.GetByIdAsync(subjectId);
-                    if (subject != null)
-                    {
-                        course.CourseSubjects.Add(new CourseSubject
-                        {
-                            CourseId = course.Id, 
-                            SubjectId = subject.Id
-                        });
-                    }
-                }
-            }
+                CourseId = course.Id,
+                SubjectId = s.Id
+            }).ToList();
+                        
+            course.Description = model.Description; 
+            course.Duration = model.Duration; 
+            course.IsActive = model.IsActive; 
+            course.CreatedAt = model.CreatedAt;
+            course.UpdatedAt = model.UpdatedAt;
 
             return course;
         }
 
-
-
-
-
-        
         public CourseViewModel ToCourseViewModel(Course course)
         {
+            var schoolClasses = _schoolClassRepository.GetAllAsync().Result; 
+            var subjects = _subjectRepository.GetAllSubjectsAsync().Result; 
+
             return new CourseViewModel
             {
                 Id = course.Id,
-                CourseName = course.CourseName,
-                Description = course.Description,
-                Duration = course.Duration,
-                Credits = course.Credits,
-                IsActive = course.IsActive,
-                CreatedAt = course.CreatedAt,
-                UpdatedAt = course.UpdatedAt,
-
-                
-                SchoolClassIds = course.SchoolClasses?.Select(sc => sc.Id).ToList() ?? new List<int>(),
-
-                
-                SubjectIds = course.CourseSubjects?.Select(cs => cs.SubjectId).ToList() ?? new List<int>()
+                Name = course.Name,
+                Description = course.Description, 
+                Duration = course.Duration, 
+                IsActive = course.IsActive, 
+                CreatedAt = course.CreatedAt, 
+                UpdatedAt = course.UpdatedAt, 
+                SelectedSchoolClassIds = course.SchoolClasses.Select(sc => sc.Id).ToList(),
+                SelectedSubjectIds = course.CourseSubjects.Select(cs => cs.SubjectId).ToList(),
+                SchoolClasses = schoolClasses,
+                Subjects = subjects,
+                SchoolClassItems = schoolClasses.Select(sc => new SelectListItem
+                {
+                    Value = sc.Id.ToString(),
+                    Text = sc.ClassName,
+                    Selected = course.SchoolClasses.Any(s => s.Id == sc.Id)
+                }).ToList(),
+                SubjectItems = subjects.Select(s => new SelectListItem
+                {
+                    Value = s.Id.ToString(),
+                    Text = s.Name,
+                    Selected = course.CourseSubjects.Any(cs => cs.SubjectId == s.Id)
+                }).ToList()
             };
         }
 
-        
         public async Task<SchoolClass> ToSchoolClassAsync(SchoolClassViewModel model, bool isNew)
         {
-            if (model == null) throw new ArgumentNullException(nameof(model));
+            var schoolClass = isNew ? new SchoolClass() : await _schoolClassRepository.GetByIdAsync(model.Id);
 
-            return new SchoolClass
+            if (schoolClass == null)
             {
-                Id = isNew ? 0 : model.Id, 
-                ClassName = model.ClassName,
-                CourseId = model.CourseId,
-                StartDate = model.StartDate,
-                EndDate = model.EndDate,
+                return null;
+            }
 
-                
-                Students = model.StudentIds.Select(id => new Student { Id = id }).ToList(),
-                TeacherSchoolClasses = model.TeacherIds.Select(id => new TeacherSchoolClass { TeacherId = id }).ToList()
-            };
+            schoolClass.ClassName = model.ClassName;
+            schoolClass.CourseId = model.CourseId; 
+            schoolClass.StartDate = model.StartDate;
+            schoolClass.EndDate = model.EndDate;
+
+            // Associate selected students, if necessary
+            // schoolClass.Students = await _studentRepository.GetStudentsByIdsAsync(model.StudentIds); // Adicionado se você tiver essa lógica
+
+            // Associates selected teachers, if necessary
+            // schoolClass.TeacherSchoolClasses = await _teacherRepository.GetTeachersByIdsAsync(model.TeacherIds); // Adicionado se você tiver essa lógica
+
+            return schoolClass;
         }
 
-      
         public SchoolClassViewModel ToSchoolClassViewModel(SchoolClass schoolClass)
         {
-            if (schoolClass == null) throw new ArgumentNullException(nameof(schoolClass));
-
             return new SchoolClassViewModel
             {
                 Id = schoolClass.Id,
                 ClassName = schoolClass.ClassName,
                 CourseId = schoolClass.CourseId,
-                StartDate = schoolClass.StartDate,
-                EndDate = schoolClass.EndDate,
+                StartDate = schoolClass.StartDate ?? DateTime.Now, 
+                EndDate = schoolClass.EndDate ?? DateTime.Now, 
+            };
+        }
 
-               
-                StudentIds = schoolClass.Students.Select(s => s.Id).ToList(),
-                TeacherIds = schoolClass.TeacherSchoolClasses.Select(t => t.TeacherId).ToList(),
+        public async Task<Subject> ToSubjectAsync(SubjectViewModel model, bool isNew)
+        {
+            var subject = isNew ? new Subject() : await _subjectRepository.GetByIdAsync(model.Id);
 
-                
-                Students = schoolClass.Students,
-                Teachers = schoolClass.TeacherSchoolClasses.Select(tsc => tsc.Teacher).ToList()
+            if (subject == null)
+            {
+                return null;
+            }
+
+            subject.Name = model.SubjectName;
+            subject.Description = model.Description; 
+            subject.Credits = model.Credits; 
+
+            return subject;
+        }
+
+        public SubjectViewModel ToSubjectViewModel(Subject subject)
+        {
+            return new SubjectViewModel
+            {
+                Id = subject.Id,
+                SubjectName = subject.Name,
+                Description = subject.Description, 
+                Credits = subject.Credits 
             };
         }
 

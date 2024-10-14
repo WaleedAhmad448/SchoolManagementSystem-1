@@ -28,7 +28,7 @@ namespace SchoolManagementSystem.Controllers
                 StudentId = a.StudentId,
                 StudentName = a.Student.User.FullName,
                 SubjectId = a.SubjectId,
-                SubjectName = a.Subject.SubjectName,
+                SubjectName = a.Subject.Name,
                 Date = a.Date,
                 Presence = a.Presence,
                 Remarks = a.Remarks
@@ -57,7 +57,7 @@ namespace SchoolManagementSystem.Controllers
                 StudentId = attendance.StudentId,
                 StudentName = attendance.Student.User.FullName,
                 SubjectId = attendance.SubjectId,
-                SubjectName = attendance.Subject.SubjectName,
+                SubjectName = attendance.Subject.Name,
                 Date = attendance.Date,
                 Presence = attendance.Presence,
                 Remarks = attendance.Remarks

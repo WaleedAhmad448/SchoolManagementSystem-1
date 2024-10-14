@@ -8,26 +8,24 @@ namespace SchoolManagementSystem.Data.Entities
 
         [Required]
         [MaxLength(100)]
-        public string CourseName { get; set; }
+        public string Name { get; set; }
 
         [MaxLength(500)]
         public string Description { get; set; }
 
         [Range(1, 52)]
-        public int Duration { get; set; } // Duração em semanas, por exemplo.
-
-        public int Credits { get; set; } // Créditos que o curso vale.
+        public int Duration { get; set; } // Duration in weeks, for example.
 
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public DateTime UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        // Relacionamento: um curso pode ter várias turmas.
+        // One-to-many relationship with SchoolClass
         public ICollection<SchoolClass> SchoolClasses { get; set; } = new List<SchoolClass>();
 
-        // Relacionamento: um curso pode ter várias disciplinas associadas.
+        // Many-to-many relationship through the CourseSubject entity
         public ICollection<CourseSubject> CourseSubjects { get; set; } = new List<CourseSubject>();
     }
 }

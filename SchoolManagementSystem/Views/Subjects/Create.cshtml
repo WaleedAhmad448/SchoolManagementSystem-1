@@ -20,25 +20,33 @@
 
 <form id="createSubjectForm" asp-action="Create" method="post">
     <div class="row mb-3">
-        <div class="col-md-6">
+        <div class="col-md-12">
             <label asp-for="SubjectName" class="form-label">Subject Name <span class="text-danger">*</span></label>
             <input asp-for="SubjectName" class="form-control" required />
             <span asp-validation-for="SubjectName" class="text-danger"></span>
         </div>
-        <div class="col-md-6">
-            <label asp-for="Credits" class="form-label">Credits <span class="text-danger">*</span></label>
-            <input asp-for="Credits" type="number" class="form-control" required />
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <label asp-for="Description" class="form-label">Description</label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <label asp-for="Credits" class="form-label">Credits</label>
+            <input asp-for="Credits" class="form-control" type="number" min="0" />
             <span asp-validation-for="Credits" class="text-danger"></span>
         </div>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Description" class="form-label">Description</label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
     </div>
-
-    <button type="submit" class="btn btn-primary">Create Subject</button>
 </form>
 
 @section Scripts {

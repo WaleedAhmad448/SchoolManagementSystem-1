@@ -12,7 +12,7 @@ namespace SchoolManagementSystem.Models
 
         [Required]
         [MaxLength(100)]
-        public string CourseName { get; set; }
+        public string Name { get; set; }
 
         [MaxLength(500)]
         public string Description { get; set; }
@@ -21,25 +21,25 @@ namespace SchoolManagementSystem.Models
         [Range(1, 52, ErrorMessage = "The course duration must be between 1 and 52 weeks.")]
         public int Duration { get; set; } 
 
-        [Required]
-        public int Credits { get; set; } 
-
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public DateTime UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        
-        public List<int> SchoolClassIds { get; set; } = new List<int>(); 
-        public List<int> SubjectIds { get; set; } = new List<int>(); 
 
-        
-        public IEnumerable<SelectListItem> AvailableSchoolClasses { get; set; } = new List<SelectListItem>();
-        public IEnumerable<SelectListItem> AvailableSubjects { get; set; } = new List<SelectListItem>();
 
-        
-        public IEnumerable<SchoolClass> SchoolClasses { get; set; } = new List<SchoolClass>(); 
-        public IEnumerable<Subject> Subjects { get; set; } = new List<Subject>(); 
+        // IDs selected through checkboxes
+        public List<int> SelectedSchoolClassIds { get; set; } = new List<int>();
+        public List<int> SelectedSubjectIds { get; set; } = new List<int>();
+
+
+        // Lists to display in checkboxes
+        public List<SchoolClass> SchoolClasses { get; set; } = new List<SchoolClass>();
+        public List<Subject> Subjects { get; set; } = new List<Subject>();
+
+        // Checkboxes to display
+        public List<SelectListItem> SchoolClassItems { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> SubjectItems { get; set; } = new List<SelectListItem>();
     }
 }

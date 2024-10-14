@@ -26,21 +26,21 @@ namespace SchoolManagementSystem.Helpers
         EmployeeViewModel ToEmployeeViewModel(Employee employee);
 
         // Converts SchoolClassViewModel to SchoolClass (async)
-        Task<SchoolClass> ToSchoolClassAsync(SchoolClassViewModel model, bool isNew);
-
-        // Converts SchoolClass to SchoolClassViewModel
-        SchoolClassViewModel ToSchoolClassViewModel(SchoolClass schoolClass);
-
-        // Converts SubjectViewModel to Subject (async)
-        Task<Subject> ToSubjectAsync(SubjectViewModel model);
-
-        // Converts Subject to SubjectViewModel
-        SubjectViewModel ToSubjectViewModel(Subject subject);
-
-        // Converts CourseViewModel to Course (async)
         Task<Course> ToCourseAsync(CourseViewModel model, bool isNew);
 
-        // Converts Course to CourseViewModel
+        // Convert from Course Entity to CourseViewMode
         CourseViewModel ToCourseViewModel(Course course);
+
+        // Convert from SchoolClassViewModel to SchoolClass Entity
+        Task<SchoolClass> ToSchoolClassAsync(SchoolClassViewModel model, bool isNew);
+
+        // Convert from SchoolClass Entity to SchoolClassViewModel
+        SchoolClassViewModel ToSchoolClassViewModel(SchoolClass schoolClass);
+
+        // Convert from SubjectViewModel to Subject Entity
+        Task<Subject> ToSubjectAsync(SubjectViewModel model, bool isNew);
+
+        // Convert from Subject Entity to SubjectViewModel
+        SubjectViewModel ToSubjectViewModel(Subject subject);
     }
 }

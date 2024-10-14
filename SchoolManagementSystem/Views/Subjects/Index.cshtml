@@ -1,24 +1,22 @@
 ﻿@using Newtonsoft.Json
-@model IEnumerable<SchoolManagementSystem.Data.Entities.Subject>
+@model IEnumerable<SchoolManagementSystem.Models.SubjectViewModel>
 
 @{
-    ViewData["Title"] = "Subjects List";
+    ViewData["Title"] = "Subjects";
 
-    // Define as configurações do JSON para evitar referência circular
     var jsonSerializerSettings = new JsonSerializerSettings
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Formatting = Formatting.Indented // Formatação mais legível para debug
+                Formatting = Formatting.Indented
             };
 
-    // Serializa o modelo usando essas configurações
     var serializedData = JsonConvert.SerializeObject(Model, jsonSerializerSettings);
 }
 
 <h2>Subjects</h2>
 
 <div>
-    <a asp-action="Create" class="btn btn-success mb-3">Create Subject</a>
+    <a asp-action="Create" class="btn btn-success mb-3">Create New Subject</a>
 </div>
 
 @if (!Model.Any())
@@ -32,29 +30,28 @@ else
 
 @section Scripts {
     <script id="actionTemplate" type="text/x-template">
-        <a href="/Subjects/Edit/${Id}" class="btn btn-warning">Edit</a> <!-- Aponta para SubjectController -->
-        <a href="/Subjects/Delete/${Id}" class="btn btn-danger">Delete</a> <!-- Aponta para SubjectController -->
-        <a href="/Subjects/Details/${Id}" class="btn btn-primary">Details</a> <!-- Aponta para SubjectController -->
+        <a href="/Subjects/Edit/${Id}" class="btn btn-warning">Edit</a>
+        <a href="/Subjects/Delete/${Id}" class="btn btn-danger">Delete</a>
     </script>
 
     <script>
         $(document).ready(function () {
-            var serializedData = @Html.Raw(serializedData); // Usa o serializedData JSON aqui
+            var serializedData = @Html.Raw(serializedData);
 
             var grid = new ej.grids.Grid({
                 dataSource: serializedData,
-                allowPaging: true,            // Habilita paginação
-                allowSorting: true,           // Habilita ordenação
-                allowFiltering: true,         // Habilita filtragem
-                allowGrouping: true,          // Habilita agrupamento
-                filterSettings: { type: 'Menu' }, // Habilita filtro de menu
+                allowPaging: true,
+                allowSorting: true,
+                allowFiltering: true,
+                allowGrouping: true,
+                filterSettings: { type: 'Menu' },
                 pageSettings: { pageSize: 10 },
-                toolbar: ['Search'],           // Adiciona barra de pesquisa
-                groupSettings: { showGroupedColumn: true }, // Mostra a coluna agrupada
+                toolbar: ['Search'],
+                groupSettings: { showGroupedColumn: true },
                 columns: [
-                    { field: "SubjectName", headerText: "Subject Name", width: 150 },
-                    { field: "Description", headerText: "Description", width: 200 },
-                    { field: "Credits", headerText: "Credits", width: 100 },
+                    { field: "SubjectName", headerText: "Subject Name", width: 200 },
+                    { field: "Description", headerText: "Description", width: 300 }, <!--Adicionado -->
+                    { field: "Credits", headerText: "Credits", width: 100 }, <!--Adicionado -->
                     {
                         headerText: "Actions",
                         width: 180,
@@ -64,7 +61,7 @@ else
                 ]
             });
 
-            grid.appendTo("#Grid"); // Aplica o grid ao elemento DOM com id 'Grid'
+            grid.appendTo("#Grid");
         });
     </script>
 }

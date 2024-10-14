@@ -17,11 +17,11 @@ namespace SchoolManagementSystem.Models
 
         [Display(Name = "Start Date")]
         [Required]
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
         [Display(Name = "End Date")]
         [Required]
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         
         public List<int> StudentIds { get; set; } = new List<int>();

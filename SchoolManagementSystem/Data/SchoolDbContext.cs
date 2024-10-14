@@ -66,19 +66,28 @@ public class SchoolDbContext : IdentityDbContext<User>
             .HasForeignKey(ts => ts.SubjectId)
             .OnDelete(DeleteBehavior.Restrict); // Restriction on exclusion from the subject
 
-     
+
+        // Configura o relacionamento muitos-para-muitos
         modelBuilder.Entity<CourseSubject>()
             .HasKey(cs => new { cs.CourseId, cs.SubjectId });
 
         modelBuilder.Entity<CourseSubject>()
             .HasOne(cs => cs.Course)
             .WithMany(c => c.CourseSubjects)
-            .HasForeignKey(cs => cs.CourseId);
+            .HasForeignKey(cs => cs.CourseId)
+            .OnDelete(DeleteBehavior.Cascade); // Permitir exclusão em cascata
 
         modelBuilder.Entity<CourseSubject>()
             .HasOne(cs => cs.Subject)
             .WithMany(s => s.CourseSubjects)
-            .HasForeignKey(cs => cs.SubjectId);
+            .HasForeignKey(cs => cs.SubjectId)
+            .OnDelete(DeleteBehavior.Cascade); // Permitir exclusão em cascata
+
+        modelBuilder.Entity<SchoolClass>()
+            .HasOne(sc => sc.Course)
+            .WithMany(c => c.SchoolClasses)
+            .HasForeignKey(sc => sc.CourseId)
+            .OnDelete(DeleteBehavior.SetNull); // Defina como nulo em vez de excluir
 
 
         // Relationship between Teacher and SchoolClass

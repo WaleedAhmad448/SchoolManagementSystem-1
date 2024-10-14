@@ -84,29 +84,29 @@ namespace SchoolManagementSystem
             builder.Services.AddScoped<IBlobHelper, BlobHelper>();
             builder.Services.AddScoped<IConverterHelper, ConverterHelper>();
 
-            //// Register SeedDb to seed the database with initial data
-            //builder.Services.AddTransient<SeedDb>();
+            // Register SeedDb to seed the database with initial data
+            builder.Services.AddTransient<SeedDb>();
 
             var app = builder.Build();
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NDaF5cWWtCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWH9ec3RTRWhfWUx3XUY=");
 
             //SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NDaF5cWWtCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWH9ec3RTRWhfWUx3XUY=");
 
-            //// Seed the database with initial data
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var services = scope.ServiceProvider;
-            //    var seedDb = services.GetRequiredService<SeedDb>();
-            //    await seedDb.SeedAsync();
+            // Seed the database with initial data
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var seedDb = services.GetRequiredService<SeedDb>();
+                await seedDb.SeedAsync();
 
-            //    var userHelper = services.GetRequiredService<IUserHelper>();
-            //    await userHelper.CheckRoleAsync("Admin");
-            //    await userHelper.CheckRoleAsync("Employee");
-            //    await userHelper.CheckRoleAsync("Student");
-            //    await userHelper.CheckRoleAsync("Teacher");
-            //    await userHelper.CheckRoleAsync("Anonymous");
-            //    await userHelper.CheckRoleAsync("Pending");
-            //}
+                var userHelper = services.GetRequiredService<IUserHelper>();
+                await userHelper.CheckRoleAsync("Admin");
+                await userHelper.CheckRoleAsync("Employee");
+                await userHelper.CheckRoleAsync("Student");
+                await userHelper.CheckRoleAsync("Teacher");
+                await userHelper.CheckRoleAsync("Anonymous");
+                await userHelper.CheckRoleAsync("Pending");
+            }
 
             if (!app.Environment.IsDevelopment())
             {

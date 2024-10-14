@@ -1,24 +1,22 @@
 ﻿@using Newtonsoft.Json
-@model IEnumerable<SchoolManagementSystem.Data.Entities.SchoolClass>
+@model IEnumerable<SchoolManagementSystem.Models.SchoolClassViewModel>
 
 @{
-    ViewData["Title"] = "School Classes List";
+    ViewData["Title"] = "School Classes";
 
-    // Define as configurações do JSON para evitar referência circular
     var jsonSerializerSettings = new JsonSerializerSettings
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Formatting = Formatting.Indented // Formatação mais legível para debug
+                Formatting = Formatting.Indented
             };
 
-    // Serializa o modelo usando essas configurações
     var serializedData = JsonConvert.SerializeObject(Model, jsonSerializerSettings);
 }
 
 <h2>School Classes</h2>
 
 <div>
-    <a asp-action="Create" class="btn btn-success mb-3">Create School Class</a>
+    <a asp-action="Create" class="btn btn-success mb-3">Create New School Class</a>
 </div>
 
 @if (!Model.Any())
@@ -32,36 +30,29 @@ else
 
 @section Scripts {
     <script id="actionTemplate" type="text/x-template">
-        <a href="/SchoolClasses/Edit/${Id}" class="btn btn-warning">Edit</a> <!-- Aponta para SchoolClassesController -->
-        <a href="/SchoolClasses/Delete/${Id}" class="btn btn-danger">Delete</a> <!-- Aponta para SchoolClassesController -->
-        <a href="/SchoolClasses/Details/${Id}" class="btn btn-primary">Details</a> <!-- Aponta para SchoolClassesController -->
+        <a href="/SchoolClasses/Edit/${Id}" class="btn btn-warning">Edit</a>
+        <a href="/SchoolClasses/Delete/${Id}" class="btn btn-danger">Delete</a>
     </script>
 
     <script>
         $(document).ready(function () {
-            var serializedData = @Html.Raw(serializedData); // Usa o serializedData JSON aqui
-
-            // Mapeia os dados para uma estrutura legível
-            serializedData.forEach(function (schoolClass) {
-                schoolClass.FormattedStartDate = new Date(schoolClass.StartDate).toLocaleDateString();
-                schoolClass.FormattedEndDate = new Date(schoolClass.EndDate).toLocaleDateString();
-            });
+            var serializedData = @Html.Raw(serializedData);
 
             var grid = new ej.grids.Grid({
                 dataSource: serializedData,
-                allowPaging: true,            // Habilita paginação
-                allowSorting: true,           // Habilita ordenação
-                allowFiltering: true,         // Habilita filtragem
-                allowGrouping: true,          // Habilita agrupamento
-                filterSettings: { type: 'Menu' }, // Habilita filtro de menu
+                allowPaging: true,
+                allowSorting: true,
+                allowFiltering: true,
+                allowGrouping: true,
+                filterSettings: { type: 'Menu' },
                 pageSettings: { pageSize: 10 },
-                toolbar: ['Search'],           // Adiciona barra de pesquisa
-                groupSettings: { showGroupedColumn: true }, // Mostra a coluna agrupada
+                toolbar: ['Search'],
+                groupSettings: { showGroupedColumn: true },
                 columns: [
-                    { field: "ClassName", headerText: "Class Name", width: 120 },
-                    { field: "FormattedStartDate", headerText: "Start Date", width: 120 },
-                    { field: "FormattedEndDate", headerText: "End Date", width: 120 },
-                    {
+                    { field: "ClassName", headerText: "Class Name", width: 200 },
+                    { field: "StartDate", headerText: "Start Date", width: 150, type: "date", format: "yMd" }, // Adicionado
+                    { field: "EndDate", headerText: "End Date", width: 150, type: "date", format: "yMd" }, // Adicionado
+                    { 
                         headerText: "Actions",
                         width: 180,
                         textAlign: "Center",
@@ -70,7 +61,7 @@ else
                 ]
             });
 
-            grid.appendTo("#Grid"); // Aplica o grid ao elemento DOM com id 'Grid'
+            grid.appendTo("#Grid");
         });
     </script>
 }
