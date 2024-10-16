@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace SchoolManagementSystem.Models
 {
@@ -6,18 +7,22 @@ namespace SchoolManagementSystem.Models
     {
         public int Id { get; set; }
 
-        [Display(Name = "Student Name")]
+        [Required]
+        [Range(0, 20, ErrorMessage = "The grade must be between 0 and 20.")]
+        public double Value { get; set; }
+
+        [Required]
+        public int StudentId { get; set; }
         public string StudentName { get; set; }
 
-        [Display(Name = "Subject Name")]
+        [Required]
+        public int SubjectId { get; set; }
         public string SubjectName { get; set; }
 
-        [Range(0, 100)]
-        public decimal Value { get; set; }
+        [Display(Name = "Evaluation Date")]
+        public DateTime EvaluationDate { get; set; } = DateTime.Now;
 
-        public string Status { get; set; }
-
-        [Display(Name = "Date Recorded")]
-        public DateTime DateRecorded { get; set; }
+        // Calculated property to determine the pass/fail status
+        public string Status => Value >= 9.5 ? "Passed" : "Failed";
     }
 }

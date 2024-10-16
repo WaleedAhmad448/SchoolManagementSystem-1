@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<SchoolManagementSystem.Models.StudentSubjectGradeViewModel>
 
 @{
-    ViewBag.Title = $"{Model.First().StudentName}'s Grades"; // Using student's name for the title
+    ViewBag.Title = "My Grades";
 }
 
-<h2>Subjects and Grades of @Model.First().StudentName</h2> <!-- Displaying the student's name -->
+<h2>My Subjects and Grades</h2>
 
 <table class="table table-striped">
     <thead>
@@ -20,7 +20,7 @@
         {
             <tr>
                 <td>@item.Subject.Name</td>
-                <td>@(item.Grade?.Value.ToString("F2") ?? "No Grade")</td> <!-- Formatting the grade -->
+                <td>@(item.Grade?.Value.ToString("F2") ?? "No Grade")</td>
                 <td>@(item.Grade?.Status ?? "No Status")</td>
                 <td>
                     @if (item.Grade == null)
@@ -38,5 +38,4 @@
     </tbody>
 </table>
 
-<!-- Back button -->
-<a asp-action="Index" class="btn btn-secondary">Back</a>
+<a asp-action="Index" class="btn btn-secondary">Back to Home</a>

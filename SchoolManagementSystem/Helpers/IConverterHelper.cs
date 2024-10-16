@@ -42,5 +42,9 @@ namespace SchoolManagementSystem.Helpers
 
         // Convert from Subject Entity to SubjectViewModel
         SubjectViewModel ToSubjectViewModel(Subject subject);
+
+        Task<Grade> ToGradeAsync(GradeViewModel model, bool isNew);
+        GradeViewModel ToGradeViewModel(Grade grade);
+
     }
 }

@@ -1,31 +1,59 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SchoolManagementSystem.Data.Entities;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using SchoolManagementSystem.Repositories;
 
-namespace SchoolManagementSystem.Repositories
+public class GradeRepository : GenericRepository<Grade>, IGradeRepository
 {
-    public class GradeRepository : GenericRepository<Grade>, IGradeRepository
+    private readonly SchoolDbContext _context;
+
+    public GradeRepository(SchoolDbContext context) : base(context)
     {
-        private readonly SchoolDbContext _context;
+        _context = context;
+    }
 
-        public GradeRepository(SchoolDbContext context) : base(context)
+    public async Task<List<Grade>> GetGradesByStudentIdAsync(int studentId)
+    {
+        return await _context.Grades
+            .Include(g => g.Subject)
+            .Include(g => g.Student)
+            .Where(g => g.StudentId == studentId)
+            .ToListAsync();
+    }
+
+    public async Task<List<Grade>> GetAllGradesAsync()
+    {
+        return await _context.Grades
+            .Include(g => g.Subject)
+            .Include(g => g.Student)
+            .ToListAsync();
+    }
+
+    public async Task<List<Subject>> GetSubjectsByStudentIdAsync(int studentId)
+    {
+        // Get the student with the associated class and course
+        var student = await _context.Students
+            .Include(s => s.SchoolClass)
+            .ThenInclude(sc => sc.Course)
+            .ThenInclude(c => c.CourseSubjects)
+            .ThenInclude(cs => cs.Subject)
+            .FirstOrDefaultAsync(s => s.Id == studentId);
+
+        if (student == null || student.SchoolClass == null || student.SchoolClass.Course == null)
         {
-            _context = context;
+            return new List<Subject>(); // Return an empty list if no associations are found
         }
 
-        public async Task<IEnumerable<Grade>> GetGradesByStudentIdAsync(int studentId)
-        {
-            return await _context.Grades
-                .Where(g => g.StudentId == studentId)
-                .ToListAsync();
-        }
+        // Return the list of subjects associated with the course of the student's class
+        return student.SchoolClass.Course.CourseSubjects
+                     .Select(cs => cs.Subject)
+                     .ToList();
+    }
 
-        public async Task AddGradeAsync(Grade grade)
-        {
-            await _context.Grades.AddAsync(grade);
-            await _context.SaveChangesAsync();
-        }
+    public async Task<Grade> GetGradeWithDetailsByIdAsync(int id)
+    {
+        return await _context.Grades
+            .Include(g => g.Student)  // Include the Student entity
+            .Include(g => g.Subject)  // Include the Subject entity
+            .FirstOrDefaultAsync(g => g.Id == id);
     }
 }

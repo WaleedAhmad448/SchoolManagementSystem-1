@@ -1,12 +1,14 @@
 ﻿using SchoolManagementSystem.Data.Entities;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using SchoolManagementSystem.Repositories;
 
-namespace SchoolManagementSystem.Repositories
+public interface IGradeRepository : IGenericRepository<Grade>
 {
-    public interface IGradeRepository : IGenericRepository<Grade>
-    {
-        Task<IEnumerable<Grade>> GetGradesByStudentIdAsync(int studentId);
-        Task AddGradeAsync(Grade grade);
-    }
+    Task<List<Grade>> GetGradesByStudentIdAsync(int studentId);
+    Task<List<Grade>> GetAllGradesAsync();
+
+    Task<List<Subject>> GetSubjectsByStudentIdAsync(int studentId);
+
+    Task<Grade> GetGradeWithDetailsByIdAsync(int id);
+
+
 }

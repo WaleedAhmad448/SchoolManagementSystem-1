@@ -18,7 +18,6 @@ public class SchoolDbContext : IdentityDbContext<User>
     public DbSet<TeacherSubject> TeacherSubjects { get; set; }
     public DbSet<TeacherSchoolClass> TeacherSchoolClasses { get; set; }
     public DbSet<CourseSubject> CourseSubjects { get; set; }
-    public DbSet<ClassSession> ClassSessions { get; set; }
     
 
 

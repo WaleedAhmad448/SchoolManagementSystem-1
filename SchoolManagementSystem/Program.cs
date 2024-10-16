@@ -74,6 +74,7 @@ namespace SchoolManagementSystem
             builder.Services.AddScoped<IStudentRepository, StudentRepository>();
             builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
             builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
+            
 
             // Generic repository
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));

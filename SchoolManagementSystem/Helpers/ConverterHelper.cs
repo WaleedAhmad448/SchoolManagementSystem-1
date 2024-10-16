@@ -15,13 +15,22 @@ namespace SchoolManagementSystem.Helpers
         private readonly ISubjectRepository _subjectRepository;
         private readonly ISchoolClassRepository _schoolClassRepository;
         private readonly ICourseRepository _courseRepository;
+        private readonly ITeacherRepository _teacherRepository;        
+        private readonly IGradeRepository _gradeRepository;
 
-        public ConverterHelper(IUserHelper userHelper, ISchoolClassRepository schoolClassRepository, ISubjectRepository subjectRepository, ICourseRepository courseRepository)
+        public ConverterHelper(IUserHelper userHelper, 
+                               ISchoolClassRepository schoolClassRepository, 
+                               ISubjectRepository subjectRepository, 
+                               ICourseRepository courseRepository,
+                               ITeacherRepository teacherRepository,                               
+                               IGradeRepository gradeRepository)
         {
             _userHelper = userHelper;
             _schoolClassRepository = schoolClassRepository;
             _subjectRepository = subjectRepository;
             _courseRepository = courseRepository;
+            _teacherRepository = teacherRepository;            
+            _gradeRepository = gradeRepository;
         }
 
         // Converts the StudentViewModel to Student (entity)
@@ -285,6 +294,37 @@ namespace SchoolManagementSystem.Helpers
             };
         }
 
+        public async Task<Grade> ToGradeAsync(GradeViewModel model, bool isNew)
+        {
+            var grade = isNew ? new Grade() : await _gradeRepository.GetByIdAsync(model.Id);
+
+            if (grade == null)
+            {
+                return null; 
+            }
+
+            grade.Value = model.Value;
+            grade.StudentId = model.StudentId; 
+            grade.SubjectId = model.SubjectId; 
+            grade.EvaluationDate = model.EvaluationDate; 
+
+            return grade;
+        }
+
+
+        public GradeViewModel ToGradeViewModel(Grade grade)
+        {
+            return new GradeViewModel
+            {
+                Id = grade.Id,
+                Value = grade.Value,
+                StudentId = grade.StudentId,
+                StudentName = $"{grade.Student.FirstName} {grade.Student.LastName}",
+                SubjectId = grade.SubjectId,
+                SubjectName = grade.Subject.Name,
+                EvaluationDate = grade.EvaluationDate,
+            };
+        }
 
 
     }

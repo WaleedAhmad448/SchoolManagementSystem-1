@@ -6,19 +6,25 @@ namespace SchoolManagementSystem.Repositories
 {
     public interface IStudentRepository : IGenericRepository<Student>
     {
-        // Método para obter estudantes por ID da turma
+        // Method to get students by class ID
         Task<IEnumerable<Student>> GetStudentsByClassIdAsync(int classId);
 
-        // Método para obter estudantes pelo status
+        // Method to get students by status
         Task<IEnumerable<Student>> GetStudentsByStatusAsync(string status);
 
-        // Método para obter um estudante com seus cursos associados
+        // Method to get a student with their associated courses
         Task<Student> GetStudentWithCoursesAsync(int studentId);
 
-        // Método para obter um estudante pelo nome completo
+        // Method to get a student by full name
         Task<Student> GetByFullNameAsync(string fullName);
 
-        // Método para obter todos os estudantes com as entidades relacionadas
+        // Method to get all students with related entities
         Task<IEnumerable<Student>> GetAllWithIncludesAsync();
+
+        // Method to get students by school class ID
+        Task<List<Student>> GetStudentsBySchoolClassIdAsync(int schoolClassId);
+
+        Task<int?> GetStudentIdByUserIdAsync(string userId);
+
     }
 }

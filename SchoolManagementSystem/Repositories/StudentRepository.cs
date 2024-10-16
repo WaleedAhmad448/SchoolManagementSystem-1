@@ -68,5 +68,23 @@ namespace SchoolManagementSystem.Repositories
                 .Include(s => s.User)
                 .FirstOrDefaultAsync(s => s.Id == studentId);
         }
+
+        public async Task<List<Student>> GetStudentsBySchoolClassIdAsync(int schoolClassId)
+        {
+            return await _context.Students
+                .Include(s => s.Grades) 
+                .Where(s => s.SchoolClassId == schoolClassId)
+                .ToListAsync();
+        }
+
+        public async Task<int?> GetStudentIdByUserIdAsync(string userId)
+        {
+            
+            var student = await _context.Students
+                .Include(s => s.User) 
+                .FirstOrDefaultAsync(s => s.UserId == userId); 
+
+            return student?.Id; 
+        }
     }
 }

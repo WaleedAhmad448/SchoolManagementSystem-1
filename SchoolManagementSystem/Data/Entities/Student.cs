@@ -31,6 +31,9 @@ namespace SchoolManagementSystem.Data.Entities
         public int? SchoolClassId { get; set; } 
         public SchoolClass SchoolClass { get; set; }
 
+        public ICollection<Grade> Grades { get; set; } = new List<Grade>(); 
+
+
         [Display(Name = "Image")]
         public Guid ImageId { get; set; }
 

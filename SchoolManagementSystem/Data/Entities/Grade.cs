@@ -1,24 +1,26 @@
-﻿using SchoolManagementSystem.Data.Entities;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-public class Grade : IEntity
+namespace SchoolManagementSystem.Data.Entities
 {
-    public int Id { get; set; }
+    public class Grade : IEntity
+    {
+        public int Id { get; set; }
 
-    public int? StudentId { get; set; } 
-    public Student? Student { get; set; }
+        [Required]
+        [Range(0, 20, ErrorMessage = "The grade must be between 0 and 20.")]
+        public double Value { get; set; }
 
-    public int? SubjectId { get; set; }
-    public Subject? Subject { get; set; }
+        public int StudentId { get; set; }
+        public Student Student { get; set; }
 
-    [Range(0, 100)]
-    [Column(TypeName = "decimal(5, 2)")]
-    public decimal Value { get; set; }
+        public int SubjectId { get; set; }
+        public Subject Subject { get; set; }
 
-    [MaxLength(20)]
-    public string Status { get; set; }
+        [Display(Name = "Evaluation Date")]
+        public DateTime EvaluationDate { get; set; } = DateTime.Now;
 
-    [Display(Name = "Date Recorded")]
-    public DateTime DateRecorded { get; set; }
+        // Calculated property to determine pass/fail status
+        public string Status => Value >= 9.5 ? "Passed" : "Failed";
+    }
 }
