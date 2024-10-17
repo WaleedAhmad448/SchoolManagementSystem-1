@@ -59,5 +59,8 @@ namespace SchoolManagementSystem.Helpers
 
         // Notifies administrative staff about pending users.
         Task NotifyAdministrativeEmployeesPendingUserAsync(User user);
+
+        Task<IdentityResult> ResetPasswordWithoutTokenAsync(User user, string password);
+
     }
 }

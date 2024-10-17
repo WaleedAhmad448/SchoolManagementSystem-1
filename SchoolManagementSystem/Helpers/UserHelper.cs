@@ -144,5 +144,12 @@ namespace SchoolManagementSystem.Helpers
                 await _alertRepository.CreateAsync(alert);
             }
         }
+
+        public async Task<IdentityResult> ResetPasswordWithoutTokenAsync(User user, string password)
+        {
+            // Update the password directly, creating a hash from the new password
+            user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, password);
+            return await _userManager.UpdateAsync(user);
+        }
     }
 }

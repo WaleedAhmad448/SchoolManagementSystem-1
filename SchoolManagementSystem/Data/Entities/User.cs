@@ -5,13 +5,15 @@ namespace SchoolManagementSystem.Data.Entities
 {
     public class User : IdentityUser
     {
-        [MaxLength(50, ErrorMessage = "O campo {0} só pode conter {1} caracteres")]
+        [Required(ErrorMessage = "The field {0} is required.")]
+        [MaxLength(50, ErrorMessage = "The field {0} can only contain {1} characters.")]
         public string FirstName { get; set; }
 
-        [MaxLength(50, ErrorMessage = "O campo {0} só pode conter {1} caracteres")]
+        [Required(ErrorMessage = "The field {0} is required.")]
+        [MaxLength(50, ErrorMessage = "The field {0} can only contain {1} characters.")]
         public string LastName { get; set; }
 
-        [MaxLength(100, ErrorMessage = "O campo {0} só pode conter {1} caracteres")]
+        [MaxLength(100, ErrorMessage = "The field {0} can only contain {1} characters.")]
         public string? Address { get; set; }
 
         [Display(Name = "Profile Picture")]

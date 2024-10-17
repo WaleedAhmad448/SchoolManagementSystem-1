@@ -40,11 +40,11 @@ namespace SchoolManagementSystem
                 cfg.User.RequireUniqueEmail = true;
 
                 // Password settings
-                cfg.Password.RequireDigit = false; // Exemplo de segurança
-                cfg.Password.RequiredUniqueChars = 0; // Exemplo de segurança
-                cfg.Password.RequireUppercase = false; // Exemplo de segurança
-                cfg.Password.RequireLowercase = false; // Exemplo de segurança
-                cfg.Password.RequireNonAlphanumeric = false; // Exemplo de segurança
+                cfg.Password.RequireDigit = false; 
+                cfg.Password.RequiredUniqueChars = 0; 
+                cfg.Password.RequireUppercase = false; 
+                cfg.Password.RequireLowercase = false; 
+                cfg.Password.RequireNonAlphanumeric = false; 
                 cfg.Password.RequiredLength = 6;
             })
             .AddDefaultTokenProviders()

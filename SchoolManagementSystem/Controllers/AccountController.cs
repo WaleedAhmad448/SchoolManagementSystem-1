@@ -71,9 +71,18 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // Displays the registration page
+        [HttpGet]
         public IActionResult Register()
         {
-            var model = new RegisterNewUserViewModel();
+            var model = new RegisterNewUserViewModel
+            {
+                TemporaryPassword = GenerateRandomPassword()
+            };
+
+            // Fill in temporary password automatically
+            model.Password = model.TemporaryPassword;
+            model.Confirm = model.TemporaryPassword;
+
             return View(model);
         }
 
@@ -98,30 +107,40 @@ namespace SchoolManagementSystem.Controllers
                         DateCreated = DateTime.UtcNow
                     };
 
-                    var result = await _userHelper.AddUserAsync(user, model.Password);
+                    string temporaryPassword = GenerateRandomPassword();
+                    model.TemporaryPassword = temporaryPassword;
+
+                    // Create user with temporary password
+                    var result = await _userHelper.AddUserAsync(user, temporaryPassword);
                     if (result != IdentityResult.Success)
                     {
                         ModelState.AddModelError(string.Empty, "The user could not be created.");
                         return View(model);
                     }
 
-                    // Automatically assign the role "Pending" to the new user
+                    // Assign the role "Pending"
                     await _userHelper.AddUserToRoleAsync(user, "Pending");
 
-
-                    // Notifica os funcionários da secretaria sobre o novo utilizador "Pending"
-                    await _userHelper.NotifyAdministrativeEmployeesPendingUserAsync(user);
-
-                    // Email confirmation logic (optional)
+                    // Generates the email activation token
                     string myToken = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
                     string tokenLink = Url.Action("ConfirmEmail", "Account", new { userid = user.Id, token = myToken }, protocol: HttpContext.Request.Scheme);
 
-                    Helpers.Response response = _mailHelper.SendEmail(model.Username, "Email Confirmation",
-                        $"<h1>Email Confirmation</h1>To confirm your email, click this link: <a href=\"{tokenLink}\">Confirm Email</a>");
+                    // Send email with temporary password and activation link
+                    string emailBody = $"<h1>Account Created</h1><p>Your temporary password is: {temporaryPassword}</p><p>Click here to activate your account and change your password: <a href=\"{tokenLink}\">Activate Account</a></p>";
+
+                    Helpers.Response response = _mailHelper.SendEmail(model.Username, "Account Created", emailBody);
 
                     if (response.IsSuccess)
                     {
-                        ViewBag.Message = "Instructions to confirm your user have been sent to your email.";
+                        ViewBag.Message = "User created successfully. An email was sent with further instructions.";
+
+                        ViewBag.Links = new Dictionary<string, string>
+                        {
+                            { "Create Student", Url.Action("Create", "Students") },
+                            { "Create Employee", Url.Action("Create", "Employees") },
+                            { "Create Teacher", Url.Action("Create", "Teachers") }
+                        };
+
                         return View(model);
                     }
 
@@ -213,7 +232,70 @@ namespace SchoolManagementSystem.Controllers
                 return View("Error");
             }
 
-            return RedirectToAction("Login");
+            // Redirects to the page to change the first password
+            return RedirectToAction("ChangeFirstPassword", new { email = user.Email, temporaryPassword = GenerateRandomPassword() });
+        }
+
+        // Displays the Change First Password page
+        public IActionResult ChangeFirstPassword(string email, string temporaryPassword)
+        {
+            var model = new ChangeFirstPasswordViewModel
+            {
+                Email = email,
+                TemporaryPassword = temporaryPassword
+            };
+
+            return View(model);
+        }
+
+        // Processes the Change First Password request
+        [HttpPost]
+        public async Task<IActionResult> ChangeFirstPassword(ChangeFirstPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userHelper.GetUserByEmailAsync(model.Email);
+                if (user != null)
+                {
+                    // Check if the temporary password is correct
+                    var signInResult = await _userHelper.ValidatePasswordAsync(user, model.TemporaryPassword);
+                    if (!signInResult.Succeeded) 
+                    {
+                        ModelState.AddModelError(string.Empty, "The temporary password is incorrect.");
+                        return View(model);
+                    }
+
+                    //Resets the user's password
+                    var result = await _userHelper.ResetPasswordWithoutTokenAsync(user, model.NewPassword);
+                    if (result.Succeeded)
+                    {
+                        ViewBag.Message = "Your password has been changed successfully. You can now log in.";
+                        return RedirectToAction("Login");
+                    }
+
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "User not found.");
+                }
+            }
+
+            return View(model);
+        }
+
+
+
+
+        private string GenerateRandomPassword(int length = 8)
+        {
+            const string validChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()?_-";
+            Random random = new Random();
+            return new string(Enumerable.Repeat(validChars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
         // Displays the change password page
