@@ -54,7 +54,7 @@ namespace SchoolManagementSystem.Controllers
                     var students = await _studentRepository.GetStudentsBySchoolClassIdAsync(classId.Value);
                     var studentAverages = students.Select(student => new StudentGradeAverageViewModel
                     {
-                        Student = student // Inclui a entidade Student, que contém as grades
+                        Student = student // Includes the Student entity, which contains the grades
                     }).ToList();
 
                     return View(studentAverages);
@@ -64,7 +64,7 @@ namespace SchoolManagementSystem.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading grades list."); // Log the error
+                _logger.LogError(ex, "Error loading grades list.");
                 ModelState.AddModelError(string.Empty, "An error occurred while loading the grades list. Please try again later.");
                 return View(new List<StudentGradeAverageViewModel>());
             }
@@ -75,7 +75,12 @@ namespace SchoolManagementSystem.Controllers
         {
             try
             {
-                var student = await _studentRepository.GetByIdAsync(studentId); // Get the student
+                var student = await _studentRepository.GetByIdAsync(studentId);
+                if (student == null)
+                {
+                    return new NotFoundViewResult("GradeNotFound");
+                }
+
                 var subjects = await _gradeRepository.GetSubjectsByStudentIdAsync(studentId);
                 var grades = await _gradeRepository.GetGradesByStudentIdAsync(studentId);
 
@@ -84,14 +89,14 @@ namespace SchoolManagementSystem.Controllers
                     Subject = subject,
                     Grade = grades.FirstOrDefault(g => g.SubjectId == subject.Id),
                     StudentId = studentId,
-                    StudentName = $"{student.FirstName} {student.LastName}" // Populate the student's name
+                    StudentName = $"{student.FirstName} {student.LastName}"
                 }).ToList();
 
                 return View(model);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading student details."); // Log the error
+                _logger.LogError(ex, "Error loading student details.");
                 ModelState.AddModelError(string.Empty, "An error occurred while loading student details. Please try again later.");
                 return View(new List<StudentSubjectGradeViewModel>());
             }
@@ -103,21 +108,30 @@ namespace SchoolManagementSystem.Controllers
             try
             {
                 var student = await _studentRepository.GetByIdAsync(studentId);
+                if (student == null)
+                {
+                    return new NotFoundViewResult("GradeNotFound");
+                }
+
                 var subject = await _subjectRepository.GetByIdAsync(subjectId);
+                if (subject == null)
+                {
+                    return new NotFoundViewResult("GradeNotFound");
+                }
 
                 var model = new GradeViewModel
                 {
                     StudentId = studentId,
                     SubjectId = subjectId,
-                    StudentName = student != null ? $"{student.FirstName} {student.LastName}" : "Unknown",
-                    SubjectName = subject != null ? subject.Name : "Unknown"
+                    StudentName = $"{student.FirstName} {student.LastName}",
+                    SubjectName = subject.Name
                 };
 
                 return View(model);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading data to add a grade."); // Log the error
+                _logger.LogError(ex, "Error loading data to add a grade.");
                 ModelState.AddModelError(string.Empty, "An error occurred while loading data to add a grade. Please try again later.");
                 return RedirectToAction(nameof(Index));
             }
@@ -132,18 +146,18 @@ namespace SchoolManagementSystem.Controllers
             {
                 try
                 {
-                    var grade = await _converterHelper.ToGradeAsync(model, true); // 'true' indicates it's a new grade
+                    var grade = await _converterHelper.ToGradeAsync(model, true);
                     await _gradeRepository.CreateAsync(grade);
                     return RedirectToAction(nameof(Details), new { studentId = model.StudentId });
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error adding grade."); // Log the error
+                    _logger.LogError(ex, "Error adding grade.");
                     ModelState.AddModelError(string.Empty, "An error occurred while adding the grade. Please try again later.");
                 }
             }
 
-            return View(model); // Return the same view if the model is not valid
+            return View(model);
         }
 
         // GET: Grades/EditGrade/5
@@ -154,7 +168,7 @@ namespace SchoolManagementSystem.Controllers
                 var grade = await _gradeRepository.GetGradeWithDetailsByIdAsync(id);
                 if (grade == null)
                 {
-                    return NotFound();
+                    return new NotFoundViewResult("GradeNotFound");
                 }
 
                 var model = _converterHelper.ToGradeViewModel(grade);
@@ -162,7 +176,7 @@ namespace SchoolManagementSystem.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading grade for editing."); // Log the error
+                _logger.LogError(ex, "Error loading grade for editing.");
                 ModelState.AddModelError(string.Empty, "An error occurred while loading the grade for editing. Please try again later.");
                 return RedirectToAction(nameof(Index));
             }
@@ -183,7 +197,7 @@ namespace SchoolManagementSystem.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error updating grade."); // Log the error
+                    _logger.LogError(ex, "Error updating grade.");
                     ModelState.AddModelError(string.Empty, "An error occurred while updating the grade. Please try again later.");
                 }
             }
@@ -198,13 +212,13 @@ namespace SchoolManagementSystem.Controllers
                 var grade = await _gradeRepository.GetGradeWithDetailsByIdAsync(id);
                 if (grade == null)
                 {
-                    return NotFound();
+                    return new NotFoundViewResult("GradeNotFound");
                 }
                 return View(_converterHelper.ToGradeViewModel(grade));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading grade for deletion."); // Log the error
+                _logger.LogError(ex, "Error loading grade for deletion.");
                 ModelState.AddModelError(string.Empty, "An error occurred while loading the grade for deletion. Please try again later.");
                 return RedirectToAction(nameof(Index));
             }
@@ -226,7 +240,7 @@ namespace SchoolManagementSystem.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting grade."); // Log the error
+                _logger.LogError(ex, "Error deleting grade.");
                 ModelState.AddModelError(string.Empty, "An error occurred while deleting the grade. Please try again later.");
                 return RedirectToAction(nameof(Index));
             }
@@ -238,45 +252,40 @@ namespace SchoolManagementSystem.Controllers
         {
             try
             {
-                // Get the ID of the logged-in user
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                // Get the StudentId from the UserId
                 var studentId = await _studentRepository.GetStudentIdByUserIdAsync(userId);
 
-                // Check if the studentId is null
                 if (studentId == null)
                 {
-                    ModelState.AddModelError(string.Empty, "Student not found.");
-                    return View(new List<StudentSubjectGradeViewModel>());
+                    return new NotFoundViewResult("GradeNotFound");
                 }
 
-                // Get the subjects and grades of the student
-                var subjects = await _gradeRepository.GetSubjectsByStudentIdAsync(studentId.Value); // Use .Value to access the int
+                var subjects = await _gradeRepository.GetSubjectsByStudentIdAsync(studentId.Value);
                 var grades = await _gradeRepository.GetGradesByStudentIdAsync(studentId.Value);
-
-                // Get the student to use their name
                 var student = await _studentRepository.GetByIdAsync(studentId.Value);
+
                 var model = subjects.Select(subject => new StudentSubjectGradeViewModel
                 {
                     Subject = subject,
                     Grade = grades.FirstOrDefault(g => g.SubjectId == subject.Id),
-                    StudentId = studentId.Value, // Use .Value to ensure it's an int
-                    StudentName = student != null ? $"{student.FirstName} {student.LastName}" : "Unknown" // Filling in the student's name
+                    StudentId = studentId.Value,
+                    StudentName = $"{student.FirstName} {student.LastName}"
                 }).ToList();
 
-                return View(model); // Return the view that displays the grades
+                return View(model);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading student's grades."); // Log the error
+                _logger.LogError(ex, "Error loading student's grades.");
                 ModelState.AddModelError(string.Empty, "An error occurred while loading your grades. Please try again later.");
                 return View(new List<StudentSubjectGradeViewModel>());
             }
         }
 
-
-
+        public IActionResult GradeNotFound()
+        {
+            return View();
+        }
 
     }
 }

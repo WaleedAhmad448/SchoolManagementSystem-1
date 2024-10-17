@@ -6,7 +6,13 @@ namespace SchoolManagementSystem.Repositories
 {
     public interface IAttendanceRepository : IGenericRepository<Attendance>
     {
-        Task<IEnumerable<Attendance>> GetAttendanceByStudentIdAsync(int studentId);
-        Task MarkAttendanceAsync(int studentId, DateTime date, bool presence);
+        Task<List<Attendance>> GetAttendancesByStudentIdAsync(int studentId);
+        Task<Attendance> GetAttendanceWithDetailsByIdAsync(int id);
+        Task<List<Attendance>> GetAttendancesByStudentIdAndSubjectIdAsync(int studentId, int subjectId);
+
+        Task AddAttendanceAsync(Attendance attendance);
+
+        Task<List<Subject>> GetSubjectsByStudentIdAsync(int studentId);
+
     }
 }

@@ -43,6 +43,14 @@
         </div>
     </div>
 
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <label asp-for="TotalClasses" class="form-label">Total Classes <span class="text-danger">*</span></label>
+            <input asp-for="TotalClasses" class="form-control" type="number" min="1" required />
+            <span asp-validation-for="TotalClasses" class="text-danger"></span>
+        </div>
+    </div>
+
     <div class="mb-3">
         <button type="submit" class="btn btn-primary">Create</button>
         <a asp-action="Index" class="btn btn-secondary">Back to List</a>

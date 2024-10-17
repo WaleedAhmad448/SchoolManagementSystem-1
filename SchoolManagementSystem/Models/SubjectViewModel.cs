@@ -15,7 +15,10 @@ namespace SchoolManagementSystem.Models
         public string? Description { get; set; } 
 
         [Required]
-        public int Credits { get; set; } 
+        public int Credits { get; set; }
+
+        [Required]
+        public int TotalClasses { get; set; }
 
     }
 }

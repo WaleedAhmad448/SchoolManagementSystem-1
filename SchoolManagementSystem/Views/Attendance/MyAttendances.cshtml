@@ -1,0 +1,28 @@
+﻿@model IEnumerable<SchoolManagementSystem.Models.StudentSubjectAttendanceViewModel>
+
+<h2>My Attendance</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Subject</th>
+            <th>Total Absences</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Subject.Name</td>
+                <td>@item.TotalAbsences</td>
+                <td>@item.SubjectAttendanceStatus()</td> 
+                <td>
+                    <a asp-action="AddAttendance" asp-route-studentId="@item.StudentId" asp-route-subjectId="@item.Subject.Id" class="btn btn-primary">Add Attendance</a>
+                    <a asp-action="Details" asp-route-studentId="@item.StudentId" asp-route-classId="@ViewBag.ClassId" class="btn btn-info">View Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

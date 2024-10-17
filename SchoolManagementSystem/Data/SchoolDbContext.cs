@@ -11,7 +11,7 @@ public class SchoolDbContext : IdentityDbContext<User>
     public DbSet<SchoolClass> SchoolClasses { get; set; }
     public DbSet<Teacher> Teachers { get; set; }
     public DbSet<Employee> Employees { get; set; }
-    public DbSet<Attendance> Attendance { get; set; }
+    public DbSet<Attendance> Attendances { get; set; }
     public DbSet<Grade> Grades { get; set; }
     public DbSet<Payment> Payments { get; set; }
     public DbSet<Alert> Alerts { get; set; }

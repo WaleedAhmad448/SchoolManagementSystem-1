@@ -46,5 +46,9 @@ namespace SchoolManagementSystem.Helpers
         Task<Grade> ToGradeAsync(GradeViewModel model, bool isNew);
         GradeViewModel ToGradeViewModel(Grade grade);
 
+        // Methods for Attendance
+        Task<Attendance> ToAttendanceAsync(AttendanceViewModel model, bool isNew);
+        AttendanceViewModel ToAttendanceViewModel(Attendance attendance);
+
     }
 }

@@ -1,25 +1,60 @@
-﻿@model SchoolManagementSystem.Models.AttendanceViewModel
+﻿@model IEnumerable<SchoolManagementSystem.Models.StudentSubjectAttendanceViewModel>
 
-<h2>Attendance Details</h2>
+<h2>Attendance Details for @Model.First().StudentName</h2>
 
-<div>
-    <h4>Attendance</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">Student</dt>
-        <dd class="col-sm-10">@Model.StudentName</dd>
-        <dt class="col-sm-2">Subject</dt>
-        <dd class="col-sm-10">@Model.SubjectName</dd>
-        <dt class="col-sm-2">Date</dt>
-        <dd class="col-sm-10">@Model.Date.ToShortDateString()</dd>
-        <dt class="col-sm-2">Presence</dt>
-        <dd class="col-sm-10">@Model.Presence ? "Present" : "Absent"</dd>
-        <dt class="col-sm-2">Remarks</dt>
-        <dd class="col-sm-10">@Model.Remarks</dd>
-    </dl>
-</div>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Subject</th>
+            <th>Total Classes</th>
+            <th>Total Absences</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Subject.Name</td>
+                <td>@item.TotalClasses</td>
+                <td>@item.TotalAbsences</td>
+                <td>@item.SubjectAttendanceStatus()</td>
+                <td>
+                    @if (item.CanAddAttendance) 
+                    {
+                        <a asp-action="AddAttendance" asp-route-studentId="@item.StudentId" asp-route-subjectId="@item.Subject.Id" class="btn btn-primary">Add Attendance</a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-secondary" disabled>Add Attendance</button> 
+                    }
+                    <a asp-action="DeleteAttendance" asp-route-id="@item.Attendance?.Id" class="btn btn-danger">Delete Attendance</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+<h3>All Absences</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Subject</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var attendance in Model.SelectMany(a => a.AllAttendances))
+        {
+            <tr>
+                <td>@attendance.Date.ToString("dd/MM/yyyy")</td>
+                <td>@attendance.Subject.Name</td>
+                <td>@attendance.Description</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" asp-route-classId="@ViewBag.ClassId" class="btn btn-secondary">Back to Class</a>

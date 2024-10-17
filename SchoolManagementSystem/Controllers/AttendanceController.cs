@@ -1,10 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SchoolManagementSystem.Data.Entities;
+using SchoolManagementSystem.Helpers;
 using SchoolManagementSystem.Models;
 using SchoolManagementSystem.Repositories;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace SchoolManagementSystem.Controllers
@@ -12,103 +17,301 @@ namespace SchoolManagementSystem.Controllers
     public class AttendanceController : Controller
     {
         private readonly IAttendanceRepository _attendanceRepository;
+        private readonly IStudentRepository _studentRepository;
+        private readonly ISubjectRepository _subjectRepository;
+        private readonly IConverterHelper _converterHelper;
+        private readonly ISchoolClassRepository _schoolClassRepository;
+        private readonly ILogger<AttendanceController> _logger;
 
-        public AttendanceController(IAttendanceRepository attendanceRepository)
+        public AttendanceController(
+            IAttendanceRepository attendanceRepository,
+            IStudentRepository studentRepository,
+            ISubjectRepository subjectRepository,
+            IConverterHelper converterHelper,
+            ISchoolClassRepository schoolClassRepository,
+            ILogger<AttendanceController> logger)
         {
             _attendanceRepository = attendanceRepository;
+            _studentRepository = studentRepository;
+            _subjectRepository = subjectRepository;
+            _converterHelper = converterHelper;
+            _schoolClassRepository = schoolClassRepository;
+            _logger = logger;
         }
 
         // GET: Attendance
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? classId)
         {
-            var attendanceRecords = await _attendanceRepository.GetAll().ToListAsync();
-            var viewModel = attendanceRecords.Select(a => new AttendanceViewModel
+            try
             {
-                Id = a.Id,
-                StudentId = a.StudentId,
-                StudentName = a.Student.User.FullName,
-                SubjectId = a.SubjectId,
-                SubjectName = a.Subject.Name,
-                Date = a.Date,
-                Presence = a.Presence,
-                Remarks = a.Remarks
-            }).ToList();
+                var schoolClasses = await _schoolClassRepository.GetAllAsync();
+                ViewBag.Classes = schoolClasses.Select(sc => new SelectListItem
+                {
+                    Value = sc.Id.ToString(),
+                    Text = sc.ClassName
+                }).ToList();
 
-            return View(viewModel);
+                if (classId.HasValue)
+                {
+                    var students = await _studentRepository.GetStudentsBySchoolClassIdAsync(classId.Value);
+                    var studentAttendances = new List<StudentAttendanceViewModel>();
+
+                    foreach (var student in students)
+                    {
+                        var attendances = await _attendanceRepository.GetAttendancesByStudentIdAsync(student.Id);
+                        studentAttendances.Add(new StudentAttendanceViewModel
+                        {
+                            Student = student,
+                            Attendances = attendances
+                        });
+                    }
+
+                    int totalClasses = await _subjectRepository.GetAll().SumAsync(s => s.TotalClasses);
+
+                    foreach (var studentAttendance in studentAttendances)
+                    {
+                        studentAttendance.TotalClasses = totalClasses;
+                    }
+
+                    return View(studentAttendances);
+                }
+
+                return View(new List<StudentAttendanceViewModel>());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading attendance list.");
+                ModelState.AddModelError(string.Empty, "An error occurred while loading the attendance list. Please try again later.");
+                return View(new List<StudentAttendanceViewModel>());
+            }
         }
 
         // GET: Attendance/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int studentId, int classId)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
+                var student = await _studentRepository.GetByIdAsync(studentId);
+                if (student == null)
+                {
+                    return new NotFoundViewResult("StudentNotFound");
+                }
+
+                var subjects = await _attendanceRepository.GetSubjectsByStudentIdAsync(studentId);
+                var attendances = await _attendanceRepository.GetAttendancesByStudentIdAsync(studentId);
+
+                var model = subjects.Select(subject => new StudentSubjectAttendanceViewModel
+                {
+                    Subject = subject,
+                    Attendance = attendances.FirstOrDefault(a => a.SubjectId == subject.Id),
+                    StudentId = studentId,
+                    StudentName = $"{student.FirstName} {student.LastName}",
+                    AllAttendances = attendances.Where(a => a.SubjectId == subject.Id).ToList(),
+                    CanAddAttendance = (attendances.Count(a => a.SubjectId == subject.Id) < subject.TotalClasses)
+                }).ToList();
+
+                ViewBag.ClassId = classId;
+                return View(model);
             }
-
-            var attendance = await _attendanceRepository.GetByIdAsync(id.Value);
-            if (attendance == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogError(ex, "Error loading attendance details.");
+                ModelState.AddModelError(string.Empty, "An error occurred while loading attendance details. Please try again later.");
+                return View(new List<StudentSubjectAttendanceViewModel>());
             }
-
-            var viewModel = new AttendanceViewModel
-            {
-                Id = attendance.Id,
-                StudentId = attendance.StudentId,
-                StudentName = attendance.Student.User.FullName,
-                SubjectId = attendance.SubjectId,
-                SubjectName = attendance.Subject.Name,
-                Date = attendance.Date,
-                Presence = attendance.Presence,
-                Remarks = attendance.Remarks
-            };
-
-            return View(viewModel);
         }
 
-        // GET: Attendance/Mark
-        public IActionResult Mark()
+
+        // GET: Attendance/AddAttendance
+        public async Task<IActionResult> AddAttendance(int studentId, int subjectId)
+        {
+            try
+            {
+                var student = await _studentRepository.GetByIdAsync(studentId);
+                var subject = await _subjectRepository.GetByIdAsync(subjectId);
+
+                if (student == null || subject == null)
+                {
+                    return new NotFoundViewResult("StudentOrSubjectNotFound");
+                }
+
+                var model = new AttendanceViewModel
+                {
+                    StudentId = studentId,
+                    SubjectId = subjectId,
+                    StudentName = $"{student.FirstName} {student.LastName}",
+                    SubjectName = subject.Name
+                };
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading data to add attendance.");
+                ModelState.AddModelError(string.Empty, "An error occurred while loading data to add attendance. Please try again later.");
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // POST: Attendance/AddAttendance
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddAttendance(AttendanceViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var attendance = await _converterHelper.ToAttendanceAsync(model, true);
+                    await _attendanceRepository.AddAttendanceAsync(attendance);
+                    return RedirectToAction(nameof(Details), new { studentId = model.StudentId });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error adding attendance.");
+                    ModelState.AddModelError(string.Empty, "An error occurred while adding the attendance. Please try again later.");
+                }
+            }
+
+            return View(model);
+        }
+
+        // GET: Attendance/EditAttendance/5
+        public async Task<IActionResult> EditAttendance(int id)
+        {
+            try
+            {
+                var attendance = await _attendanceRepository.GetAttendanceWithDetailsByIdAsync(id);
+                if (attendance == null)
+                {
+                    return new NotFoundViewResult("AttendanceNotFound");
+                }
+
+                var model = _converterHelper.ToAttendanceViewModel(attendance);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading attendance for editing.");
+                ModelState.AddModelError(string.Empty, "An error occurred while loading the attendance for editing. Please try again later.");
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // POST: Attendance/EditAttendance
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditAttendance(AttendanceViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var attendance = await _converterHelper.ToAttendanceAsync(model, false);
+                    await _attendanceRepository.UpdateAsync(attendance);
+                    return RedirectToAction(nameof(Details), new { studentId = model.StudentId });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating attendance.");
+                    ModelState.AddModelError(string.Empty, "An error occurred while updating the attendance. Please try again later.");
+                }
+            }
+
+            return View(model);
+        }
+
+        // GET: Attendance/DeleteAttendance/5
+        public async Task<IActionResult> DeleteAttendance(int id)
+        {
+            try
+            {
+                var attendance = await _attendanceRepository.GetAttendanceWithDetailsByIdAsync(id);
+                if (attendance == null)
+                {
+                    return new NotFoundViewResult("AttendanceNotFound");
+                }
+
+                return View(_converterHelper.ToAttendanceViewModel(attendance));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading attendance for deletion.");
+                ModelState.AddModelError(string.Empty, "An error occurred while loading the attendance for deletion. Please try again later.");
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // POST: Attendance/DeleteAttendance
+        [HttpPost, ActionName("DeleteAttendance")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAttendanceConfirmed(int id)
+        {
+            try
+            {
+                var attendance = await _attendanceRepository.GetAttendanceWithDetailsByIdAsync(id);
+                if (attendance != null)
+                {
+                    await _attendanceRepository.DeleteAsync(attendance);
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting attendance.");
+                ModelState.AddModelError(string.Empty, "An error occurred while deleting the attendance. Please try again later.");
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // GET: Attendance/MyAttendances
+        public async Task<IActionResult> MyAttendances()
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var studentId = await _studentRepository.GetStudentIdByUserIdAsync(userId);
+
+                if (studentId == null)
+                {
+                    return new NotFoundViewResult("StudentNotFound");
+                }
+
+                var subjects = await _attendanceRepository.GetSubjectsByStudentIdAsync(studentId.Value);
+                var attendances = await _attendanceRepository.GetAttendancesByStudentIdAsync(studentId.Value);
+                var student = await _studentRepository.GetByIdAsync(studentId.Value);
+
+                var model = subjects.Select(subject => new StudentSubjectAttendanceViewModel
+                {
+                    Subject = subject,
+                    AllAttendances = attendances.Where(a => a.SubjectId == subject.Id).ToList(),
+                    StudentId = studentId.Value,
+                    StudentName = $"{student.FirstName} {student.LastName}"
+                }).ToList();
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading student's attendances.");
+                ModelState.AddModelError(string.Empty, "An error occurred while loading your attendances. Please try again later.");
+                return View(new List<StudentSubjectAttendanceViewModel>());
+            }
+        }
+
+        public IActionResult StudentNotFound()
         {
             return View();
         }
 
-        // POST: Attendance/Mark
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Mark(AttendanceViewModel model)
+        public IActionResult AttendanceNotFound()
         {
-            if (ModelState.IsValid)
-            {
-                var attendance = new Attendance
-                {
-                    StudentId = model.StudentId,
-                    SubjectId = model.SubjectId,
-                    Date = model.Date,
-                    Presence = model.Presence,
-                    Remarks = model.Remarks
-                };
-
-                await _attendanceRepository.MarkAttendanceAsync(attendance.StudentId, attendance.Date, attendance.Presence);
-                return RedirectToAction(nameof(Index));
-            }
-            return View(model);
+            return View();
         }
 
-        // Additional method to check student deletion
-        public async Task<IActionResult> CheckExclusion(int studentId, int subjectId)
+        public IActionResult StudentOrSubjectNotFound()
         {
-            var attendanceRecords = await _attendanceRepository.GetAttendanceByStudentIdAsync(studentId);
-            var totalClasses = attendanceRecords.Count();
-            var absences = attendanceRecords.Count(a => !a.Presence);
-
-            var viewModel = new AttendanceViewModel
-            {
-                StudentId = studentId,
-                SubjectId = subjectId,
-                IsExcluded = (double)absences / totalClasses * 100 > 25
-            };
-
-            return View(viewModel);
+            return View();
         }
     }
 }

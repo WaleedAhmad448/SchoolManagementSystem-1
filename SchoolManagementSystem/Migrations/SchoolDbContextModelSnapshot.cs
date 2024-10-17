@@ -21,40 +21,6 @@ namespace SchoolManagementSystem.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ClassSession", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("SchoolClassId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("SubjectId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TeacherId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SchoolClassId");
-
-                    b.HasIndex("SubjectId");
-
-                    b.HasIndex("TeacherId");
-
-                    b.ToTable("ClassSessions");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -228,11 +194,7 @@ namespace SchoolManagementSystem.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("Presence")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Remarks")
-                        .IsRequired()
+                    b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("StudentId")
@@ -247,7 +209,7 @@ namespace SchoolManagementSystem.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("Attendance");
+                    b.ToTable("Attendances");
                 });
 
             modelBuilder.Entity("SchoolManagementSystem.Data.Entities.Course", b =>
@@ -507,6 +469,9 @@ namespace SchoolManagementSystem.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int>("TotalClasses")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("Subjects");
@@ -671,33 +636,6 @@ namespace SchoolManagementSystem.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("ClassSession", b =>
-                {
-                    b.HasOne("SchoolManagementSystem.Data.Entities.SchoolClass", "SchoolClass")
-                        .WithMany()
-                        .HasForeignKey("SchoolClassId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SchoolManagementSystem.Data.Entities.Subject", "Subject")
-                        .WithMany()
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SchoolManagementSystem.Data.Entities.Teacher", "Teacher")
-                        .WithMany()
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SchoolClass");
-
-                    b.Navigation("Subject");
-
-                    b.Navigation("Teacher");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -763,7 +701,7 @@ namespace SchoolManagementSystem.Migrations
             modelBuilder.Entity("SchoolManagementSystem.Data.Entities.Attendance", b =>
                 {
                     b.HasOne("SchoolManagementSystem.Data.Entities.Student", "Student")
-                        .WithMany()
+                        .WithMany("Attendances")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -932,6 +870,8 @@ namespace SchoolManagementSystem.Migrations
 
             modelBuilder.Entity("SchoolManagementSystem.Data.Entities.Student", b =>
                 {
+                    b.Navigation("Attendances");
+
                     b.Navigation("Grades");
                 });
 

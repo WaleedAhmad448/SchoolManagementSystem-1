@@ -17,13 +17,15 @@ namespace SchoolManagementSystem.Helpers
         private readonly ICourseRepository _courseRepository;
         private readonly ITeacherRepository _teacherRepository;        
         private readonly IGradeRepository _gradeRepository;
+        private readonly IAttendanceRepository _attendanceRepository;
 
         public ConverterHelper(IUserHelper userHelper, 
                                ISchoolClassRepository schoolClassRepository, 
                                ISubjectRepository subjectRepository, 
                                ICourseRepository courseRepository,
                                ITeacherRepository teacherRepository,                               
-                               IGradeRepository gradeRepository)
+                               IGradeRepository gradeRepository,
+                               IAttendanceRepository attendanceRepository)
         {
             _userHelper = userHelper;
             _schoolClassRepository = schoolClassRepository;
@@ -31,6 +33,7 @@ namespace SchoolManagementSystem.Helpers
             _courseRepository = courseRepository;
             _teacherRepository = teacherRepository;            
             _gradeRepository = gradeRepository;
+            _attendanceRepository = attendanceRepository;
         }
 
         // Converts the StudentViewModel to Student (entity)
@@ -277,11 +280,13 @@ namespace SchoolManagementSystem.Helpers
             }
 
             subject.Name = model.SubjectName;
-            subject.Description = model.Description; 
-            subject.Credits = model.Credits; 
+            subject.Description = model.Description;
+            subject.Credits = model.Credits;
+            subject.TotalClasses = model.TotalClasses; 
 
             return subject;
         }
+
 
         public SubjectViewModel ToSubjectViewModel(Subject subject)
         {
@@ -290,7 +295,8 @@ namespace SchoolManagementSystem.Helpers
                 Id = subject.Id,
                 SubjectName = subject.Name,
                 Description = subject.Description, 
-                Credits = subject.Credits 
+                Credits = subject.Credits,
+                TotalClasses = subject.TotalClasses
             };
         }
 
@@ -326,6 +332,35 @@ namespace SchoolManagementSystem.Helpers
             };
         }
 
+        public async Task<Attendance> ToAttendanceAsync(AttendanceViewModel model, bool isNew)
+        {
+            var attendance = isNew ? new Attendance() : await _attendanceRepository.GetByIdAsync(model.Id);
 
+            if (attendance == null)
+            {
+                return null;
+            }
+
+            attendance.StudentId = model.StudentId;
+            attendance.SubjectId = model.SubjectId;
+            attendance.Description = model.Description;
+            attendance.Date = model.Date;
+
+            return attendance;
+        }
+
+        public AttendanceViewModel ToAttendanceViewModel(Attendance attendance)
+        {
+            return new AttendanceViewModel
+            {
+                Id = attendance.Id,
+                StudentId = attendance.StudentId,
+                StudentName = $"{attendance.Student.FirstName} {attendance.Student.LastName}",
+                SubjectId = attendance.SubjectId,
+                SubjectName = attendance.Subject.Name,
+                Description = attendance.Description,
+                Date = attendance.Date,
+            };
+        }
     }
 }
