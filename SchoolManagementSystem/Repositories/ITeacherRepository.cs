@@ -36,5 +36,8 @@ namespace SchoolManagementSystem.Repositories
 
         // Method to update the classes assigned to a teacher
         Task UpdateTeacherClassesAsync(int teacherId, IEnumerable<int> subjectIds);
+
+        Task<Teacher> GetTeacherByUserIdAsync(string userId);
+
     }
 }

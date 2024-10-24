@@ -35,6 +35,17 @@ namespace SchoolManagementSystem.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<SchoolClass>> GetAllWithDetailsAsync()
+        {
+            return await _context.SchoolClasses
+                .Include(sc => sc.Course)  
+                .ThenInclude(c => c.CourseSubjects)  
+                .ThenInclude(cs => cs.Subject)  
+                .ToListAsync();
+        }
+
+
+
     }
 
 }

@@ -26,5 +26,7 @@ namespace SchoolManagementSystem.Repositories
 
         Task<int?> GetStudentIdByUserIdAsync(string userId);
 
+        Task<Student> GetStudentByUserIdAsync(string userId);
+
     }
 }

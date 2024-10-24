@@ -62,5 +62,11 @@ namespace SchoolManagementSystem.Helpers
 
         Task<IdentityResult> ResetPasswordWithoutTokenAsync(User user, string password);
 
+        Task<string> GetRoleAsync(User user);
+
+        Task UpdateUserDataByRoleAsync(User user);
+
+        Task<Employee> GetEmployeeByUserAsync(string userEmail);
+
     }
 }

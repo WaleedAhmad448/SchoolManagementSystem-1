@@ -132,5 +132,13 @@ namespace SchoolManagementSystem.Repositories
                     .ThenInclude(ts => ts.Subject)
                 .FirstOrDefaultAsync(t => t.Id == teacherId);
         }
+
+        public async Task<Teacher> GetTeacherByUserIdAsync(string userId)
+        {
+            return await _context.Teachers
+                .Include(t => t.User)
+                .FirstOrDefaultAsync(t => t.UserId == userId);
+        }
+
     }
 }

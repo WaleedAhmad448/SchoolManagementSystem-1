@@ -147,6 +147,15 @@ namespace SchoolManagementSystem.Controllers
                     var employee = await _converterHelper.ToEmployeeAsync(model, imageId, false);
                     await _employeeRepository.UpdateAsync(employee);
 
+                    // Update associated user data
+                    var user = await _userHelper.GetUserByIdAsync(model.UserId);
+                    if (user != null)
+                    {
+                        user.FirstName = model.FirstName;
+                        user.LastName = model.LastName;
+                        await _userHelper.UpdateUserAsync(user);
+                    }
+
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)

@@ -177,6 +177,15 @@ namespace SchoolManagementSystem.Controllers
                     await _teacherRepository.UpdateTeacherSubjectsAsync(teacher.Id, model.SubjectIds);
                     await _teacherRepository.UpdateTeacherClassesAsync(teacher.Id, model.SchoolClassIds);
 
+                    // Update associated user data
+                    var user = await _userHelper.GetUserByIdAsync(model.UserId);
+                    if (user != null)
+                    {
+                        user.FirstName = model.FirstName;
+                        user.LastName = model.LastName;
+                        await _userHelper.UpdateUserAsync(user);
+                    }
+
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)

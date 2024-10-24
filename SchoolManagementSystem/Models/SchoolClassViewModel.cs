@@ -32,5 +32,8 @@ namespace SchoolManagementSystem.Models
         
         public IEnumerable<Student> Students { get; set; } = new List<Student>();
         public IEnumerable<Teacher> Teachers { get; set; } = new List<Teacher>();
+
+        public IEnumerable<string> Subjects { get; set; } = new List<string>();
+
     }
 }

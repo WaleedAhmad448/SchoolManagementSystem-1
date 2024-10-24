@@ -7,7 +7,10 @@ namespace SchoolManagementSystem.Repositories
         Task<List<SchoolClass>> GetAvailableSchoolClassesAsync();
         Task<List<SchoolClass>> GetAllAsync();
 
-        Task<List<SchoolClass>> GetSchoolClassesByIdsAsync(List<int> ids); 
+        Task<List<SchoolClass>> GetSchoolClassesByIdsAsync(List<int> ids);
+
+        Task<List<SchoolClass>> GetAllWithDetailsAsync();
+
 
     }
 }

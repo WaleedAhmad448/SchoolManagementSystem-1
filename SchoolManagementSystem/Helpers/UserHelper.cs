@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using SchoolManagementSystem.Data.Entities;
 using SchoolManagementSystem.Models;
 using SchoolManagementSystem.Repositories;
@@ -11,6 +12,8 @@ namespace SchoolManagementSystem.Helpers
         private readonly SignInManager<User> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly IStudentRepository _studentRepository;
+        private readonly ITeacherRepository _teacherRepository;
         private readonly IAlertRepository _alertRepository;
 
         public UserHelper(
@@ -18,12 +21,16 @@ namespace SchoolManagementSystem.Helpers
             SignInManager<User> signInManager,
             RoleManager<IdentityRole> roleManager,
             IEmployeeRepository employeeRepository,
+            IStudentRepository studentRepository,
+            ITeacherRepository teacherRepository,
             IAlertRepository alertRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _employeeRepository = employeeRepository;
+            _studentRepository = studentRepository;
+            _teacherRepository = teacherRepository;
             _alertRepository = alertRepository;
         }
 
@@ -151,5 +158,57 @@ namespace SchoolManagementSystem.Helpers
             user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, password);
             return await _userManager.UpdateAsync(user);
         }
+
+        public async Task<string> GetRoleAsync(User user)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            return roles.FirstOrDefault(); // Returns the first role associated with the user
+        }
+
+        public async Task UpdateUserDataByRoleAsync(User user)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+
+            if (roles.Contains("Employee"))
+            {
+                var employee = await _employeeRepository.GetEmployeeByUserIdAsync(user.Id);
+                if (employee != null)
+                {
+                    employee.FirstName = user.FirstName;
+                    employee.LastName = user.LastName;
+                    await _employeeRepository.UpdateAsync(employee);
+                }
+            }
+            else if (roles.Contains("Student"))
+            {
+                var student = await _studentRepository.GetStudentByUserIdAsync(user.Id);
+                if (student != null)
+                {
+                    student.FirstName = user.FirstName;
+                    student.LastName = user.LastName;
+                    await _studentRepository.UpdateAsync(student);
+                }
+            }
+            else if (roles.Contains("Teacher"))
+            {
+                var teacher = await _teacherRepository.GetTeacherByUserIdAsync(user.Id);
+                if (teacher != null)
+                {
+                    teacher.FirstName = user.FirstName;
+                    teacher.LastName = user.LastName;
+                    await _teacherRepository.UpdateAsync(teacher);
+                }
+            }
+        }
+
+        public async Task<Employee> GetEmployeeByUserAsync(string userEmail)
+        {
+            var user = await GetUserByEmailAsync(userEmail);  // Search for the user by email
+            if (user == null) return null;
+
+            return await _employeeRepository.GetEmployeeByUserIdAsync(user.Id); // Search for the employee by UserId
+        }
+
+
     }
 }

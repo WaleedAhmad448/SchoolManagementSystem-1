@@ -86,5 +86,13 @@ namespace SchoolManagementSystem.Repositories
 
             return student?.Id; 
         }
+
+        public async Task<Student> GetStudentByUserIdAsync(string userId)
+        {
+            return await _context.Students
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.UserId == userId);
+        }
+
     }
 }

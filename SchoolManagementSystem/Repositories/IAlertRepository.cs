@@ -6,6 +6,11 @@ namespace SchoolManagementSystem.Repositories
 {
     public interface IAlertRepository : IGenericRepository<Alert>
     {
-        Task<IEnumerable<Alert>> GetActiveAlertsAsync();
+        Task CreateAlertAsync(Alert alert);
+        Task<List<Alert>> GetActiveAlertsAsync();
+        Task<Alert> GetAlertByIdAsync(int id);
+        Task MarkAsResolvedAsync(int id);
+        Task<List<Alert>> GetAlertsByEmployeeIdAsync(int employeeId); 
+
     }
 }

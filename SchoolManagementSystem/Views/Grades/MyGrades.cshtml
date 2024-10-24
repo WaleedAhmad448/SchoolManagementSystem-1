@@ -1,4 +1,10 @@
-﻿@model IEnumerable<SchoolManagementSystem.Models.StudentSubjectGradeViewModel>
+﻿@{
+    Layout = "_Dashboard";
+    ViewBag.PageTitle = "Grade";
+    ViewBag.SubPageTitle = "MyGrades";
+}
+
+@model IEnumerable<SchoolManagementSystem.Models.StudentSubjectGradeViewModel>
 
 @{
     ViewBag.Title = "My Grades";

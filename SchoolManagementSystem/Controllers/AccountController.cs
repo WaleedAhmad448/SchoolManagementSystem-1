@@ -182,6 +182,7 @@ namespace SchoolManagementSystem.Controllers
 
                 if (user != null)
                 {
+                    // Update the User entity
                     user.FirstName = model.FirstName;
                     user.LastName = model.LastName;
                     user.Address = model.Address;
@@ -192,6 +193,9 @@ namespace SchoolManagementSystem.Controllers
 
                     if (result.Succeeded)
                     {
+                        // Call the method to update associated entities (Employee, Student, Teacher)
+                        await _userHelper.UpdateUserDataByRoleAsync(user);
+
                         return RedirectToAction("Index", "Home");
                     }
 
