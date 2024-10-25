@@ -110,11 +110,17 @@ namespace SchoolManagementSystem
                 await userHelper.CheckRoleAsync("Pending");
             }
 
+            // Exception and error handling middleware
             if (!app.Environment.IsDevelopment())
             {
-                app.UseExceptionHandler("/Home/Error");
+                // Redirects to general error page
+                app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
+
+            // Configuration for specific HTTP status codes
+            app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

@@ -395,5 +395,10 @@ namespace SchoolManagementSystem.Controllers
             ViewBag.Message = "User not found.";
             return View(model);
         }
+
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
     }
 }
