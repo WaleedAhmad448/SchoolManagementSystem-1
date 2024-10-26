@@ -14,27 +14,53 @@
             <li class="nav-item">
                 @Html.ActionLink("Home", "Index", "Home", null, new { @class = "nav-link" })
             </li>
-            <li class="nav-item">
-                @Html.ActionLink("About", "About", "Home", null, new { @class = "nav-link" })
-            </li>
-            <li class="nav-item">
-                @Html.ActionLink("Contact", "Contact", "Home", null, new { @class = "nav-link" })
-            </li>
-            <li class="nav-item">
-                @Html.ActionLink("Courses", "Courses", "Home", null, new { @class = "nav-link" })
-            </li>
 
             @if (User.Identity.IsAuthenticated)
             {
-                <!-- Notificações de Alertas -->
+
+                <!-- Link to Dashboard based on user role -->
                 @if (User.IsInRole("Admin"))
                 {
                     <li class="nav-item">
-                        @await Component.InvokeAsync("Notifications") <!-- Chamada ao View Component -->
+                        <a class="nav-link" href="@Url.Action("AdminDashboard", "Dashboard")">Dashboard</a>
+                    </li>
+                }
+                else if (User.IsInRole("Employee"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("EmployeeDashboard", "Dashboard")">Dashboard</a>
+                    </li>
+                }
+                else if (User.IsInRole("Teacher"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("TeacherDashboard", "Dashboard")">Dashboard</a>
+                    </li>
+                }
+                else if (User.IsInRole("Student"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("StudentDashboard", "Dashboard")">Dashboard</a>
                     </li>
                 }
 
-                <!-- Dropdown de Conta -->
+                <!-- Alert Notifications -->
+                @if (User.IsInRole("Admin"))
+                {
+                    <li class="nav-item">
+                        @await Component.InvokeAsync("Notifications") <!-- Call to View Component -->
+                    </li>
+                }
+
+                <!-- Register account available for Admin only -->
+                @if (User.IsInRole("Admin"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Register", "Account")">Register</a>
+                    </li>
+                }
+
+                <!-- Account Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarAccount" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Account
@@ -50,9 +76,6 @@
             {
                 <li class="nav-item">
                     @Html.ActionLink("Login", "Login", "Account", null, new { @class = "nav-link" })
-                </li>
-                <li class="nav-item">
-                    @Html.ActionLink("Register", "Register", "Account", null, new { @class = "nav-link" })
                 </li>
             }
         </ul>

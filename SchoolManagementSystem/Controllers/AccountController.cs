@@ -51,17 +51,30 @@ namespace SchoolManagementSystem.Controllers
 
                 if (result.Succeeded)
                 {
-                    if (this.Request.Query.Keys.Contains("ReturnUrl"))
+                    // Check the user's role to determine the redirection
+                    var user = await _userHelper.GetUserByEmailAsync(model.Username);
+                    var userRole = await _userHelper.GetRoleAsync(user);
+
+                    switch (userRole)
                     {
-                        return Redirect(this.Request.Query["ReturnUrl"].First());
+                        case "Admin":
+                            return RedirectToAction("AdminDashboard", "Dashboard");
+                        case "Employee":
+                            return RedirectToAction("EmployeeDashboard", "Dashboard");
+                        case "Teacher":
+                            return RedirectToAction("TeacherDashboard", "Dashboard");
+                        case "Student":
+                            return RedirectToAction("StudentDashboard", "Dashboard");
+                        default:
+                            return RedirectToAction("Index", "Home");
                     }
-                    return RedirectToAction("Index", "Home");
                 }
             }
 
             ModelState.AddModelError(string.Empty, "Failed to log in.");
             return View(model);
         }
+
 
         // Logs out the user
         public async Task<IActionResult> Logout()
@@ -400,5 +413,6 @@ namespace SchoolManagementSystem.Controllers
         {
             return View();
         }
+
     }
 }

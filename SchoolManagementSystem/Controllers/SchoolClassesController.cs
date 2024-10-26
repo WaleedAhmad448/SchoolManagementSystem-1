@@ -6,9 +6,12 @@ using SchoolManagementSystem.Repositories;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SchoolManagementSystem.Controllers
 {
+    [Authorize(Roles = "Employee,Admin")]
+
     public class SchoolClassesController : Controller
     {
         private readonly ISchoolClassRepository _schoolClassRepository;

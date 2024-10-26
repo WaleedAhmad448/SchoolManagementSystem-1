@@ -12,5 +12,8 @@
 
 <div class="alert alert-warning">
     <p>Sorry, the Grade you are looking for could not be found.</p>
-    <a href="@Url.Action("Index", "Grades")" class="btn btn-primary">Back to Grade List</a>
+    @if (User.IsInRole("Employee") || User.IsInRole("Admin"))
+    {
+        <a href="@Url.Action("Index", "Grades")" class="btn btn-primary">Back to Grade List</a>
+    }
 </div>

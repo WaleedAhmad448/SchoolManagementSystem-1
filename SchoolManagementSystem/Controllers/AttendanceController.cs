@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,7 @@ using System.Threading.Tasks;
 
 namespace SchoolManagementSystem.Controllers
 {
+
     public class AttendanceController : Controller
     {
         private readonly IAttendanceRepository _attendanceRepository;
@@ -40,6 +42,7 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // GET: Attendance
+        [Authorize(Roles = "Employee,Admin")]
         public async Task<IActionResult> Index(int? classId)
         {
             try
@@ -87,6 +90,7 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // GET: Attendance/Details/5
+        [Authorize(Roles = "Employee,Admin")]
         public async Task<IActionResult> Details(int studentId, int classId)
         {
             try
@@ -123,6 +127,7 @@ namespace SchoolManagementSystem.Controllers
 
 
         // GET: Attendance/AddAttendance
+        [Authorize(Roles = "Employee,Admin")]
         public async Task<IActionResult> AddAttendance(int studentId, int subjectId)
         {
             try
@@ -154,6 +159,7 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // POST: Attendance/AddAttendance
+        [Authorize(Roles = "Employee,Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddAttendance(AttendanceViewModel model)
@@ -177,6 +183,7 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // GET: Attendance/EditAttendance/5
+        [Authorize(Roles = "Employee,Admin")]
         public async Task<IActionResult> EditAttendance(int id)
         {
             try
@@ -199,6 +206,7 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // POST: Attendance/EditAttendance
+        [Authorize(Roles = "Employee,Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditAttendance(AttendanceViewModel model)
@@ -222,6 +230,7 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // GET: Attendance/DeleteAttendance/5
+        [Authorize(Roles = "Employee,Admin")]
         public async Task<IActionResult> DeleteAttendance(int id)
         {
             try
@@ -243,6 +252,7 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // POST: Attendance/DeleteAttendance
+        [Authorize(Roles = "Employee,Admin")]
         [HttpPost, ActionName("DeleteAttendance")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteAttendanceConfirmed(int id)
@@ -265,6 +275,7 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // GET: Attendance/MyAttendances
+        [Authorize(Roles = "Student")]
         public async Task<IActionResult> MyAttendances()
         {
             try

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SchoolManagementSystem.Helpers;
 using SchoolManagementSystem.Models;
@@ -8,6 +9,8 @@ using System.Threading.Tasks;
 
 namespace SchoolManagementSystem.Controllers
 {
+    [Authorize(Roles = "Employee,Admin")]
+
     public class SubjectsController : Controller
     {
         private readonly ISubjectRepository _subjectRepository;

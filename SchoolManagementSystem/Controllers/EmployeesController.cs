@@ -9,9 +9,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SchoolManagementSystem.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SchoolManagementSystem.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class EmployeesController : Controller
     {
         private readonly IEmployeeRepository _employeeRepository;

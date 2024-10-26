@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using SchoolManagementSystem.Data.Entities;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace SchoolManagementSystem.Controllers
 {
+    
     public class GradesController : Controller
     {
         private readonly IGradeRepository _gradeRepository;
@@ -38,6 +40,7 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // GET: Grades
+        [Authorize(Roles = "Employee,Admin")]
         public async Task<IActionResult> Index(int? classId)
         {
             try
@@ -71,6 +74,7 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // GET: Grades/Details/5
+        [Authorize(Roles = "Employee,Admin")]
         public async Task<IActionResult> Details(int studentId)
         {
             try
@@ -103,6 +107,7 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // GET: Grades/AddGrade/5
+        [Authorize(Roles = "Employee,Admin")]
         public async Task<IActionResult> AddGrade(int studentId, int subjectId)
         {
             try
@@ -138,6 +143,7 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // POST: Grades/AddGrade
+        [Authorize(Roles = "Employee,Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddGrade(GradeViewModel model)
@@ -161,6 +167,7 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // GET: Grades/EditGrade/5
+        [Authorize(Roles = "Employee,Admin")]
         public async Task<IActionResult> EditGrade(int id)
         {
             try
@@ -183,6 +190,7 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // POST: Grades/EditGrade
+        [Authorize(Roles = "Employee,Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditGrade(GradeViewModel model)
@@ -205,6 +213,7 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // GET: Grades/DeleteGrade/5
+        [Authorize(Roles = "Employee,Admin")]
         public async Task<IActionResult> DeleteGrade(int id)
         {
             try
@@ -225,6 +234,7 @@ namespace SchoolManagementSystem.Controllers
         }
 
         // POST: Grades/DeleteGrade
+        [Authorize(Roles = "Employee,Admin")]
         [HttpPost, ActionName("DeleteGrade")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteGradeConfirmed(int id)
@@ -248,6 +258,7 @@ namespace SchoolManagementSystem.Controllers
 
         // Method for Student
         // GET: Grades/MyGrades
+        [Authorize(Roles = "Student")]
         public async Task<IActionResult> MyGrades()
         {
             try

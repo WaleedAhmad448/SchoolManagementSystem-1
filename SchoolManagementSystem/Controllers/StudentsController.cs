@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace SchoolManagementSystem.Controllers
 {
+    [Authorize(Roles = "Employee,Admin")]
+
     public class StudentsController : Controller
     {
         private readonly IStudentRepository _studentRepository;
