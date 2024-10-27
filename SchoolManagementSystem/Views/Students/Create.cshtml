@@ -111,6 +111,18 @@
         // Preview the uploaded image
         setupImageUploadPreview("imageUpload", "imagePreview");
 
+        $(document).ready(function () {
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        title: 'Error',
+                        text: '@TempData["ErrorMessage"]',
+                        icon: 'error'
+                    });
+            </text>
+        }
+                });
         // SweetAlert2 confirmation before submitting the form
         setupSweetAlertOnSubmit("createStudentForm", "Student created successfully.");
 

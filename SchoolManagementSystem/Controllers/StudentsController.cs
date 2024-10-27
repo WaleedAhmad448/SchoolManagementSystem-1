@@ -82,27 +82,38 @@ namespace SchoolManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Checks if the selected SchoolClass has an associated CourseId
+                if (model.SchoolClassId.HasValue)
+                {
+                    var schoolClass = await _schoolClassRepository.GetByIdAsync(model.SchoolClassId.Value);
+                    if (schoolClass == null || schoolClass.CourseId == null)
+                    {
+                        TempData["ErrorMessage"] = "The selected school class does not have an associated course.";
+                        ModelState.AddModelError("SchoolClassId", "The selected school class does not have an associated course.");
+                        await LoadDropdownData();
+                        var pendingUsers = await _userHelper.GetAllUsersInRoleAsync("Pending");
+                        ViewBag.PendingUsers = new SelectList(pendingUsers, "Id", "Email");
+                        return View(model);  // Returns the view with the current state of the model to keep the data filled
+                    }
+                }
+
                 try
                 {
                     Guid imageId = Guid.Empty;
-
-                    // Checks if an image has been loaded
                     if (model.ImageFile != null && model.ImageFile.Length > 0)
                     {
                         imageId = await _blobHelper.UploadBlobAsync(model.ImageFile, "students");
                     }
 
-                    // Convert StudentViewModel to Student (entity) using ConverterHelper
                     var student = await _converterHelper.ToStudentAsync(model, imageId, true);
-
-                    // Save the student in the database
                     await _studentRepository.CreateAsync(student);
 
-                    // Update user role from "Pending" to "Student"
+                    // Update the user from the "Pending" role to "Student"
                     var user = await _userHelper.GetUserByIdAsync(model.UserId);
                     await _userHelper.RemoveUserFromRoleAsync(user, "Pending");
                     await _userHelper.AddUserToRoleAsync(user, "Student");
 
+                    TempData["SuccessMessage"] = "Student created successfully.";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
@@ -113,12 +124,13 @@ namespace SchoolManagementSystem.Controllers
             }
 
             // Reload dropdowns in case of error
-            var pendingUsers = await _userHelper.GetAllUsersInRoleAsync("Pending");
-            ViewBag.PendingUsers = new SelectList(pendingUsers, "Id", "Email");
+            var updatedPendingUsers = await _userHelper.GetAllUsersInRoleAsync("Pending");
+            ViewBag.PendingUsers = new SelectList(updatedPendingUsers, "Id", "Email");
             await LoadDropdownData();
-
             return View(model);
         }
+
+
 
         // GET: Students/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -146,6 +158,21 @@ namespace SchoolManagementSystem.Controllers
 
             if (ModelState.IsValid)
             {
+                // Verifica se a SchoolClass selecionada possui um CourseId associado
+                if (model.SchoolClassId.HasValue)
+                {
+                    var schoolClass = await _schoolClassRepository.GetByIdAsync(model.SchoolClassId.Value);
+                    if (schoolClass == null || schoolClass.CourseId == null)
+                    {
+                        TempData["ErrorMessage"] = "The selected school class does not have an associated course.";
+                        ModelState.AddModelError("SchoolClassId", "The selected school class does not have an associated course.");
+                        await LoadDropdownData();
+                        var pendingUsers = await _userHelper.GetAllUsersInRoleAsync("Pending");
+                        ViewBag.PendingUsers = new SelectList(pendingUsers, "Id", "Email");
+                        return View(model);  // Retorna a view com o estado atual do modelo para manter os dados preenchidos
+                    }
+                }
+
                 try
                 {
                     Guid imageId = model.ImageId; // Use existing image
@@ -164,11 +191,12 @@ namespace SchoolManagementSystem.Controllers
                     var user = await _userHelper.GetUserByIdAsync(model.UserId);
                     if (user != null)
                     {
-                        user.FirstName = model.FirstName; 
-                        user.LastName = model.LastName; 
-                        await _userHelper.UpdateUserAsync(user); 
+                        user.FirstName = model.FirstName;
+                        user.LastName = model.LastName;
+                        await _userHelper.UpdateUserAsync(user);
                     }
 
+                    TempData["SuccessMessage"] = "Student updated successfully.";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
@@ -183,9 +211,13 @@ namespace SchoolManagementSystem.Controllers
                 }
             }
 
-            await LoadDropdownData(); // Reload classes if there is an error
+            // Reload dropdowns in case of error
+            var updatedPendingUsers = await _userHelper.GetAllUsersInRoleAsync("Pending");
+            ViewBag.PendingUsers = new SelectList(updatedPendingUsers, "Id", "Email");
+            await LoadDropdownData();
             return View(model);
         }
+
 
         // GET: Students/Delete/5
         public async Task<IActionResult> Delete(int? id)
