@@ -16,20 +16,20 @@ public class SeedDb
     {
         await _context.Database.EnsureCreatedAsync();
 
-        // Criar roles e utilizadores
+        // Create roles and users
         await _userHelper.CheckRoleAsync("Admin");
         await _userHelper.CheckRoleAsync("Student");
         await _userHelper.CheckRoleAsync("Teacher");
         await _userHelper.CheckRoleAsync("Employee");
 
-        // Criar utilizadores
+        // Create users
         var adminUser = await CreateUserAsync("admin@school.com", "Admin", "User", "Admin123!", "Admin");
         var studentUser1 = await CreateUserAsync("student1@school.com", "Student1", "User", "Student123!", "Student");
         var studentUser2 = await CreateUserAsync("student2@school.com", "Student2", "User", "Student123!", "Student");
         var teacherUser1 = await CreateUserAsync("teacher1@school.com", "Teacher1", "User", "Teacher123!", "Teacher");
         var employeeUser1 = await CreateUserAsync("employee1@school.com", "Employee1", "User", "Employee123!", "Employee");
 
-        // Criar SchoolClasses independentemente
+        // Create SchoolClasses independently
         if (!_context.SchoolClasses.Any())
         {
             var class1 = new SchoolClass
@@ -50,7 +50,7 @@ public class SeedDb
             await _context.SaveChangesAsync();
         }
 
-        // Criar Subjects independentemente
+        // Create Subjects independently
         if (!_context.Subjects.Any())
         {
             var subject1 = new Subject
@@ -73,7 +73,7 @@ public class SeedDb
             await _context.SaveChangesAsync();
         }
 
-        // Criar Courses e associar SchoolClasses e Subjects através das tabelas de junção
+        // Create Courses and associate SchoolClasses and Subjects through join tables
         if (!_context.Courses.Any())
         {
             var class1 = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "Class A");
@@ -89,7 +89,7 @@ public class SeedDb
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                SchoolClasses = new List<SchoolClass> { class1 } // Associa a uma SchoolClass
+                SchoolClasses = new List<SchoolClass> { class1 } // Associates with a SchoolClass
             };
 
             var course2 = new Course
@@ -100,13 +100,13 @@ public class SeedDb
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                SchoolClasses = new List<SchoolClass> { class2 } // Associa a uma SchoolClass
+                SchoolClasses = new List<SchoolClass> { class2 } // Associates with a SchoolClass
             };
 
             _context.Courses.AddRange(course1, course2);
             await _context.SaveChangesAsync();
 
-            // Associar Subjects aos Courses
+            // Associate Subjects with Courses
             var courseSubject1 = new CourseSubject
             {
                 CourseId = course1.Id,
@@ -123,7 +123,7 @@ public class SeedDb
             await _context.SaveChangesAsync();
         }
 
-        // Criar professores e associar a disciplinas e turmas através das tabelas de junção
+        // Create teachers and associate them with subjects and classes using join tables
         if (!_context.Teachers.Any())
         {
             var teacher = new Teacher
@@ -143,7 +143,7 @@ public class SeedDb
             var subject2 = _context.Subjects.FirstOrDefault(s => s.Name == "Physics");
             var class1 = _context.SchoolClasses.FirstOrDefault(c => c.ClassName == "Class A");
 
-            // Associar Teacher às Subjects
+            // Associate Teacher with Subjects
             var teacherSubject1 = new TeacherSubject
             {
                 TeacherId = teacher.Id,
@@ -156,7 +156,7 @@ public class SeedDb
                 SubjectId = subject2?.Id ?? 0
             };
 
-            // Associar Teacher às SchoolClasses
+            // Associate Teacher with SchoolClasses
             var teacherSchoolClass = new TeacherSchoolClass
             {
                 TeacherId = teacher.Id,
@@ -168,7 +168,7 @@ public class SeedDb
             await _context.SaveChangesAsync();
         }
 
-        // Criar funcionários
+        // Create employees
         if (!_context.Employees.Any())
         {
             var employee1 = new Employee
@@ -178,12 +178,14 @@ public class SeedDb
                 UserId = employeeUser1.Id,
                 Department = Department.Administration,
                 HireDate = DateTime.UtcNow,
-                Status = EmployeeStatus.Active
+                Status = EmployeeStatus.Active,
+                PhoneNumber = "1234567890" 
             };
 
             _context.Employees.Add(employee1);
             await _context.SaveChangesAsync();
         }
+
     }
 
     private async Task<User> CreateUserAsync(string email, string firstName, string lastName, string password, string role)

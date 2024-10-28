@@ -14,7 +14,7 @@
                     <h3 class="mb-lg-4 mb-3">Master Your Future With<span class="d-block">Cutting-Edge Education</span></h3>
                     <p class="banner-sub">Innovative Learning, Industry Experts & Creative Environment</p>
                     <div class="d-flex align-items-center buttons-banner">
-                        <a href="contact.html" class="btn btn-style mt-lg-5 mt-4">Join DevArt Academy</a>
+                        <a href="contact.html" class="btn btn-style mt-lg-5 mt-4 disabled">Join DevArt Academy</a>
                     </div>
                 </div>
                 <div class="col-md-6 right-banner-2 text-end position-relative mt-md-0 mt-5">
@@ -72,7 +72,6 @@
     </div>
 </section>
 <!-- home 4grids block -->
-
 <!-- home image with content block -->
 <section class="w3l-servicesblock pt-lg-5 pt-4 pb-5 mb-lg-5" id="about">
     <div class="container pb-md-5 pb-4">
@@ -95,13 +94,13 @@
                     <li><i class="fas fa-check-circle"></i>Access to 100K+ Online Resources</li>
                     <li><i class="fas fa-check-circle"></i>Industry-Recognized Certifications</li>
                 </ul>
-                <a href="contact.html" class="btn btn-style mt-5">Apply Now</a>
+                <a href="contact.html" class="btn btn-style mt-5 disabled">Apply Now</a>
+
             </div>
         </div>
     </div>
 </section>
 <!-- //home image with content block -->
-
 <!-- courses section -->
 <div class="w3l-grids-block-5 home-course-bg py-5" id="courses">
     <div class="container py-md-5 py-4">
@@ -119,7 +118,7 @@
                             <div class="grids5-info position-relative">
                                 <img src="@Url.Content("~/images/classrom.jpg")" alt="Course Image" class="img-fluid" />
                                 <div class="meta-list">
-                                    <span class="text-muted">@course.Name</span> 
+                                    <span class="text-muted">@course.Name</span>
                                 </div>
                             </div>
                             <div class="content-main-top">
@@ -128,11 +127,11 @@
                                         <li><i class="fas fa-clock"></i> @course.Duration weeks</li>
                                     </ul>
                                 </div>
-                                <h4><span class="text-muted">@course.Name</span></h4> 
+                                <h4><span class="text-muted">@course.Name</span></h4>
                                 <p>@course.Description</p>
                                 <div class="top-content-border d-flex align-items-center justify-content-between mt-4 pt-4">
                                     <h6>Free</h6>
-                                    <span class="btn btn-style-primary disabled">Know Details <i class="fas fa-arrow-right"></i></span> 
+                                    <span class="btn btn-style-primary disabled">Know Details <i class="fas fa-arrow-right"></i></span>
                                 </div>
                             </div>
                         </div>
@@ -147,12 +146,11 @@
         <div class="text-center mt-sm-5 mt-4 pt-sm-0 pt-1">
             <span class="btn btn-style btn-style-secondary disabled mt-sm-3">
                 Browse more courses
-            </span> 
+            </span>
         </div>
     </div>
 </div>
 <!-- //courses section -->
-
 <!-- classes and subjects section -->
 <div class="w3l-grids-block-5 home-course-bg py-5" id="classes">
     <div class="container py-md-5 py-4">
@@ -170,7 +168,7 @@
                             <div class="grids5-info position-relative">
                                 <img src="@Url.Content("~/images/classrom.jpg")" alt="Class Image" class="img-fluid scale-animation" />
                                 <div class="meta-list">
-                                    <span class="text-muted">@schoolClass.ClassName</span> 
+                                    <span class="text-muted">@schoolClass.ClassName</span>
                                 </div>
                             </div>
                             <div class="content-main-top">
@@ -180,17 +178,17 @@
                                         <li><i class="fas fa-calendar-check"></i> End: @schoolClass.EndDate?.ToString("dd/MM/yyyy")</li>
                                     </ul>
                                 </div>
-                                <h4><span class="text-muted">@schoolClass.ClassName</span></h4> 
+                                <h4><span class="text-muted">@schoolClass.ClassName</span></h4>
                                 <p>Subjects:</p>
                                 <ul>
                                     @foreach (var subject in schoolClass.Subjects)
                                     {
-                                        <li>@subject</li> 
+                                        <li>@subject</li>
                                     }
                                 </ul>
                                 <div class="top-content-border d-flex align-items-center justify-content-between mt-4 pt-4">
-                                    <h6>Active</h6> 
-                                    <span class="btn btn-style-primary disabled">Class Details <i class="fas fa-arrow-right"></i></span> 
+                                    <h6>Active</h6>
+                                    <span class="btn btn-style-primary disabled">Class Details <i class="fas fa-arrow-right"></i></span>
                                 </div>
                             </div>
                         </div>
@@ -205,29 +203,29 @@
         <div class="text-center mt-sm-5 mt-4 pt-sm-0 pt-1">
             <span class="btn btn-style btn-style-secondary disabled mt-sm-3">
                 Browse more classes
-            </span> 
+            </span>
         </div>
     </div>
 </div>
 <!-- //classes and subjects section -->
-
-
 <!-- why choose block -->
 <section class="w3l-service-1 py-5">
     <div class="container py-md-5 py-4">
         <div class="title-main text-center mx-auto mb-md-5 mb-4" style="max-width:500px;">
             <p class="text-uppercase">Why Choose Us</p>
-            <h3 class="title-style">Empowering Creators and Innovators</h3>
+            <h3 class="title-style">Empowering Designers and Developers</h3>
         </div>
         <div class="row content23-col-2 text-center">
             <div class="col-md-6">
                 <div class="content23-grid content23-grid1">
                     <h4>Expert Mentors</h4>
+                    <p>Guided by professionals with extensive experience in creative and tech industries.</p>
                 </div>
             </div>
             <div class="col-md-6 mt-md-0 mt-4">
                 <div class="content23-grid content23-grid2">
                     <h4>Inspiring Learning Spaces</h4>
+                    <p>Our academy offers a modern, collaborative environment tailored to creativity and innovation.</p>
                 </div>
             </div>
         </div>
@@ -244,28 +242,28 @@
         <div class="row text-center pt-4">
             <div class="col-md-3 col-6">
                 <div class="counter">
-                    <img src="~/images/icon-1.png" alt="" class="img-fluid">
+                    <i class="fas fa-users fa-3x"></i>
                     <div class="timer count-title count-number mt-sm-1" data-to="20000" data-speed="1500"></div>
                     <p class="count-text">Creative Minds Enrolled</p>
                 </div>
             </div>
             <div class="col-md-3 col-6">
                 <div class="counter">
-                    <img src="~/images/icon-2.png" alt="" class="img-fluid">
+                    <i class="fas fa-globe fa-3x"></i>
                     <div class="timer count-title count-number mt-3" data-to="15" data-speed="1500"></div>
-                    <p class="count-text">Global Locations</p>
+                    <p class="count-text">Global Reach</p>
                 </div>
             </div>
             <div class="col-md-3 col-6 mt-md-0 mt-5">
                 <div class="counter">
-                    <img src="~/images/icon-3.png" alt="" class="img-fluid">
+                    <i class="fas fa-chalkboard-teacher fa-3x"></i>
                     <div class="timer count-title count-number mt-3" data-to="250" data-speed="1500"></div>
-                    <p class="count-text">Innovative Courses</p>
+                    <p class="count-text">Courses Offered</p>
                 </div>
             </div>
             <div class="col-md-3 col-6 mt-md-0 mt-5">
                 <div class="counter">
-                    <img src="~/images/icon-4.png" alt="" class="img-fluid">
+                    <i class="fas fa-award fa-3x"></i>
                     <div class="timer count-title count-number mt-3" data-to="100" data-speed="1500"></div>
                     <p class="count-text">Industry Awards</p>
                 </div>
@@ -284,7 +282,7 @@
                         <li class="anim1">
                             <img src="~/images/testi1.jpg" class="img-fluid rounded-circle" alt="client image" />
                             <blockquote class="quote">
-                                <q>DevArt Academy transformed my perspective on design and technology. The quality of education and support from the instructors is exceptional.</q>
+                                <q>DevArt Academy transformed my journey into tech and design. The curriculum and mentorship provided here are unmatched!</q>
                             </blockquote>
                             <div class="source">- Mario Silva</div>
                         </li>
@@ -292,7 +290,7 @@
                         <li class="anim2">
                             <img src="~/images/testi2.jpg" class="img-fluid rounded-circle" alt="client image" />
                             <blockquote class="quote">
-                                <q>Since enrolling, my creativity has soared. The hands-on lessons and real projects prepared me for the job market.</q>
+                                <q>The projects and real-world challenges at DevArt Academy prepared me for the tech industry. It’s been a phenomenal experience!</q>
                             </blockquote>
                             <div class="source">- Petey Cruz</div>
                         </li>
@@ -300,7 +298,7 @@
                         <li class="anim3">
                             <img src="~/images/testi3.jpg" class="img-fluid rounded-circle" alt="client image" />
                             <blockquote class="quote">
-                                <q>The courses are well-structured and engaging. I've learned a lot from the instructors and made amazing friendships.</q>
+                                <q>I’ve grown so much as a designer. The supportive community and skilled mentors at DevArt Academy made all the difference.</q>
                             </blockquote>
                             <div class="source">- Ana Souza</div>
                         </li>
@@ -308,7 +306,7 @@
                         <li class="anim4">
                             <img src="~/images/testi1.jpg" class="img-fluid rounded-circle" alt="client image" />
                             <blockquote class="quote">
-                                <q>DevArt Academy is not just a school; it's a community of creators. I'm thrilled to be a part of it!</q>
+                                <q>It’s not just a school – it’s a network of creators. DevArt Academy is where innovation and creativity thrive!</q>
                             </blockquote>
                             <div class="source">- Gaila Ferreira</div>
                         </li>
@@ -316,7 +314,7 @@
                         <li class="anim5">
                             <img src="~/images/testi2.jpg" class="img-fluid rounded-circle" alt="client image" />
                             <blockquote class="quote">
-                                <q>The projects developed during the course truly helped me build my portfolio. I’m ready for the next challenge!</q>
+                                <q>The skills and connections I gained here have been invaluable. My career in design took off thanks to DevArt Academy!</q>
                             </blockquote>
                             <div class="source">- Bruno Franco</div>
                         </li>
@@ -326,13 +324,14 @@
         </div>
     </div>
 </section>
+
 <!-- //testimonials block -->
 <!-- blog block -->
 <div class="w3l-blog-block-5 py-5" id="blog">
     <div class="container py-md-5 py-4">
         <div class="title-main text-center mx-auto mb-md-5 mb-4" style="max-width:500px;">
             <p class="text-uppercase">Our News</p>
-            <h3 class="title-style">Latest <span>Blog</span> Posts</h3>
+            <h3 class="title-style">Latest <span>Insights</span> from DevArt Academy</h3>
         </div>
         <div class="row justify-content-center">
             <div class="col-lg-4 col-md-6">
@@ -341,9 +340,9 @@
                         <a href="#blog"><img src="~/images/blog2.jpg" alt="Education Programs" /></a>
                         <div class="blog-info">
                             <h4><a href="#blog">Innovative Education Programs...</a></h4>
-                            <p>Discover our latest programs designed to enhance learning and foster creativity among students.</p>
+                            <p>Our programs blend technology and creativity to prepare students for impactful careers.</p>
                             <div class="d-flex align-items-center justify-content-between mt-4">
-                                <a class="d-flex align-items-center" href="#blog" title="23k followers">
+                                <a class="d-flex align-items-center" href="#blog" title="author">
                                     <img class="img-fluid" src="~/images/testi2.jpg" alt="author" style="max-width:40px">
                                     <span class="small ms-2">Eetey Cruz</span>
                                 </a>
@@ -358,10 +357,10 @@
                     <div class="grids5-info">
                         <a href="#blog"><img src="~/images/blog1.jpg" alt="Games Programs" /></a>
                         <div class="blog-info">
-                            <h4><a href="#blog">Exciting Games Programs...</a></h4>
-                            <p>Explore our engaging games programs that promote teamwork and strategic thinking.</p>
+                            <h4><a href="#blog">Exciting Game Design Courses...</a></h4>
+                            <p>Dive into interactive learning with our game design courses, perfect for budding developers.</p>
                             <div class="d-flex align-items-center justify-content-between mt-4">
-                                <a class="d-flex align-items-center" href="#blog" title="23k followers">
+                                <a class="d-flex align-items-center" href="#blog" title="author">
                                     <img class="img-fluid" src="~/images/testi1.jpg" alt="author" style="max-width:40px">
                                     <span class="small ms-2">Molive Joe</span>
                                 </a>
@@ -376,10 +375,10 @@
                     <div class="grids5-info">
                         <a href="#blog"><img src="~/images/blog3.jpg" alt="Articles Programs" /></a>
                         <div class="blog-info">
-                            <h4><a href="#blog">Insightful Articles and Programs...</a></h4>
-                            <p>Read our articles that highlight key trends and advancements in the field of education.</p>
+                            <h4><a href="#blog">Insights and Industry Trends...</a></h4>
+                            <p>Stay updated with the latest trends in tech and design with articles from DevArt Academy.</p>
                             <div class="d-flex align-items-center justify-content-between mt-4">
-                                <a class="d-flex align-items-center" href="#blog" title="23k followers">
+                                <a class="d-flex align-items-center" href="#blog" title="author">
                                     <img class="img-fluid" src="~/images/testi3.jpg" alt="author" style="max-width:40px">
                                     <span class="small ms-2">Turne Leo</span>
                                 </a>
@@ -392,15 +391,15 @@
         </div>
     </div>
 </div>
-<!-- //blog block -->
 
+<!-- //blog block -->
 <!-- call block -->
 <section class="w3l-call-to-action-6">
     <div class="container py-md-5 py-sm-4 py-5">
         <div class="d-lg-flex align-items-center justify-content-between">
             <div class="left-content-call">
-                <h3 class="title-big">Enroll Your Child Today!</h3>
-                <p class="text-white mt-1">Start their journey towards success!</p>
+                <h3 class="title-big">Enroll Today!</h3>
+                <p class="text-white mt-1">Start your journey towards creative and technical success!</p>
             </div>
             <div class="right-content-call mt-lg-0 mt-4">
                 <ul class="buttons">
@@ -408,10 +407,11 @@
                         <i class="fas fa-phone-volume"></i>
                         <a class="call-style-w3" href="tel:+1(23) 456 789 0000">+1(23) 456 789 0000</a>
                     </li>
-                    <li><a href="contact.html" class="btn btn-style btn-style-2 mt-lg-0 mt-3">Join for Free</a></li>
+                    <li><span class="btn btn-style btn-style-2 mt-lg-0 mt-3 disabled">Join for Free</span></li>
                 </ul>
             </div>
         </div>
     </div>
 </section>
+
 <!-- //call block -->

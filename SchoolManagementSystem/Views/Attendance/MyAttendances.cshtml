@@ -6,15 +6,37 @@
 
 @model IEnumerable<SchoolManagementSystem.Models.StudentSubjectAttendanceViewModel>
 
-<h2>My Attendance</h2>
+<h2 class="mt-4 mb-3">My Attendance</h2>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-4">
+                <h5 class="card-title">Total Classes</h5>
+                <p class="card-text display-6">@ViewBag.TotalClasses</p>
+            </div>
+            <div class="col-md-4">
+                <h5 class="card-title">Total Absences</h5>
+                <p class="card-text display-6">@ViewBag.TotalAbsences</p>
+            </div>
+            <div class="col-md-4">
+                <h5 class="card-title">Overall Attendance Status</h5>
+                <p class="card-text display-6">
+                    <span class="badge @((ViewBag.OverallAttendanceStatus == "Passed") ? "bg-success" : "bg-danger")">
+                        @ViewBag.OverallAttendanceStatus
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
 
 <table class="table table-striped">
-    <thead>
+    <thead class="table-dark">
         <tr>
             <th>Subject</th>
             <th>Total Absences</th>
             <th>Status</th>
-            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -22,11 +44,11 @@
         {
             <tr>
                 <td>@item.Subject.Name</td>
-                <td>@item.TotalAbsences</td>
-                <td>@item.SubjectAttendanceStatus()</td> 
+                <td>@item.AllAttendances.Count</td> 
                 <td>
-                    <a asp-action="AddAttendance" asp-route-studentId="@item.StudentId" asp-route-subjectId="@item.Subject.Id" class="btn btn-primary">Add Attendance</a>
-                    <a asp-action="Details" asp-route-studentId="@item.StudentId" asp-route-classId="@ViewBag.ClassId" class="btn btn-info">View Details</a>
+                    <span class="badge @((item.SubjectAttendanceStatus() == "Passed") ? "bg-success" : "bg-danger")">
+                        @item.SubjectAttendanceStatus()
+                    </span>
                 </td>
             </tr>
         }

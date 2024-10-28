@@ -6,7 +6,9 @@ namespace SchoolManagementSystem.Repositories
     {
         Task<List<Subject>> GetAllSubjectsAsync();
 
-        Task<List<Subject>> GetSubjectsByIdsAsync(List<int> ids); 
+        Task<List<Subject>> GetSubjectsByIdsAsync(List<int> ids);
+
+        Task<List<Subject>> GetSubjectsByStudentIdAsync(int studentId);
 
     }
 }

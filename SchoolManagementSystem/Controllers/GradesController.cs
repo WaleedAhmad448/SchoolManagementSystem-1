@@ -275,6 +275,11 @@ namespace SchoolManagementSystem.Controllers
                 var grades = await _gradeRepository.GetGradesByStudentIdAsync(studentId.Value);
                 var student = await _studentRepository.GetByIdAsync(studentId.Value);
 
+                // Calculate the student's overall grade average
+                double overallAverageGrade = grades.Any() ? grades.Average(g => g.Value) : 0;
+                string overallGradeStatus = overallAverageGrade >= 9.5 ? "Passed" : "Failed";
+
+                // Prepare the subjects and grades model
                 var model = subjects.Select(subject => new StudentSubjectGradeViewModel
                 {
                     Subject = subject,
@@ -282,6 +287,10 @@ namespace SchoolManagementSystem.Controllers
                     StudentId = studentId.Value,
                     StudentName = $"{student.FirstName} {student.LastName}"
                 }).ToList();
+
+                // Pass the overall average and status to the ViewBag
+                ViewBag.OverallAverageGrade = overallAverageGrade.ToString("F2");
+                ViewBag.OverallGradeStatus = overallGradeStatus;
 
                 return View(model);
             }
@@ -292,6 +301,7 @@ namespace SchoolManagementSystem.Controllers
                 return View(new List<StudentSubjectGradeViewModel>());
             }
         }
+
 
         public IActionResult GradeNotFound()
         {

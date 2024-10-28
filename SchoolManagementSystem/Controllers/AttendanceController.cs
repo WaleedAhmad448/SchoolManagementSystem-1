@@ -41,8 +41,6 @@ namespace SchoolManagementSystem.Controllers
             _logger = logger;
         }
 
-        // GET: Attendance
-        [Authorize(Roles = "Employee,Admin")]
         public async Task<IActionResult> Index(int? classId)
         {
             try
@@ -61,19 +59,20 @@ namespace SchoolManagementSystem.Controllers
 
                     foreach (var student in students)
                     {
+                        // Get only the subjects in which the student is enrolled
+                        var subjectsForStudent = await _subjectRepository.GetSubjectsByStudentIdAsync(student.Id);
+
+                        // Calculate the total number of classes by adding only the classes from the student's subjects
+                        int totalClasses = subjectsForStudent.Sum(s => s.TotalClasses);
+
                         var attendances = await _attendanceRepository.GetAttendancesByStudentIdAsync(student.Id);
+
                         studentAttendances.Add(new StudentAttendanceViewModel
                         {
                             Student = student,
-                            Attendances = attendances
+                            Attendances = attendances,
+                            TotalClasses = totalClasses // Defines TotalClasses only with subjects associated with the student
                         });
-                    }
-
-                    int totalClasses = await _subjectRepository.GetAll().SumAsync(s => s.TotalClasses);
-
-                    foreach (var studentAttendance in studentAttendances)
-                    {
-                        studentAttendance.TotalClasses = totalClasses;
                     }
 
                     return View(studentAttendances);
@@ -88,6 +87,7 @@ namespace SchoolManagementSystem.Controllers
                 return View(new List<StudentAttendanceViewModel>());
             }
         }
+
 
         // GET: Attendance/Details/5
         [Authorize(Roles = "Employee,Admin")]
@@ -288,10 +288,19 @@ namespace SchoolManagementSystem.Controllers
                     return new NotFoundViewResult("StudentNotFound");
                 }
 
-                var subjects = await _attendanceRepository.GetSubjectsByStudentIdAsync(studentId.Value);
+                // Get the student's subjects and their absences
+                var subjects = await _subjectRepository.GetSubjectsByStudentIdAsync(studentId.Value);
                 var attendances = await _attendanceRepository.GetAttendancesByStudentIdAsync(studentId.Value);
                 var student = await _studentRepository.GetByIdAsync(studentId.Value);
 
+                // Calculate total classes and total absences
+                int totalClasses = subjects.Sum(s => s.TotalClasses);
+                int totalAbsences = attendances.Count;
+
+                // Determine overall attendance status based on absences
+                string overallStatus = totalAbsences >= totalClasses * 0.3 ? "Failed" : "Passed";
+
+                // Prepare the model for each subject
                 var model = subjects.Select(subject => new StudentSubjectAttendanceViewModel
                 {
                     Subject = subject,
@@ -299,6 +308,11 @@ namespace SchoolManagementSystem.Controllers
                     StudentId = studentId.Value,
                     StudentName = $"{student.FirstName} {student.LastName}"
                 }).ToList();
+
+                // Pass the total number of absences and the general status to the ViewBag
+                ViewBag.TotalClasses = totalClasses;
+                ViewBag.TotalAbsences = totalAbsences;
+                ViewBag.OverallAttendanceStatus = overallStatus;
 
                 return View(model);
             }
@@ -309,6 +323,7 @@ namespace SchoolManagementSystem.Controllers
                 return View(new List<StudentSubjectAttendanceViewModel>());
             }
         }
+
 
         public IActionResult StudentNotFound()
         {

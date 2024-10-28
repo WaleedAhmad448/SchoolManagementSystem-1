@@ -81,7 +81,7 @@
                 </li>
             }
 
-            <!-- Students and Grades -->
+            <!-- Students Grades and Attendance-->
             @if (User.IsInRole("Employee") || User.IsInRole("Admin"))
             {
                 <li>
@@ -94,6 +94,12 @@
                     <a href="/Grades/Index" aria-label="Grades" data-toggle="submenu"><i class="fas fa-graduation-cap me-2"></i>Grades</a>
                     <ul class="submenu">
                         <li><a href="/Grades/Index" aria-label="View Grades">View Grades</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="/Attendance/Index" aria-label="Attendance" data-toggle="submenu"><i class="fas fa-calendar-check me-2"></i> Attendance</a>
+                    <ul class="submenu">
+                        <li><a href="/Attendance/Index" aria-label="View Attendance">View Attendance</a></li>
                     </ul>
                 </li>
             }
