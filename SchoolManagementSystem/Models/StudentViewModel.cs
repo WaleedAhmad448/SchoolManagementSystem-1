@@ -36,8 +36,8 @@ namespace SchoolManagementSystem.Models
         public IEnumerable<User>? PendingUsers { get; set; } 
 
         public string ImageFullPath => ImageId == Guid.Empty
-    ? "https://schoolstorageaccount.blob.core.windows.net/images/noimage.png"
-    : $"https://schoolstorageaccount.blob.core.windows.net/students/{ImageId}";
+    ? "https://devartacademyfiles.blob.core.windows.net/images/student.png"
+    : $"https://devartacademyfiles.blob.core.windows.net/students/{ImageId}";
 
         public SchoolClass? SchoolClass { get; set; } 
     }

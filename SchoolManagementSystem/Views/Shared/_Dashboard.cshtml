@@ -172,7 +172,31 @@
 
         <!-- Breadcrumb -->
         <nav class="breadcrumb">
-            <a href="/Dashboard">Dashboard</a>
+            @{
+                string dashboardLink = "";
+                if (User.IsInRole("Admin"))
+                {
+                    dashboardLink = Url.Action("AdminDashboard", "Dashboard");
+                }
+                else if (User.IsInRole("Employee"))
+                {
+                    dashboardLink = Url.Action("EmployeeDashboard", "Dashboard");
+                }
+                else if (User.IsInRole("Teacher"))
+                {
+                    dashboardLink = Url.Action("TeacherDashboard", "Dashboard");
+                }
+                else if (User.IsInRole("Student"))
+                {
+                    dashboardLink = Url.Action("StudentDashboard", "Dashboard");
+                }
+                else
+                {
+                    dashboardLink = Url.Action("Index", "Home");
+                }
+            }
+            <a href="@dashboardLink">Dashboard</a>
+
             @if (ViewBag.PageTitle != null)
             {
                 <span> / @ViewBag.PageTitle</span>
@@ -182,7 +206,6 @@
                 <span> / @ViewBag.SubPageTitle</span>
             }
         </nav>
-
 
         <!-- Main Content -->
         <main>

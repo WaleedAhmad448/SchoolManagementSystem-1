@@ -50,8 +50,8 @@ namespace SchoolManagementSystem.Data.Entities
 
         // Full URL path to the teacher's profile image
         public string ImageFullPath => ImageId == Guid.Empty
-            ? "https://schoolstorageaccount.blob.core.windows.net/images/noimage.png"
-            : $"https://schoolstorageaccount.blob.core.windows.net/teachers/{ImageId}";
+            ? "https://devartacademyfiles.blob.core.windows.net/images/noimage.png"
+            : $"https://devartacademyfiles.blob.core.windows.net/teachers/{ImageId}";
     }
 
     // Enum to standardize teacher status

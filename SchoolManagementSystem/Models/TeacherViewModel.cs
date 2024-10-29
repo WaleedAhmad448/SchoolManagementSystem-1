@@ -41,8 +41,8 @@ namespace SchoolManagementSystem.Models
         public IFormFile? ImageFile { get; set; }
 
         public string ImageFullPath => ImageId == Guid.Empty
-            ? "https://schoolstorageaccount.blob.core.windows.net/images/noimage.png"
-            : $"https://schoolstorageaccount.blob.core.windows.net/teachers/{ImageId}";
+            ? "https://devartacademyfiles.blob.core.windows.net/images/noimage.png"
+            : $"https://devartacademyfiles.blob.core.windows.net/teachers/{ImageId}";
 
         // Teacher's status
         public TeacherStatus Status { get; set; } = TeacherStatus.Active;

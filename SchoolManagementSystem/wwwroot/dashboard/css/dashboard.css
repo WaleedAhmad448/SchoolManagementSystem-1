@@ -112,16 +112,18 @@ body {
     padding: 10px 15px;
     background-color: #2e2e2e;
     border-radius: 5px;
+    color: #ffffff; 
 }
 
     .breadcrumb a {
-        color: #f5f5f5;
+        color: #ffffff; 
         text-decoration: none;
     }
 
         .breadcrumb a:hover {
-            color: #00bcd4;
+            color: #00bcd4; 
         }
+
 
 /* Logout Button */
 .logout-btn {

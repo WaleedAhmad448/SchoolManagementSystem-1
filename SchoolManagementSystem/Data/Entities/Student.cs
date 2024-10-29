@@ -40,8 +40,8 @@ namespace SchoolManagementSystem.Data.Entities
         public Guid ImageId { get; set; }
 
         public string ImageFullPath => ImageId == Guid.Empty
-           ? $"https://schoolstorageaccount.blob.core.windows.net/images/noimage.png"
-            : $"https://schoolstorageaccount.blob.core.windows.net/students/{ImageId}";
+           ? $"https://devartacademyfiles.blob.core.windows.net/images/student.png"
+            : $"https://devartacademyfiles.blob.core.windows.net/students/{ImageId}";
     }
 
     // Enum to standardize student status
