@@ -18,7 +18,6 @@ namespace SchoolManagementSystem
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
             
             builder.Logging.ClearProviders(); 
             builder.Logging.AddConsole(); 
@@ -57,10 +56,10 @@ namespace SchoolManagementSystem
                 {
                     cfg.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidIssuer = builder.Configuration["Tokens:Issuer"],
-                        ValidAudience = builder.Configuration["Tokens:Audience"],
+                        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+                        ValidAudience = builder.Configuration["JwtSettings:Audience"],
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(builder.Configuration["Tokens:Key"]))
+                            Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
                     };
                 });
 
